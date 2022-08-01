@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32516.85
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniSA Radiation Therapy Mock Clinic Scheduler", "UniSA Radiation Therapy Mock Clinic Scheduler\UniSA Radiation Therapy Mock Clinic Scheduler.csproj", "{63068E8E-11A2-491F-8A3C-1A1D8F43DF6C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{63068E8E-11A2-491F-8A3C-1A1D8F43DF6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{63068E8E-11A2-491F-8A3C-1A1D8F43DF6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{63068E8E-11A2-491F-8A3C-1A1D8F43DF6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{63068E8E-11A2-491F-8A3C-1A1D8F43DF6C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4C9AC67D-4583-43A0-BC24-ADD68962F5D9}
+	EndGlobalSection
+EndGlobal
