@@ -23,6 +23,16 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             return View();
         }
 
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        public IActionResult Register()
+        {
+            return View();
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
