@@ -1,5 +1,11 @@
 html {
   font-size: 14px;
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+    height: auto;
 }
 
 @media (min-width: 768px) {
@@ -8,11 +14,66 @@ html {
   }
 }
 
-html {
-  position: relative;
-  min-height: 100%;
+
+
+.navbar-blue {
+    background-color: #0052a0;
+    margin-bottom: 0;
+    border-bottom:0;
 }
 
-body {
-  margin-bottom: 60px;
+.sidebar {
+    margin: 57px 0 -57px 0;
+    padding: 0;
+    width: 300px;
+    background-color: #495058;
+    position: fixed;
+    height: 100%;
+    overflow: auto;
+}
+
+.sidebar a {
+    display: block;
+    color: white;
+    padding: 16px;
+    text-decoration: none;
+}
+
+    .sidebar a.active {
+        background-color: #3b3f44;
+        color: white;
+    }
+
+.sidebar a:hover:not(.active) {
+    background-color: #3c7ab4 !important;
+    color: white;
+}
+
+div.content {
+    margin-left: 200px;
+    padding: 1px 16px;
+    height: 1000px;
+}
+
+@media screen and (max-width: 700px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+
+        .sidebar a {
+            float: left;
+        }
+
+    div.content {
+        margin-left: 0;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .sidebar a {
+        text-align: center;
+        float: none;
+    }
 }
