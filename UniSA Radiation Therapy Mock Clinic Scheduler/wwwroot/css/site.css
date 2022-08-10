@@ -14,8 +14,6 @@ body {
   }
 }
 
-
-
 .navbar-blue {
     background-color: #0052a0;
     margin-bottom: 0;
@@ -23,7 +21,7 @@ body {
 }
 
 .sidebar {
-    margin: 57px 0 -57px 0;
+    margin: 55px 0 -55px 0;
     padding: 0;
     width: 300px;
     background-color: #495058;
