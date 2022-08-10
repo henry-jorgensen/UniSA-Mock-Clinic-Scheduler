@@ -18,17 +18,12 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             return View();
         }
 
-        public IActionResult Privacy()
+        public IActionResult Clinics()
         {
             return View();
         }
 
-        public IActionResult Login()
-        {
-            return View();
-        }
-
-        public IActionResult Register()
+        public IActionResult History()
         {
             return View();
         }

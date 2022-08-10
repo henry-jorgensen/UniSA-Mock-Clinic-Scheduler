@@ -4,11 +4,11 @@ using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models;
 
 namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 {
-    public class HomeController : Controller
+    public class AccountController : Controller
     {
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        public AccountController(ILogger<HomeController> logger)
         {
             _logger = logger;
         }
@@ -18,27 +18,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             return View();
         }
 
-        public IActionResult Clinics()
-        {
-            return View();
-        }
-
-        public IActionResult Pastclinics()
-        {
-            return View();
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        public IActionResult Login()
-        {
-            return View();
-        }
-
-        public IActionResult Register()
+        public IActionResult Logout()
         {
             return View();
         }
