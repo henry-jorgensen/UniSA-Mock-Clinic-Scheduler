@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models;
-using System.Threading.Tasks;
 
 namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 {
