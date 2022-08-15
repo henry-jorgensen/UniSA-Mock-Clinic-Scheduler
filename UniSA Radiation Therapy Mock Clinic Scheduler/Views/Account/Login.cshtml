@@ -1,0 +1,33 @@
+﻿@{
+    ViewData["Title"] = "Login";
+    ViewData["Controller"] = "Account";
+}
+
+<div class="container">
+    <main role="main" class="pb-3">
+
+        <form method="post" action="">
+            <div class="row d-flex justify-content-center">
+                <div class="col-sm-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Login</h5>
+
+                            <div class="form-group">
+                                <input type="text" class="form-control input" name="email" placeholder="Email" required>
+                            </div>
+
+                            <div class="form-group">
+                                <input type="password" class="form-control input" name="password" placeholder="Password" required>
+                            </div>
+
+                            <div class="form-group">
+                                <button type="submit" class="btn button">Login</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </main>
+</div>

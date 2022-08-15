@@ -93,6 +93,22 @@
                             </div>
                         </div>
 
+                        <div class="list-group-item @(ViewData["Title"] == "Login" ? "active" : "")">
+                            <div class="list-group-item-inner-container">
+                                <a class="list-group-item-action list-indent-1" asp-controller="Account" asp-action="Login">
+                                    <span class="nav-item-text">Login</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="list-group-item @(ViewData["Title"] == "Register" ? "active" : "")">
+                            <div class="list-group-item-inner-container">
+                                <a class="list-group-item-action list-indent-1" asp-controller="Account" asp-action="Register">
+                                    <span class="nav-item-text">Register</span>
+                                </a>
+                            </div>
+                        </div>
+
                         <div class="list-group-item @(ViewData["Title"] == "Logout" ? "active" : "")">
                             <div class="list-group-item-inner-container">
                                 <a class="list-group-item-action list-indent-1" asp-controller="Account" asp-action="Logout">
@@ -112,9 +128,10 @@
             <div class="col">
                 <div class="row no-gutters my-lg-0 m-x-0">
                     <div class="col-sm-12">
-                        <div id="region-main" aria-label="Content">
-                            @RenderBody()
-                        </div>
+                        @RenderBody()
+                        <!--<div id="region-main" aria-label="Content">
+
+                        </div>-->
                     </div>
                 </div>
             </div>
