@@ -1,25 +1,28 @@
 ﻿using Firebase.Auth;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Diagnostics;
 using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models;
+using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase;
 
 namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 {
     public class AccountController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-
-        FirebaseAuthProvider auth;
+        FirebaseSharedFunctions firebase;
 
         public AccountController(ILogger<HomeController> logger)
         {
             _logger = logger;
-
-            auth = new FirebaseAuthProvider(new FirebaseConfig("AIzaSyByVk8XwhbQGoeeqkcxr5vRJWhOjep5Ulc"));
+            firebase = new FirebaseSharedFunctions();
         }
 
         public IActionResult Index()
         {
+            var _UserToken = HttpContext.Session.GetString("_UserToken");
+            ViewBag.CurrentUser = firebase.GetUserModelAsync(_UserToken).Result;
+
             return View();
         }
 
@@ -52,39 +55,47 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(AccountModel accountModel)
         {
-            var firebaseAuth = await auth.SignInWithEmailAndPasswordAsync(accountModel.Email, accountModel.Password);
-            string token = firebaseAuth.FirebaseToken;
-
-
-            if (token != null)
+            try
             {
-                HttpContext.Session.SetString("_UserToken", token);
-                return RedirectToAction("Index");
+                UserModel AccountToLogin = firebase.LoginAccountAsync(accountModel).Result;
+
+                if (AccountToLogin != null)
+                {
+                    HttpContext.Session.SetString("_UserToken", AccountToLogin.UserToken);
+                    return RedirectToAction("Index");
+                }
             }
-            else
+            catch (FirebaseAuthException ex)
             {
-                return View();
+                var firebaseEx = JsonConvert.DeserializeObject<FirebaseError>(ex.ResponseData);
+                ModelState.AddModelError(String.Empty, firebaseEx.error.message);
+                return View(accountModel);
             }
+
+            return View();
         }
 
         [HttpPost]
         public async Task<IActionResult> Register(AccountModel accountModel)
         {
-            await auth.CreateUserWithEmailAndPasswordAsync(accountModel.Email, accountModel.Password);
-            var firebaseAuth = await auth.SignInWithEmailAndPasswordAsync(accountModel.Email, accountModel.Password);
-
-            string token = firebaseAuth.FirebaseToken;
-
-
-            if (token != null)
+            try
             {
-                HttpContext.Session.SetString("_UserToken", token);
-                return RedirectToAction("Index");
+                UserModel AccountToCreate = firebase.CreateAccountAsync(accountModel).Result;
+
+                if (AccountToCreate != null)
+                {
+                    HttpContext.Session.SetString("_UserToken", AccountToCreate.UserToken);
+                    return RedirectToAction("Index");
+                }
             }
-            else
+            catch (FirebaseAuthException ex)
             {
-                return View();
+                var firebaseEx = JsonConvert.DeserializeObject<FirebaseError>(ex.ResponseData);
+                ModelState.AddModelError(String.Empty, firebaseEx.error.message);
+                return View(accountModel);
             }
+
+            return View();
         }
 
         public IActionResult Logout()

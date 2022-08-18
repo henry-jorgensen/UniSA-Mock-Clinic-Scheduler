@@ -1,8 +1,18 @@
 ﻿@{
     ViewData["Title"] = "Account";
     ViewData["Controller"] = "Account";
+
+    UserModel CurrentUser = ViewBag.CurrentUser;
 }
 
 <div class="text-center">
     <h2>@ViewData["Title"]</h2>
+    @{
+        if (CurrentUser!=null)
+        {
+            @CurrentUser.FirstName<br />
+            @CurrentUser.LastName<br />
+            @CurrentUser.CCCode<br />
+        }
+    }
 </div>

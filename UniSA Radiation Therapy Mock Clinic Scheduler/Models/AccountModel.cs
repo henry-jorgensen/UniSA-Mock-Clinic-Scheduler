@@ -19,7 +19,6 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models
         public string Password { get; set; }
 
         public string CCCode { get; set; }
-
     }
 }
 

@@ -1,49 +1,58 @@
-﻿@{
+﻿@model UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models.AccountModel
+ 
+@{
     ViewData["Title"] = "Register";
     ViewData["Controller"] = "Account";
 }
 
 <div class="container">
     <main role="main" class="pb-3">
+        <div class="row d-flex justify-content-center">
+            <div class="col-sm-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Register</h5>
 
-        <form method="post" action="">
-            <div class="row d-flex justify-content-center">
-                <div class="col-sm-6">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Register</h5>
+                        <form asp-action="Register">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
                             <div class="form-group">
-                                <input type="text" class="form-control input" name="fname" placeholder="First Name" required>
+                                <input asp-for="FirstName" type="text" placeholder="First Name" class="form-control input" required />
+                                <span asp-validation-for="FirstName" class="text-danger"></span>
                             </div>
 
                             <div class="form-group">
-                                <input type="text" class="form-control input" name="lname" placeholder="Last Name" required>
+                                <input asp-for="LastName" type="text" placeholder="Last Name" class="form-control input" required />
+                                <span asp-validation-for="LastName" class="text-danger"></span>
                             </div>
 
                             <div class="form-group">
-                                <input type="text" class="form-control input" name="email" placeholder="Email" required>
+                                <input asp-for="Email" type="text" placeholder="Email" class="form-control input" required />
+                                <span asp-validation-for="Email" class="text-danger"></span>
                             </div>
 
                             <div class="form-group">
-                                <input type="password" class="form-control input" name="password" placeholder="Password" required>
-                            </div>
-                            <div class="form-group">
-                                <input type="password" class="form-control input" name="password2" placeholder="Repeat Password" required>
+                                <input asp-for="Password" type="password" placeholder="Password" class="form-control input" required />
+                                <span asp-validation-for="Password" class="text-danger"></span>
                             </div>
 
+                            <div class="form-group">
+                                <input asp-for="Password" type="password" placeholder="Confirm Password" class="form-control input" required />
+                                <span asp-validation-for="Password" class="text-danger"></span>
+                            </div>
                             <hr />
-
                             <div class="form-group">
-                                <input type="text" class="form-control input" name="cccode" placeholder="Course Coordinator Code">
+                                <input asp-for="CCCode" type="text" placeholder="Course Coordinator Code" class="form-control input" required />
+                                <span asp-validation-for="CCCode" class="text-danger"></span>
                             </div>
 
                             <div class="form-group">
                                 <button type="submit" class="btn button">Create Account</button>
                             </div>
-                        </div>
+                        </form>
                     </div>
                 </div>
             </div>
-        </form>
+        </div>
     </main>
 </div>
