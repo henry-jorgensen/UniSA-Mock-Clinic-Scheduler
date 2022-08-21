@@ -1,10 +1,14 @@
 ﻿@{
     ViewData["Title"] = "Create Clinic";
     ViewData["Controller"] = "Home";
+    //UserModel CurrentUser = ViewBag.CurrentUser;
 }
+
+<asp:ScriptManager ID="ScriptManager1" runat="server" EnablePageMethods="true"></asp:ScriptManager>
 
 <div class="text-center">
     <h2>Create A Clinic</h2>
+    @*<h3>@CurrentUser.UserToken</h3>*@
 </div>
 
 @*Organised in 'tabs' so that the user can move through the process one at a time*@
@@ -14,12 +18,12 @@
     <h1 class="h1">Select an Option</h1> 
     <div class="form-row">
         <div class="col-md-3 mb-5">
-            <button class="btn btn-primary">New Class</button>
+            <button class="btn btn-primary">New Class</button> @*Go to the create class section*@
         </div>
     </div>
     <div class="form-row">
         <div class="col-md-3 mb-5">
-            <button class="btn btn-primary">Load Class</button>
+            <button class="btn btn-primary">Load Class</button> @*Go to the load class section*@
         </div>
     </div>
 </form>
@@ -71,7 +75,7 @@
         </div>
     </div>
 
-    <button class="btn btn-primary" type="submit">Submit Class</button>
+    <button class="btn btn-primary" type="submit">Submit Class</button> @*Go to the populate class section*@
 </form>
 
 <hr />
@@ -89,7 +93,7 @@
         </select>
     </div>
 
-    <button class="btn btn-primary" type="submit">Load Class</button>
+    <button class="btn btn-primary" type="submit">Load Class</button> @*Go to the populate class section*@
 </form>
 
 <hr />
@@ -109,96 +113,161 @@
             </div>
         </div>
     </div>
-        <hr>
+    <hr>
+    <div class="row rounded bg-white">
+        <div class=" col-12"> 
+            <ul class="list-group" id="list"></ul>
+        </div> 
+    </div> 
+
+    <button class="btn btn-primary" type="submit">Peview Class</button> @*Go to the preview class section*@
+</div>
+
+<hr />
+<hr />
+
+@*PREVIEW A CLASS*@
+<div class="my-5" style="height:auto;">
+    <h1 class="h1">Save Class</h1> 
     <div class="row rounded bg-white">
         <div class=" col-12"> 
             <ul class=" list-group" id="list"></ul>
         </div> 
     </div> 
+    <button class="btn btn-primary" type="button" onclick="testing();">Save Class</button>
 </div>
 
 
-@*PREVIEW A CLASS*@
-<div class="my-5" style="height:auto;">
-    <h1 class="h1">Save Class</h1> 
-    <button class="btn btn-primary" type="submit">Save Class</button>
-</div>
+@section Scripts{ 
+    <script>
+        //Stop all default behaviour for forms
+        $("form").on('submit',function(e){
+            e.preventDefault();
+            //ajax code here
+        });
 
+        //AJAX QUERY SECTION
+        testing = () => {
+            $.ajax({
+                type: 'POST',
+                url: '/Home/DoSomethingWithFirebase',
+                data: { value: "hello" },
+                success: function (result) {
+                    alert(result);
+                }
+            });
+        };
 
-<script>
-    let input = document.getElementById("inputText");
-            let list= document.getElementById("list");
-            let minimalValue = 3;
-            let listNum = 0;
-    addList=()=>{
-        // get
-        let inputText = filterList(input.value);
-        // set 
-       if (inputText) {
-        list.innerHTML += ` <li class=" my-3 py-3 shadow list-group-item " id="list${listNum}">
-                    <div class="row">
-                    <div class="col-1">
-                    <input class="" type="checkbox" id="check${listNum}" onclick="done(${listNum})">
-                    </div>
-                    <div class="col-6">
-                        <span class=" h4" id="text${listNum}"> ${inputText} </span>
-                    </div>
-                    <div class="col-4">
-                         <button class=" btn btn-dark" onclick="deleteList(${listNum})">Delete</button>
-                         <button class=" btn btn-dark" onclick="editList(${listNum})">Edit</button>
-                    </div>                  
-                     </div>    
-                    </li> `;
-            input.value=" ";
-            listNum++;
+        createClass = () => {
+            $.ajax({
+                type: 'POST',
+                url: '/Home/CreateAClass',
+                data: { value: "hello" },
+                success: function (result) {
+                    alert(result); /*Keep as alert for now for testing*/
+                }
+            });
+        };
 
-       }
-    }
+        loadAClass = () => {
+            $.ajax({
+                type: 'GET',
+                url: '/Home/LoadAClass',
+                data: { value: "hello" },
+                success: function (result) {
+                    alert(result); /*Keep as alert for now for testing*/
+                }
+            });
+        };
 
-    done=(listId)=>{ 
-        let checkbox = document.getElementById(`check${listId}`);
-        let current = document.getElementById(`text${listId}`);
-        let classExit=current.classList.contains("text-decoration-line-through");
-        if (classExit == true) {
-            current.classList.remove("text-decoration-line-through");
-        }else{
-            current.classList.add("text-decoration-line-through");
+        //saveAClass = () => {
+        //    $.ajax({
+        //        type: 'POST',
+        //        url: '/Home/SaveAClass',
+        //        data: { value: "hello" },
+        //        success: function (result) {
+        //            alert(result); /*Keep as alert for now for testing*/
+        //        }
+        //    });
+        //};
+
+        //END AJAX QUERY SECTION
+
+        let input = document.getElementById("inputText");
+        let list= document.getElementById("list");
+        let minimalValue = 3;
+        let listNum = 0;
+
+        addList=()=>{
+            // get
+            let inputText = filterList(input.value);
+            // set 
+           if (inputText) {
+            list.innerHTML += ` <li class=" my-3 py-3 shadow list-group-item " id="list${listNum}">
+                        <div class="row">
+                        <div class="col-1">
+                        <input class="" type="checkbox" id="check${listNum}" onclick="done(${listNum})">
+                        </div>
+                        <div class="col-6">
+                            <span class=" h4" id="text${listNum}"> ${inputText} </span>
+                        </div>
+                        <div class="col-4">
+                             <button class=" btn btn-dark" onclick="deleteList(${listNum})">Delete</button>
+                             <button class=" btn btn-dark" onclick="editList(${listNum})">Edit</button>
+                        </div>                  
+                         </div>    
+                        </li> `;
+                input.value=" ";
+                listNum++;
+
+           }
         }
+
+        done=(listId)=>{ 
+            let checkbox = document.getElementById(`check${listId}`);
+            let current = document.getElementById(`text${listId}`);
+            let classExit=current.classList.contains("text-decoration-line-through");
+            if (classExit == true) {
+                current.classList.remove("text-decoration-line-through");
+            }else{
+                current.classList.add("text-decoration-line-through");
+            }
     
-    }
-
-    filterList=(x)=>{
-           if (x) {
-                if (x.length >= minimalValue) {
-                    return x;
-                }
-                else{
-                    alert("Please enter more than 3 words")
-                }
-           }
-           else{
-                return false;
-           }
-    }
-
-    editList=(listId)=>{
-        let currentText = document.getElementById(`text${listId}`);
-        let newText = prompt("Wanna Change list?",currentText.innerHTML);
-        if (filterList(newText)) {
-            currentText.innerHTML = newText; 
         }
-    }
 
-    deleteList=(listId)=>{
-        let current = document.getElementById(`text${listId}`).innerHTML;
-           let deleteComfirm = confirm(`Are you sure to delete ${current}`);
-        if (deleteComfirm) {
-             let p = document.getElementById("list")
-            let c = document.getElementById(`list${listId}`);
-            p.removeChild(c);
+        filterList=(x)=>{
+               if (x) {
+                    if (x.length >= minimalValue) {
+                        return x;
+                    }
+                    else{
+                        alert("Please enter more than 3 words")
+                    }
+               }
+               else{
+                    return false;
+               }
         }
-        else{
-            console.log("deleted");
+
+        editList=(listId)=>{
+            let currentText = document.getElementById(`text${listId}`);
+            let newText = prompt("Wanna Change list?",currentText.innerHTML);
+            if (filterList(newText)) {
+                currentText.innerHTML = newText; 
+            }
         }
-    };
-</script>
+
+        deleteList=(listId)=>{
+            let current = document.getElementById(`text${listId}`).innerHTML;
+               let deleteComfirm = confirm(`Are you sure to delete ${current}`);
+            if (deleteComfirm) {
+                 let p = document.getElementById("list")
+                let c = document.getElementById(`list${listId}`);
+                p.removeChild(c);
+            }
+            else{
+                console.log("deleted");
+            }
+        };
+    </script>
+}

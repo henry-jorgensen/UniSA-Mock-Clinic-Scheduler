@@ -1,7 +1,5 @@
 ﻿using Firebase.Auth;
 using Google.Cloud.Firestore;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
 using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models;
 
 namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
@@ -151,6 +149,12 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             }
 
             return null;
+        }
+
+        public string testingFunction(string value)
+        {
+            string response = value + " testing";
+            return response;
         }
     }
 }

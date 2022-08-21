@@ -29,6 +29,53 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             return View();
         }
 
+        [HttpPost]
+        public IActionResult DoSomethingWithFirebase(string value)
+        {
+            string response = value + " Success";
+            return Ok(response);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateAClass(ClassModel classModel)
+        {
+            var _UserToken = HttpContext.Session.GetString("_UserToken");
+            
+            if(_UserToken == null)
+            {
+                return Forbid();
+            }
+
+            string? success = await firebase.CreateNewClassAsync(_UserToken, classModel);
+
+            if(success != null)
+            {
+                return Ok(success);
+            }
+
+            return BadRequest();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> LoadAClass(string className)
+        {
+            var _UserToken = HttpContext.Session.GetString("_UserToken");
+
+            if (_UserToken == null)
+            {
+                return Forbid();
+            }
+
+            ClassModel? success = await firebase.CollectClassAsync(_UserToken, className);
+
+            if (success != null)
+            {
+                return Ok(success);
+            }
+
+            return BadRequest();
+        }
+
         public IActionResult Clinics()
         {
             return View();
