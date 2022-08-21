@@ -66,6 +66,14 @@
                             </div>
                         </div>
 
+                        <div class="list-group-item @(ViewData["Title"] == "Create Clinic" ? "active" : "")">
+                            <div class="list-group-item-inner-container">
+                                <a class="list-group-item-action list-indent-1" asp-controller="Home" asp-action="Create">
+                                    <span class="nav-item-text">Create Clinic</span>
+                                </a>
+                            </div>
+                        </div>
+
                         <div class="list-group-item @(ViewData["Title"] == "Clinics" ? "active" : "")">
                             <div class="list-group-item-inner-container">
                                 <a class="list-group-item-action list-indent-1" asp-controller="Home" asp-action="Clinics">

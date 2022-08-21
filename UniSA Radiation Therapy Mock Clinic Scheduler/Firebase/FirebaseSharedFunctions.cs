@@ -1,6 +1,7 @@
 ﻿using Firebase.Auth;
 using Google.Cloud.Firestore;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models;
 
 namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
@@ -91,5 +92,65 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             return null;
         }
 
+        /// <summary>
+        /// Create a new class document with the provided name as the document id under the current users in firebase. 
+        /// If there is no Classes it will create a new collection.
+        /// </summary>
+        /// <param name="token">A string representing the current user signed in</param>
+        /// <param name="classModel">An object contained all the required information for the new entry</param>
+        /// <returns>A string representing the ID(name) of the new document</returns>
+        public async Task<string?> CreateNewClassAsync(string token, ClassModel classModel)
+        {
+            if (token != null)
+            {
+                //Insert this into cloud firestore database
+                DocumentReference docRef = db.Collection("Users").Document(token).Collection("Classes").Document(classModel.Name);
+                Dictionary<string, object> classObject = new Dictionary<string, object>
+                    {
+                        { "Name", classModel.Name },
+                        { "Study Period", classModel.StudyPeriod },
+                        { "Semester", classModel.Semester },
+                        { "Year", classModel.Year },
+                        { "Students", classModel.Students },
+                        { "Schedules", classModel.Schedules }
+                    };
+
+                await docRef.SetAsync(classObject);
+
+                return classModel.Name;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Retrieve a saved classes information from firebase. The retrieved data depends on the provided user token
+        /// and class name.
+        /// </summary>
+        /// <param name="token">A string representing the current user signed in</param>
+        /// <param name="className">A string representing the ID of the class to retrieve</param>
+        /// <returns>A ClassModel object containing the information that had been saved previously</returns>
+        public async Task<ClassModel?> CollectClassAsync(string token, string className)
+        {
+            if (token != null)
+            {
+                //Insert this into cloud firestore database
+                DocumentReference docRef = db.Collection("Users").Document(token).Collection("Classes").Document(className);
+                DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+
+                if (snapshot.Exists)
+                {
+                    ClassModel classModel = snapshot.ConvertTo<ClassModel>();
+                    Console.WriteLine("Name: {0}", classModel.Name);
+                    Console.WriteLine("Study Period: {0}", classModel.StudyPeriod);
+                    Console.WriteLine("Semester: {0}", classModel.Semester);
+                    Console.WriteLine("Year: {0}", classModel.Year);
+
+                    return classModel;
+                }
+            }
+
+            return null;
+        }
     }
 }

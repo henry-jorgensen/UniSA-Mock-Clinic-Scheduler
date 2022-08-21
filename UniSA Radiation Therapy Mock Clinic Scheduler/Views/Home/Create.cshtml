@@ -1,0 +1,204 @@
+﻿@{
+    ViewData["Title"] = "Create Clinic";
+    ViewData["Controller"] = "Home";
+}
+
+<div class="text-center">
+    <h2>Create A Clinic</h2>
+</div>
+
+@*Organised in 'tabs' so that the user can move through the process one at a time*@
+
+@*SELECTING TO LOAD A CLASS OR CREATE A NEW ONE*@
+<form>
+    <h1 class="h1">Select an Option</h1> 
+    <div class="form-row">
+        <div class="col-md-3 mb-5">
+            <button class="btn btn-primary">New Class</button>
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="col-md-3 mb-5">
+            <button class="btn btn-primary">Load Class</button>
+        </div>
+    </div>
+</form>
+
+
+<hr />
+<hr />
+
+@*CREATING A CLASS*@
+<form>
+    <h1 class="h1">Create a Class</h1> 
+    <div class="form-row">
+        <div class="col-md-6 mb-3">
+            <label for="validationDefault01">Class name</label>
+            <input type="text" class="form-control" id="validationDefault01" placeholder="Class name" required>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-3 mb-3">
+            <label for="validationDefault02" class="form-label">Study Period</label>
+            <select class="form-select" id="validationDefault02" required>
+                <option selected disabled value="">Choose...</option>
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+                <option>6</option>
+                <option>7</option>
+                <option>8</option>
+            </select>
+        </div>
+
+        <div class="form-group col-md-3 mb-3">
+            <label for="validationDefault03" class="form-label">Semester</label>
+            <select class="form-select" id="validationDefault03" required>
+                <option selected disabled value="">Choose...</option>
+                <option>1</option>
+                <option>2</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="col-md-3 mb-5">
+            <label for="validationDefault04">Year</label>
+            <input type="text" class="form-control" id="validationDefault04" placeholder="2022" required>
+        </div>
+    </div>
+
+    <button class="btn btn-primary" type="submit">Submit Class</button>
+</form>
+
+<hr />
+<hr />
+
+@*LOADING A SAVED CLASS*@
+<form>
+    <h1 class="h1">Load a Class</h1> 
+    <div class="form-group col-md-3 mb-3">
+        <label for="validationDefault03" class="form-label">Class name</label>
+        <select class="form-select" id="validationDefault03" required>
+            <option selected disabled value="">Choose...</option>
+            <option>1</option>
+            <option>2</option>
+        </select>
+    </div>
+
+    <button class="btn btn-primary" type="submit">Load Class</button>
+</form>
+
+<hr />
+<hr />
+
+@*POPULATING A CLASS*@
+<div class="my-5" style="height:auto;">
+    <div>
+        <h1 class="h1">Class List</h1> 
+        <div class="row">
+            <div class=" col-8">
+                <input class=" py-3 form-control shadow" placeholder="input your task" type="text" id="inputText"> 
+            </div>
+            <div class="col-2">
+                <!-- <i onclick="addList()" class=" btn btn-dark rounded-pill fas fa-4x fa-plus-circle "></i> -->
+                <button onclick="addList()" class=" mt-2 btn btn-dark"> Add </button>
+            </div>
+        </div>
+    </div>
+        <hr>
+    <div class="row rounded bg-white">
+        <div class=" col-12"> 
+            <ul class=" list-group" id="list"></ul>
+        </div> 
+    </div> 
+</div>
+
+
+@*PREVIEW A CLASS*@
+<div class="my-5" style="height:auto;">
+    <h1 class="h1">Save Class</h1> 
+    <button class="btn btn-primary" type="submit">Save Class</button>
+</div>
+
+
+<script>
+    let input = document.getElementById("inputText");
+            let list= document.getElementById("list");
+            let minimalValue = 3;
+            let listNum = 0;
+    addList=()=>{
+        // get
+        let inputText = filterList(input.value);
+        // set 
+       if (inputText) {
+        list.innerHTML += ` <li class=" my-3 py-3 shadow list-group-item " id="list${listNum}">
+                    <div class="row">
+                    <div class="col-1">
+                    <input class="" type="checkbox" id="check${listNum}" onclick="done(${listNum})">
+                    </div>
+                    <div class="col-6">
+                        <span class=" h4" id="text${listNum}"> ${inputText} </span>
+                    </div>
+                    <div class="col-4">
+                         <button class=" btn btn-dark" onclick="deleteList(${listNum})">Delete</button>
+                         <button class=" btn btn-dark" onclick="editList(${listNum})">Edit</button>
+                    </div>                  
+                     </div>    
+                    </li> `;
+            input.value=" ";
+            listNum++;
+
+       }
+    }
+
+    done=(listId)=>{ 
+        let checkbox = document.getElementById(`check${listId}`);
+        let current = document.getElementById(`text${listId}`);
+        let classExit=current.classList.contains("text-decoration-line-through");
+        if (classExit == true) {
+            current.classList.remove("text-decoration-line-through");
+        }else{
+            current.classList.add("text-decoration-line-through");
+        }
+    
+    }
+
+    filterList=(x)=>{
+           if (x) {
+                if (x.length >= minimalValue) {
+                    return x;
+                }
+                else{
+                    alert("Please enter more than 3 words")
+                }
+           }
+           else{
+                return false;
+           }
+    }
+
+    editList=(listId)=>{
+        let currentText = document.getElementById(`text${listId}`);
+        let newText = prompt("Wanna Change list?",currentText.innerHTML);
+        if (filterList(newText)) {
+            currentText.innerHTML = newText; 
+        }
+    }
+
+    deleteList=(listId)=>{
+        let current = document.getElementById(`text${listId}`).innerHTML;
+           let deleteComfirm = confirm(`Are you sure to delete ${current}`);
+        if (deleteComfirm) {
+             let p = document.getElementById("list")
+            let c = document.getElementById(`list${listId}`);
+            p.removeChild(c);
+        }
+        else{
+            console.log("deleted");
+        }
+    };
+</script>
