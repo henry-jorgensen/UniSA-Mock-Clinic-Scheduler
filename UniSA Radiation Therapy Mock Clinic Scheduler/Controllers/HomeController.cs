@@ -37,18 +37,20 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateAClass(ClassModel classModel)
+        public async Task<IActionResult> CreateAClass(string name, string studyPeriod, string semester, string year)
         {
+            ClassModel classModel = new ClassModel(name, studyPeriod, semester, year);
+
             var _UserToken = HttpContext.Session.GetString("_UserToken");
-            
-            if(_UserToken == null)
+
+            if (_UserToken == null)
             {
                 return Forbid();
             }
 
             string? success = await firebase.CreateNewClassAsync(_UserToken, classModel);
 
-            if(success != null)
+            if (success != null)
             {
                 return Ok(success);
             }
