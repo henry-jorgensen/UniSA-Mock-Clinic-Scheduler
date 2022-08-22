@@ -1,6 +1,7 @@
 ﻿using Firebase.Auth;
 using Google.Cloud.Firestore;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models;
 
 namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
@@ -43,15 +44,22 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             var firebaseAuth = await auth.SignInWithEmailAndPasswordAsync(accountModel.Email, accountModel.Password);
             string token = firebaseAuth.User.LocalId;
 
+            Debug.WriteLine(token);
             if (token != null)
             {
+                Debug.WriteLine("hit");
                 CollectionReference usersRef = db.Collection("Users");
                 QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
 
                 foreach (DocumentSnapshot document in snapshot.Documents)
                 {
+                    Debug.WriteLine("hit2");
+                    Debug.WriteLine(document.Id);
                     if (document.Id == token)
                     {
+                        Debug.WriteLine("hit3");
+                        Debug.WriteLine(token);
+                        Debug.WriteLine(document.Id);
                         Console.WriteLine("User: {0}", document.Id);
                         Dictionary<string, object> documentDictionary = document.ToDictionary();
                         string FirstName = documentDictionary["FirstName"].ToString();
