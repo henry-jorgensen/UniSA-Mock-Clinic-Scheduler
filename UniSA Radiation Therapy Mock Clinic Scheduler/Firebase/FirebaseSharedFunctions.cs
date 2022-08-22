@@ -79,7 +79,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             await auth.CreateUserWithEmailAndPasswordAsync(accountModel.Email, accountModel.Password);
             var firebaseAuth = await auth.SignInWithEmailAndPasswordAsync(accountModel.Email, accountModel.Password);
 
-            string token = firebaseAuth.FirebaseToken;
+            string token = firebaseAuth.User.LocalId;
 
             if (token != null)
             {
