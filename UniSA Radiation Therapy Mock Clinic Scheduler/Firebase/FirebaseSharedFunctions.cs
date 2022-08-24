@@ -53,13 +53,8 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
                 foreach (DocumentSnapshot document in snapshot.Documents)
                 {
-                    Debug.WriteLine("hit2");
-                    Debug.WriteLine(document.Id);
                     if (document.Id == token)
                     {
-                        Debug.WriteLine("hit3");
-                        Debug.WriteLine(token);
-                        Debug.WriteLine(document.Id);
                         Console.WriteLine("User: {0}", document.Id);
                         Dictionary<string, object> documentDictionary = document.ToDictionary();
                         string FirstName = documentDictionary["FirstName"].ToString();
@@ -92,11 +87,23 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                         { "CCCode", accountModel.CCCode }
                     };
                 await docRef.SetAsync(user);
+                
 
                 return new UserModel(token, accountModel.FirstName, accountModel.LastName, accountModel.CCCode);
             }
 
             return null;
+        }
+
+        public async void ResetPassword(string email)
+        {
+            try
+            {
+                await auth.SendPasswordResetEmailAsync(email);
+            } catch(Exception e)
+            {
+                Debug.WriteLine(e);
+            }           
         }
 
     }

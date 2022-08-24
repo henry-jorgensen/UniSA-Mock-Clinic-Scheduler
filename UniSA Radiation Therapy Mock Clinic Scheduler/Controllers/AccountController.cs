@@ -39,6 +39,19 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             }
         }
 
+        public IActionResult Reset()
+        {
+            var token = HttpContext.Session.GetString("_UserToken");
+            if (token == null)
+            {
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("Index");
+            }
+        }
+
         public IActionResult Register()
         {
             var token = HttpContext.Session.GetString("_UserToken");
@@ -96,6 +109,13 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             }
 
             return View();
+        }
+
+        [HttpPost]
+        public IActionResult Reset(ResetModel resetModel)
+        {
+            firebase.ResetPassword(resetModel.Email);
+            return RedirectToAction("Login");
         }
 
         public IActionResult Logout()
