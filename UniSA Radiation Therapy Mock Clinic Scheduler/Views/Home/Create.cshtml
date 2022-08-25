@@ -25,13 +25,13 @@
                 <div class="form-row text-center">
                     <div class="col-md mb-5">
                         @*Go to the create class section*@
-                        <button class="btn btn-primary" onclick="nextPrev(1)">New Class</button>
+                        <button id="newClassButton" class="btn btn-primary">New Class</button>
                     </div>
                 </div>
                 <div class="form-row text-center">
                     <div class="col-md mb-5">
                         @*Go to the load class section*@
-                        <button class="btn btn-primary" onclick="nextPrev(2)">Load Class</button>
+                        <button id="loadClassButton" class="btn btn-primary">Load Class</button>
                     </div>
                 </div>
             </div>
@@ -196,8 +196,7 @@
         @*PREVIOUS BUTTON*@
         <div style="overflow:auto;">
             <div style="float:left;">
-                <button class="btn btn-secondary" type="button" id="prevBtn" onclick="nextPrev(-1)">Previous</button>
-                <button class="btn btn-secondary" type="button" id="nextBtn" onclick="nextPrev(1)">Next</button> @*Only here for testing at this point*@
+                <button class="btn btn-secondary" type="button" id="prevBtn">Previous</button>
             </div>
         </div>
 

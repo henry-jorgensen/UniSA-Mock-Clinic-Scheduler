@@ -59,6 +59,26 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> LoadAllClasses()
+        {
+            var _UserToken = HttpContext.Session.GetString("_UserToken");
+
+            if (_UserToken == null)
+            {
+                return Forbid();
+            }
+
+            Array? success = await firebase.CollectAllClassAsync(_UserToken);
+
+            if (success != null)
+            {
+                return Ok(success);
+            }
+
+            return BadRequest();
+        }
+
+        [HttpGet]
         public async Task<IActionResult> LoadAClass(string className)
         {
             var _UserToken = HttpContext.Session.GetString("_UserToken");

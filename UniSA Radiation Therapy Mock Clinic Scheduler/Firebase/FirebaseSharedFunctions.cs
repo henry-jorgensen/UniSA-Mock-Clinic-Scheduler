@@ -4,8 +4,8 @@ using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models;
 
 namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 {
-	public class FirebaseSharedFunctions
-	{
+    public class FirebaseSharedFunctions
+    {
         FirestoreDb db;
         FirebaseAuthProvider auth;
 
@@ -70,7 +70,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             await auth.CreateUserWithEmailAndPasswordAsync(accountModel.Email, accountModel.Password);
             var firebaseAuth = await auth.SignInWithEmailAndPasswordAsync(accountModel.Email, accountModel.Password);
 
-            string token = firebaseAuth.FirebaseToken;
+            string token = firebaseAuth.User.LocalId;
 
             if (token != null)
             {
@@ -116,6 +116,38 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                 await docRef.SetAsync(classObject);
 
                 return classModel.Name;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///
+        ///
+        /// </summary>
+        public async Task<Array?> CollectAllClassAsync(string token)
+        {
+            if (token != null)
+            {
+                Query allClassesQuery = db.Collection("Users").Document(token).Collection("Classes");
+                QuerySnapshot allClassesQuerySnapshot = await allClassesQuery.GetSnapshotAsync();
+
+                var docs = allClassesQuerySnapshot.Documents;
+                // Dictionary<string, Dictionary<string, object>> container = new Dictionary<string, Dictionary<string, object>>();
+
+                foreach (DocumentSnapshot documentSnapshot in allClassesQuerySnapshot.Documents)
+                {
+                    // container.Add(documentSnapshot.Id, documentSnapshot.ToDictionary());
+                    Console.WriteLine("Document data for {0} document:", documentSnapshot.Id);
+                    Dictionary<string, object> city = documentSnapshot.ToDictionary();
+                    foreach (KeyValuePair<string, object> pair in city)
+                    {
+                        Console.WriteLine("{0}: {1}", pair.Key, pair.Value);
+                    }
+                    Console.WriteLine("");
+                }
+
+                // return docs;
             }
 
             return null;

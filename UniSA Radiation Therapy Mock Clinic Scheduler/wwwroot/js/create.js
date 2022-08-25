@@ -1,78 +1,160 @@
-$( document ).ready(function() {
-    //==========================================================
-    //AJAX QUERY SECTION
-    //==========================================================
-    //Stop all default behaviour for forms and implement custom
-    $("form").on('submit', function (e) {
-        e.preventDefault();
-        console.log(e.currentTarget.id);
+class TableManager {
+    constructor(list, firstNameInput, lastNameInput, studentIdInput, studentUserNameInput) {
+        this.listNum = 0;
+        this.list = list;
+        this.fNInput = firstNameInput;
+        this.lNInput = lastNameInput;
+        this.sIInput = studentIdInput;
+        this.sUInput = studentUserNameInput;
+    }
 
-        switch (e.currentTarget.id) {
-            case "createAClassForm":
-                createAClass();
-                break;
+    /**
+     * Collect the inputs from the class list form, using the data create a new table
+     * row that reflects the data and append it to the main table.
+     */
+    addList = () => {
+        let row = this.createRow(
+            this.fNInput.val(),
+            this.lNInput.val(),
+            this.sIInput.val(),
+            this.sUInput.val()
+        );
+    
+        this.list.append(row);
+        
+        this.resetInputs();
+        this.listNum++;
+    }
 
-            case "loadAClassForm":
-                loadAClass();
-                break;
+    /**
+     * Using the data read from an uploaded excel spreadsheet create a new table
+     * row that reflects the data and append it to the main table.
+     */
+    autoAdd = (object) => {
+        object.forEach(row => {
+            let nameSplit = row["Student Name"].split(",");
+            let newRow = this.createRow(
+                nameSplit[0],
+                nameSplit[1].trim(),
+                row["Student ID"],
+                row["Student Username"]
+            );
 
-            case "addStudentToClassForm":
-                addList();
-                break;
+            this.list.append(newRow);
+        });
+    }
 
-            case "saveClassListForm":
-                saveAClassList();
-                break;
+    /**
+     * Using string literal and html create and return a new table row element with the supplied
+     * information as the filler details.
+     */
+    createRow = (fname, lname, id, uname) => {
+        let tr = $('<tr>', {
+            class: "studentEntry"
+        })
 
-            default:
-                break;
-        }
-    });
+        let tdFName = $('<td>', { text: fname });
+        let tdLName = $('<td>', { text: lname });
+        let tdId = $('<td>', { text: id });
+        let tdUName = $('<td>', { text: uname });
+
+        //Create delete button
+        let tdDelete = $('<td>');
+        let button = $('<button>', {id: `text${this.listNum}`, text: "X"})
+        button.click((id) => {
+            id.currentTarget.parentNode.parentNode.remove();
+        });
+
+        tdDelete.append(button);
+
+        tr.append(tdFName, tdLName, tdId, tdUName, tdDelete);
+        
+        return tr;
+    }
+
+    /**
+     * After a new entry has been appended clear the inputs for the next entry.
+     */
+    resetInputs = () => {
+        this.fNInput.val("");
+        this.lNInput.val("");
+        this.sIInput.val("");
+        this.sUInput.val("");
+    }
+}
+
+class AJAXManager {
+    constructor(controller) {
+        this.controller = controller;
+    }
 
     /**
      * Collected the form inputs for the new class and then POST them to the parent controller
      * using the AJAX post method. A successful call will increment the form wizard to the
      * appropriate form.
      */
-    createAClass = () => {
-        $.ajax({
+    createAClass = async (classNameValue, studyPeriodValue, semesterValue, yearValue) => {
+        return await $.ajax({
             type: 'POST',
-            url: '/Home/CreateAClass',
+            url: `/${this.controller}/CreateAClass`,
             data: {
-                name: $("#classNameInput").val(),
-                studyPeriod: $("#studyPeriodInput").val(),
-                semester: $("#semesterInput").val(),
-                year: $("#yearInput").val()
+                name: classNameValue,
+                studyPeriod: studyPeriodValue,
+                semester: semesterValue,
+                year: yearValue
             },
             success: function (result) {
                 console.log(result); //Keep as log for now for testing
-                nextPrev(2); //2 to skip over the load class form
+
+                return 2; //2 to skip over the load class form
             },
             failure: function (result) {
                 console.log(result);
+                return 0;
             }
         });
     };
+
+    /**
+     * Load all the classes associated with the current user.
+     */
+    loadAllClasses = () => {
+        $.ajax({
+            type: 'GET',
+            url: `/${this.controller}/LoadAllClasses`,
+            data: {},
+            success: function (result) {
+                console.log(result);
+                //Populate the list with the results
+                return 1
+            },
+            failure: function (result) {
+                console.log(result);
+                return 0;
+            }
+        });
+    }
 
     /**
      * Perform a GET call to the parent controller, the objective is to retrieve details about
      * a previously saved class. A successful call will increment the form wizard to the
      * appropriate form.
      */
-    loadAClass = () => {
-        $.ajax({
+    loadAClass = async (classNameValue) => {
+        return $.ajax({
             type: 'GET',
-            url: '/Home/LoadAClass',
+            url: `/${this.controller}/LoadAClass`,
             data: { 
-                className: $("#classSelection").val() 
+                className: classNameValue 
             },
             success: function (result) {
                 console.log(result);
                 //Populate the list with the results
-                nextPrev(1);
+                return 1
             },
             failure: function (result) {
                 console.log(result);
+                return 0;
             }
         });
     };
@@ -82,8 +164,8 @@ $( document ).ready(function() {
      * POST call to the parent controller. The information passed is an array of student objects
      * that reflects what was in the table.
      */
-    saveAClassList = () => {
-        let entries = $(".studentEntry");
+    saveAClassList = async (tableClass) => {
+        let entries = tableClass;
         let students = [];
 
         for(let x=0; x<entries.length; x++) {
@@ -101,29 +183,35 @@ $( document ).ready(function() {
 
         console.log(students);
 
-        // $.ajax({
+        // return $.ajax({
         //     type: 'POST',
         //     url: '/Home/SaveAClass',
         //     data: { 
         //         students: "array"
         //      },
         //     success: function (result) {
-        //         alert(result);
+        //         return 1;
         //     },
         //     failure: function (result) {
         //         console.log(result);
+        //         return 0;
         //     }
         // });
     };
-    //==========================================================
-    //END AJAX QUERY SECTION
-    //==========================================================
+}
 
-    //==========================================================
-    //FORM WIZARD SECTION
-    //==========================================================
-    var currentTab = 3; // Current tab is set to be the first tab (0)
-    
+class FormWizard {
+    constructor(startingTab) {
+        this.currentTab = startingTab;
+    }
+
+    /**
+     * Display the initial starting form.
+     */
+    showInitialTab = () => {
+        this.showTab(this.currentTab)
+    }
+
     /**
      * Change the display property of the appropriate tab in regards to the current
      * tab number.
@@ -133,12 +221,12 @@ $( document ).ready(function() {
         var x = $(".tab");
         x[n].style.display = "block";
 
-        $(".step")[currentTab].classList += " finish";
+        $(".step")[this.currentTab].classList += " finish";
 
         //Sort out the next/previous buttons
         n == 0 ? $("#prevBtn").css("display", "none") : $("#prevBtn").css("display", "inline");
 
-        fixStepIndicator(n)
+        this.fixStepIndicator(n)
     }
 
     /**
@@ -148,21 +236,21 @@ $( document ).ready(function() {
      */
     nextPrev = (n) => {
         var x = $(".tab");
-        x[currentTab].style.display = "none"; // Hide the current tab
+        x[this.currentTab].style.display = "none"; // Hide the current tab
 
         if(n < 0) {
-            $(".step")[currentTab].classList.remove("finish");
+            $(".step")[this.currentTab].classList.remove("finish");
         }
 
-        currentTab = currentTab + n;
+        this.currentTab = this.currentTab + n;
         
-        if (currentTab >= x.length) { // if you have reached the end of the form
+        if (this.currentTab >= x.length) { // if you have reached the end of the form
             //...the form gets submitted:
             // document.getElementById("regForm").submit();
             return false;
         }
         
-        showTab(currentTab); // Otherwise, display the correct tab
+        this.showTab(this.currentTab); // Otherwise, display the correct tab
     }
 
     /**
@@ -178,96 +266,82 @@ $( document ).ready(function() {
         //... and adds the "active" class to the current step:
         x[n].className += " active";
     }   
+}
 
-    showTab(currentTab); // Display the current tab
-    //==========================================================
-    //END FORM WIZARD SECTION
-    //==========================================================
+$( document ).ready(function() {
+    //Create necessary classes
+    const tableManager = new TableManager(
+        $("#list"),
+        $("#firstNameInput"),
+        $("#lastNameInput"),
+        $("#studentIdInput"),
+        $("#usernameInput")    
+    );
 
-    //==========================================================
-    //CLASS LIST SECTION
-    //==========================================================
-    /**
-     * Keep track of the current list row being created.
-     */
-    let listNum = 0;
+    const ajaxManager = new AJAXManager("Home");
+    const formWizard = new FormWizard(0); 
 
-    /**
-     * Collect the inputs from the class list form, using the data create a new table
-     * row that reflects the data and append it to the main table.
-     */
-    addList = () => {
-        let row = createRow(
-            $("#firstNameInput").val(),
-            $("#lastNameInput").val(),
-            $("#studentIdInput").val(),
-            $("#usernameInput").val()
-        );
-   
-        $("#list").append(row);
-        
-        resetInputs();
-        listNum++;
+    formWizard.showInitialTab(); // Display the first tab
+
+    //Assign click listeners - Setup the steps
+    $("#loadClassButton").on('click', () => {
+        ajaxManager.loadAllClasses();
+        formWizard.nextPrev(2)
+    });
+
+    $("#newClassButton").on('click', () => formWizard.nextPrev(1));
+    $("#prevBtn").on('click', () => formWizard.nextPrev(-1));
+    $("#nextBtn").on('click', () => formWizard.nextPrev(1));
+    
+    //==========================================================
+    //AJAX QUERY SECTION
+    //==========================================================
+    //TODO CHANGE THIS TO SOMETHING BETTER
+    //Stop all default behaviour for forms and implement custom
+    $("form").on('submit', async (e) => {
+        e.preventDefault();
+        console.log(e.currentTarget.id);
+        let step;
+
+        switch (e.currentTarget.id) {
+            case "createAClassForm":
+                step = await ajaxManager.createAClass(
+                    $("#classNameInput").val(),
+                    $("#studyPeriodInput").val(),
+                    $("#semesterInput").val(),
+                    $("#yearInput").val()
+                );
+
+                console.log(step);
+                performStep(step);
+                break;
+
+            case "loadAClassForm":
+                step = await ajaxManager.loadAClass(
+                    $("#classSelection").val()
+                );
+                break;
+
+            case "addStudentToClassForm":
+                step = await tableManager.addList();
+                break;
+
+            case "saveClassListForm":
+                step = await ajaxManager.saveAClassList(
+                    $(".studentEntry")
+                );
+                break;
+
+            default:
+                break;
+        }
+    });
+
+    performStep = (stepNum) => {
+        if(stepNum != 0 && stepNum != null) {
+            formWizard.nextPrev(stepNum);
+        }
     }
-
-    /**
-     * Using string literal and html create and return a new table row element with the supplied
-     * information as the filler details.
-     */
-    createRow = (fname, lname, id, uname) => {
-        return (
-            `<tr class="studentEntry" id="text${listNum}">
-                <td>${fname}</td>
-                <td>${lname}</td>
-                <td>${id}</td>
-                <td>${uname}</td>
-                <td><button onclick="removeListItem(${listNum})">X</button></td>
-            </tr>`
-        );
-    }
-
-    /**
-     * After a new entry has been appended clear the inputs for the next entry.
-     */
-    resetInputs = () => {
-        $("#firstNameInput").val("");
-        $("#lastNameInput").val("");
-        $("#studentIdInput").val("");
-        $("#usernameInput").val("");
-    }
-
-    /**
-     * Remove a previously appended table row.
-     */
-    removeListItem = (listId) => {
-        $(`#text${listId}`).remove();
-    };
-
-    //==========================================================
-    //END CLASS LIST SECTION
-    //==========================================================
-
-    //==========================================================
-    //EXCEL READER SECTION
-    //==========================================================
-    /**
-     * Using the data read from an uploaded excel spreadsheet create a new table
-     * row that reflects the data and append it to the main table.
-     */
-    autoAdd = (object) => {
-        object.forEach(row => {
-            let nameSplit = row["Student Name"].split(",");
-            let newRow = createRow(
-                nameSplit[0],
-                nameSplit[1].trim(),
-                row["Student ID"],
-                row["Student Username"]
-            );
-
-            $("#list").append(newRow);
-        });
-    }
-
 
     /**
      * Instantiate a new reader object to read the newly uploaded excel spreadsheet.
@@ -286,8 +360,7 @@ $( document ).ready(function() {
                     // Here is your object
                     let XL_row_object = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[sheetName]);
                     let json_object = JSON.stringify(XL_row_object);
-                    autoAdd(JSON.parse(json_object));
-                    //jQuery('#xlx_json').val(json_object);
+                    tableManager.autoAdd(JSON.parse(json_object));
                 });
             };
     
@@ -313,7 +386,4 @@ $( document ).ready(function() {
      * Add the event listener to the DOM
      */
     $("#upload").change(handleFileSelect);
-    //==========================================================
-    //END EXCEL READER SECTION
-    //==========================================================
 });
