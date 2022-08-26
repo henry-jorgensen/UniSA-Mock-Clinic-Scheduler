@@ -115,7 +115,19 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         public IActionResult Reset(ResetModel resetModel)
         {
             firebase.ResetPassword(resetModel.Email);
-            return RedirectToAction("Login");
+            resetModel.Response = "Email has been sent";
+            ViewBag.ResetModel = resetModel;
+            return View();
+        }
+
+        public IActionResult RequestUserData()
+        {
+            return RedirectToAction("Index");
+        }
+
+        public IActionResult DeleteUserData()
+        {
+            return RedirectToAction("Index");
         }
 
         public IActionResult Logout()

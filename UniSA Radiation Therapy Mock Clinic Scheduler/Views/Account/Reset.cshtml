@@ -2,7 +2,9 @@
 @{
     ViewData["Controller"] = "Account";
     ViewData["Title"] = "Reset";
-}
+
+    ResetModel resetModel = ViewBag.ResetModel;
+}   
 
 <div class="container">
     <main role="main" class="pb-3">
@@ -21,6 +23,13 @@
                                 <button type="submit" class="btn button">Reset Password</button>
                             </div>
                         </form>
+
+                        <div>
+                            @if (resetModel!=null)
+                                {
+                                    @resetModel.Response;
+                                }
+                        </div>
 
                     </div>
                 </div>

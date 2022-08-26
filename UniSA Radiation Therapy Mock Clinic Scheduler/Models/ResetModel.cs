@@ -8,5 +8,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models
         [Required]
         [EmailAddress]
         public string Email { get; set; }
+
+        public string Response { get; set; }
     }
 }
