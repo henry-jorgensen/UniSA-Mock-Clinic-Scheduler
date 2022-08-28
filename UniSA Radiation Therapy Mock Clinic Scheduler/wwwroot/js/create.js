@@ -45,6 +45,26 @@ class TableManager {
     }
 
     /**
+     * Using the data retrieved from firebase add the entire classes student list to the
+     * table.
+     */
+    classAdd = (classObject) => {
+        let split = classObject.students.split("|");
+
+        split.forEach(student => {
+            let jStudent = JSON.parse(student);
+            let row = this.createRow(
+                jStudent.FirstName,
+                jStudent.LastName,
+                jStudent.StudentID,
+                jStudent.Username
+            );
+        
+            this.list.append(row);
+        });
+    }
+
+    /**
      * Using string literal and html create and return a new table row element with the supplied
      * information as the filler details.
      */
@@ -86,6 +106,8 @@ class TableManager {
 class AJAXManager {
     constructor(controller) {
         this.controller = controller;
+        this.selectedClass = null;
+        this.classes = []; // hold each class that is grabbed from firebase
     }
 
     /**
@@ -94,6 +116,8 @@ class AJAXManager {
      * appropriate form.
      */
     createAClass = async (classNameValue, studyPeriodValue, semesterValue, yearValue) => {
+        this.selectedClass = classNameValue;
+        
         return await $.ajax({
             type: 'POST',
             url: `/${this.controller}/CreateAClass`,
@@ -105,7 +129,6 @@ class AJAXManager {
             },
             success: function (result) {
                 console.log(result); //Keep as log for now for testing
-
                 return 2; //2 to skip over the load class form
             },
             failure: function (result) {
@@ -118,19 +141,18 @@ class AJAXManager {
     /**
      * Load all the classes associated with the current user.
      */
-    loadAllClasses = () => {
-        $.ajax({
+    loadAllClasses = async () => {
+        return await $.ajax({
             type: 'GET',
             url: `/${this.controller}/LoadAllClasses`,
             data: {},
             success: function (result) {
                 console.log(result);
-                //Populate the list with the results
-                return 1
+                return result;
             },
-            failure: function (result) {
-                console.log(result);
-                return 0;
+            failure: function (error) {
+                console.log(error);
+                return -1;
             }
         });
     }
@@ -141,6 +163,8 @@ class AJAXManager {
      * appropriate form.
      */
     loadAClass = async (classNameValue) => {
+        this.selectedClass = classNameValue;
+
         return $.ajax({
             type: 'GET',
             url: `/${this.controller}/LoadAClass`,
@@ -150,10 +174,10 @@ class AJAXManager {
             success: function (result) {
                 console.log(result);
                 //Populate the list with the results
-                return 1
+                return result
             },
-            failure: function (result) {
-                console.log(result);
+            failure: function (error) {
+                console.log(error);
                 return 0;
             }
         });
@@ -166,37 +190,43 @@ class AJAXManager {
      */
     saveAClassList = async (tableClass) => {
         let entries = tableClass;
-        let students = [];
+        let studentArray = [];
 
+        console.log(entries);
         for(let x=0; x<entries.length; x++) {
             let cells = entries[x].cells;
 
-            let student = {
-                firstName: cells[0].value,
-                lastName: cells[1].value,
-                studentId: cells[2].value,
-                username: cells[3].value
+            let studentObject = {
+                ID: cells[2].textContent,
+                details: {
+                    FirstName: cells[0].textContent,
+                    LastName: cells[1].textContent,
+                    StudentID: cells[2].textContent,
+                    Username: cells[3].textContent
+                }
             }
 
-            students.push(student);
+            studentArray.push(JSON.stringify(studentObject));
         };
 
-        console.log(students);
+        console.log(studentArray.toString());
 
-        // return $.ajax({
-        //     type: 'POST',
-        //     url: '/Home/SaveAClass',
-        //     data: { 
-        //         students: "array"
-        //      },
-        //     success: function (result) {
-        //         return 1;
-        //     },
-        //     failure: function (result) {
-        //         console.log(result);
-        //         return 0;
-        //     }
-        // });
+        return await $.ajax({
+            type: 'POST',
+            url: `/${this.controller}/SaveAClassList`,
+            data: {
+                className: this.selectedClass, 
+                studentList: studentArray
+             },
+            success: function (result) {
+                console.log(result);
+                return 1;
+            },
+            failure: function (result) {
+                console.log(result);
+                return 0;
+            }
+        });
     };
 }
 
@@ -284,8 +314,24 @@ $( document ).ready(function() {
     formWizard.showInitialTab(); // Display the first tab
 
     //Assign click listeners - Setup the steps
-    $("#loadClassButton").on('click', () => {
-        ajaxManager.loadAllClasses();
+    $("#loadClassButton").on('click', async () => {
+        let result = await ajaxManager.loadAllClasses(); //reference to the dropdown menu
+
+        if(result == -1) {
+            //Handle error message to user
+            return;
+        }
+
+        //Populate the list with the results
+        result.forEach(entry => {
+            ajaxManager.classes.push(entry);
+
+            let element = $("<option>");
+            element.text(entry.name + " : " + entry.year);
+            element.val(entry.name);
+            $("#classSelection").append(element);
+        });
+
         formWizard.nextPrev(2)
     });
 
@@ -301,39 +347,58 @@ $( document ).ready(function() {
     $("form").on('submit', async (e) => {
         e.preventDefault();
         console.log(e.currentTarget.id);
-        let step;
+        let response;
 
-        switch (e.currentTarget.id) {
-            case "createAClassForm":
-                step = await ajaxManager.createAClass(
-                    $("#classNameInput").val(),
-                    $("#studyPeriodInput").val(),
-                    $("#semesterInput").val(),
-                    $("#yearInput").val()
-                );
+        try {
+            switch (e.currentTarget.id) {
+                case "createAClassForm":
+                    response = await ajaxManager.createAClass(
+                        $("#classNameInput").val(),
+                        $("#studyPeriodInput").val(),
+                        $("#semesterInput").val(),
+                        $("#yearInput").val()
+                    );
 
-                console.log(step);
-                performStep(step);
-                break;
+                    if(response == null) {
+                        return;
+                    }
 
-            case "loadAClassForm":
-                step = await ajaxManager.loadAClass(
-                    $("#classSelection").val()
-                );
-                break;
+                    performStep(2);
+                    break;
 
-            case "addStudentToClassForm":
-                step = await tableManager.addList();
-                break;
+                case "loadAClassForm":
+                    response = await ajaxManager.loadAClass(
+                        $("#classSelection").val()
+                    );
+                    
+                    //The current class
+                    console.log(response);
 
-            case "saveClassListForm":
-                step = await ajaxManager.saveAClassList(
-                    $(".studentEntry")
-                );
-                break;
+                    tableManager.classAdd(response);
 
-            default:
-                break;
+                    if(response == null) {
+                        return;
+                    }
+
+                    performStep(1);
+                    break;
+
+                case "addStudentToClassForm":
+                    response = await tableManager.addList();
+                    break;
+
+                case "saveClassListForm":
+                    response = await ajaxManager.saveAClassList(
+                        $(".studentEntry")
+                    );
+                    break;
+
+                default:
+                    break;
+            }
+        }
+        catch (error) {
+            console.log(error);
         }
     });
 

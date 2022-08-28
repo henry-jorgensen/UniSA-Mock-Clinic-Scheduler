@@ -1,5 +1,7 @@
 ﻿using Firebase.Auth;
 using Google.Cloud.Firestore;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models;
 
 namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
@@ -99,22 +101,11 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
         /// <returns>A string representing the ID(name) of the new document</returns>
         public async Task<string?> CreateNewClassAsync(string token, ClassModel classModel)
         {
+            //Insert this into cloud firestore database
             if (token != null)
             {
-                //Insert this into cloud firestore database
                 DocumentReference docRef = db.Collection("Users").Document(token).Collection("Classes").Document(classModel.Name);
-                Dictionary<string, object> classObject = new Dictionary<string, object>
-                    {
-                        { "Name", classModel.Name },
-                        { "Study Period", classModel.StudyPeriod },
-                        { "Semester", classModel.Semester },
-                        { "Year", classModel.Year },
-                        { "Students", classModel.Students },
-                        { "Schedules", classModel.Schedules }
-                    };
-
-                await docRef.SetAsync(classObject);
-
+                await docRef.SetAsync(classModel);
                 return classModel.Name;
             }
 
@@ -122,32 +113,25 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
         }
 
         /// <summary>
-        ///
-        ///
+        /// Collect all class details, excluding the student and schedules lists that belong to a
+        /// particular course coordinator.
+        /// <param name="token">A string representing the current user signed in</param>
         /// </summary>
-        public async Task<Array?> CollectAllClassAsync(string token)
+        public async Task<List<ClassModel>?> CollectAllClassAsync(string token)
         {
             if (token != null)
             {
                 Query allClassesQuery = db.Collection("Users").Document(token).Collection("Classes");
                 QuerySnapshot allClassesQuerySnapshot = await allClassesQuery.GetSnapshotAsync();
-
-                var docs = allClassesQuerySnapshot.Documents;
-                // Dictionary<string, Dictionary<string, object>> container = new Dictionary<string, Dictionary<string, object>>();
+                List<ClassModel> classes = new List<ClassModel>();
 
                 foreach (DocumentSnapshot documentSnapshot in allClassesQuerySnapshot.Documents)
                 {
-                    // container.Add(documentSnapshot.Id, documentSnapshot.ToDictionary());
-                    Console.WriteLine("Document data for {0} document:", documentSnapshot.Id);
-                    Dictionary<string, object> city = documentSnapshot.ToDictionary();
-                    foreach (KeyValuePair<string, object> pair in city)
-                    {
-                        Console.WriteLine("{0}: {1}", pair.Key, pair.Value);
-                    }
-                    Console.WriteLine("");
+                    var currentClass = documentSnapshot.ConvertTo<ClassModel>();
+                    classes.Add(currentClass);
                 }
 
-                // return docs;
+                return classes;
             }
 
             return null;
@@ -164,29 +148,77 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
         {
             if (token != null)
             {
-                //Insert this into cloud firestore database
+                //Collect the class details
                 DocumentReference docRef = db.Collection("Users").Document(token).Collection("Classes").Document(className);
                 DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
 
-                if (snapshot.Exists)
-                {
-                    ClassModel classModel = snapshot.ConvertTo<ClassModel>();
-                    Console.WriteLine("Name: {0}", classModel.Name);
-                    Console.WriteLine("Study Period: {0}", classModel.StudyPeriod);
-                    Console.WriteLine("Semester: {0}", classModel.Semester);
-                    Console.WriteLine("Year: {0}", classModel.Year);
+                if (!snapshot.Exists) return null;
 
-                    return classModel;
+                var classDetails = snapshot.ConvertTo<ClassModel>();
+
+                //Retrieve the list of students
+                Query colRef = db.Collection("Users").Document(token).Collection("Classes").Document(className).Collection("Students");
+                QuerySnapshot allClassesQuerySnapshot = await colRef.GetSnapshotAsync();
+                List<string> students = new List<string>();
+
+                foreach (DocumentSnapshot documentSnapshot in allClassesQuerySnapshot.Documents)
+                {
+                    var currentStudent = documentSnapshot.ConvertTo<StudentModel>();
+                    students.Add(JsonConvert.SerializeObject(currentStudent));
                 }
+
+                Console.WriteLine(students.ToString());
+
+                classDetails.Students = string.Join("|", students.ToArray());
+
+                return classDetails;
             }
 
             return null;
         }
 
-        public string testingFunction(string value)
+        /// <summary>
+        /// Save a new class string to under the currently selected class.
+        /// </summary>
+        /// <param name="token">A string representing the current user signed in</param>
+        /// <param name="className">A string representing the ID of the class to save to</param>
+        /// <param name="studentList">A string of student values, each value separated by a ':' and each student
+        ///                             separated by a ','
+        /// <returns>A boolean representing if the operation was a success</returns>
+        public async Task<bool> SaveAClassListAsync(string token, string className, string[] studentList)
         {
-            string response = value + " testing";
-            return response;
+            if (token != null)
+            {
+                WriteBatch batch = db.StartBatch();
+
+                foreach (string student in studentList)
+                {
+                    //Convert the string to a json to easily access the values
+                    JObject studentJson = JObject.Parse(student);
+
+                    string? id = (string?)studentJson["ID"];
+                    if (id == null) return false;
+
+                    //Conver the json values to a dictionary so that firebase can save them
+                    Dictionary<string, object> studentObject = new Dictionary<string, object>
+                    {
+                        { "FirstName", (string)studentJson["details"]["FirstName"] },
+                        { "LastName", (string)studentJson["details"]["LastName"] },
+                        { "StudentId", (string)studentJson["details"]["StudentID"] },
+                        { "Username", (string)studentJson["details"]["Username"] }
+                    };
+
+                    // //Insert the student list into the selected class
+                    DocumentReference docRef = db.Collection("Users").Document(token).Collection("Classes").Document(className).Collection("Students").Document(id);
+                    batch.Set(docRef, studentObject);
+                }
+
+                await batch.CommitAsync();
+
+                return true;
+            }
+
+            return false;
         }
     }
 }

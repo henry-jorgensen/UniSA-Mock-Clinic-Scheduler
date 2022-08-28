@@ -68,7 +68,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
                 return Forbid();
             }
 
-            Array? success = await firebase.CollectAllClassAsync(_UserToken);
+            List<ClassModel>? success = await firebase.CollectAllClassAsync(_UserToken);
 
             if (success != null)
             {
@@ -91,6 +91,26 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             ClassModel? success = await firebase.CollectClassAsync(_UserToken, className);
 
             if (success != null)
+            {
+                return Ok(success);
+            }
+
+            return BadRequest();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SaveAClassList(string className, string[] studentList)
+        {
+            var _UserToken = HttpContext.Session.GetString("_UserToken");
+
+            if (_UserToken == null)
+            {
+                return Forbid();
+            }
+
+            bool success = await firebase.SaveAClassListAsync(_UserToken, className, studentList);
+
+            if (success)
             {
                 return Ok(success);
             }
