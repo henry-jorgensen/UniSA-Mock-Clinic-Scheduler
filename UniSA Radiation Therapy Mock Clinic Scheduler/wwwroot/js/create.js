@@ -9,6 +9,13 @@ class TableManager {
     }
 
     /**
+     * Remove any entries that are currently within the table.
+     */
+    clearTable = (table) => {
+        table.empty();
+    }
+
+    /**
      * Collect the inputs from the class list form, using the data create a new table
      * row that reflects the data and append it to the main table.
      */
@@ -17,7 +24,8 @@ class TableManager {
             this.fNInput.val(),
             this.lNInput.val(),
             this.sIInput.val(),
-            this.sUInput.val()
+            this.sUInput.val(),
+            true
         );
     
         this.list.append(row);
@@ -37,7 +45,8 @@ class TableManager {
                 nameSplit[0],
                 nameSplit[1].trim(),
                 row["Student ID"],
-                row["Student Username"]
+                row["Student Username"],
+                true
             );
 
             this.list.append(newRow);
@@ -51,13 +60,18 @@ class TableManager {
     classAdd = (classObject) => {
         let split = classObject.students.split("|");
 
+        if(split[0] == "") {
+            return;
+        }
+
         split.forEach(student => {
             let jStudent = JSON.parse(student);
             let row = this.createRow(
                 jStudent.FirstName,
                 jStudent.LastName,
-                jStudent.StudentID,
-                jStudent.Username
+                jStudent.StudentId,
+                jStudent.Username,
+                true
             );
         
             this.list.append(row);
@@ -68,7 +82,7 @@ class TableManager {
      * Using string literal and html create and return a new table row element with the supplied
      * information as the filler details.
      */
-    createRow = (fname, lname, id, uname) => {
+    createRow = (fname, lname, id, uname, canDelete) => {
         let tr = $('<tr>', {
             class: "studentEntry"
         })
@@ -79,15 +93,20 @@ class TableManager {
         let tdUName = $('<td>', { text: uname });
 
         //Create delete button
-        let tdDelete = $('<td>');
-        let button = $('<button>', {id: `text${this.listNum}`, text: "X"})
-        button.click((id) => {
-            id.currentTarget.parentNode.parentNode.remove();
-        });
+        if(canDelete) {
+            let tdDelete = $('<td>');
+            let button = $('<button>', {id: `text${this.listNum}`, text: "X"})
+            button.click((id) => {
+                id.currentTarget.parentNode.parentNode.remove();
+            });
 
-        tdDelete.append(button);
+            tdDelete.append(button);
 
-        tr.append(tdFName, tdLName, tdId, tdUName, tdDelete);
+
+            tr.append(tdFName, tdLName, tdId, tdUName, tdDelete);
+        } else {
+            tr.append(tdFName, tdLName, tdId, tdUName);
+        }
         
         return tr;
     }
@@ -100,6 +119,17 @@ class TableManager {
         this.lNInput.val("");
         this.sIInput.val("");
         this.sUInput.val("");
+    }
+
+    /**
+     * Populate the preview table with the values that were in the main table when saved.
+     */
+    populatePreview = (entries, previewList) => {
+        for(let x=0; x<entries.length; x++) {
+            let cells = entries[x].cells;
+            let row = this.createRow(cells[0].textContent, cells[1].textContent, cells[2].textContent, cells[3].textContent, false);
+            previewList.append(row)
+        };
     }
 }
 
@@ -197,13 +227,10 @@ class AJAXManager {
             let cells = entries[x].cells;
 
             let studentObject = {
-                ID: cells[2].textContent,
-                details: {
-                    FirstName: cells[0].textContent,
-                    LastName: cells[1].textContent,
-                    StudentID: cells[2].textContent,
-                    Username: cells[3].textContent
-                }
+                FirstName: cells[0].textContent,
+                LastName: cells[1].textContent,
+                StudentId: cells[2].textContent,
+                Username: cells[3].textContent
             }
 
             studentArray.push(JSON.stringify(studentObject));
@@ -322,6 +349,9 @@ $( document ).ready(function() {
             return;
         }
 
+        //Clear any previously loaded classes (except for the first disabled option)
+        $("#classSelection").children().not(':first').remove();
+
         //Populate the list with the results
         result.forEach(entry => {
             ajaxManager.classes.push(entry);
@@ -346,7 +376,6 @@ $( document ).ready(function() {
     //Stop all default behaviour for forms and implement custom
     $("form").on('submit', async (e) => {
         e.preventDefault();
-        console.log(e.currentTarget.id);
         let response;
 
         try {
@@ -371,9 +400,10 @@ $( document ).ready(function() {
                         $("#classSelection").val()
                     );
                     
+                    //Clear the table from any previous entries
+                    tableManager.clearTable(tableManager.list);
+                    
                     //The current class
-                    console.log(response);
-
                     tableManager.classAdd(response);
 
                     if(response == null) {
@@ -391,6 +421,14 @@ $( document ).ready(function() {
                     response = await ajaxManager.saveAClassList(
                         $(".studentEntry")
                     );
+
+                    if(response == null) {
+                        return;
+                    }
+
+                    tableManager.clearTable($("#previewList"));
+                    tableManager.populatePreview($(".studentEntry"), $("#previewList"));
+                    performStep(1);
                     break;
 
                 default:
@@ -408,6 +446,9 @@ $( document ).ready(function() {
         }
     }
 
+    //==========================================================
+    //EXCEL UPLOAD SECTION
+    //==========================================================
     /**
      * Instantiate a new reader object to read the newly uploaded excel spreadsheet.
      */

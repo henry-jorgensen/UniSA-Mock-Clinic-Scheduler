@@ -1,7 +1,6 @@
 ﻿using Firebase.Auth;
 using Google.Cloud.Firestore;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models;
 
 namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
@@ -167,8 +166,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                     students.Add(JsonConvert.SerializeObject(currentStudent));
                 }
 
-                Console.WriteLine(students.ToString());
-
+                //Join the students with a unique character as to easily separate them in javascript
                 classDetails.Students = string.Join("|", students.ToArray());
 
                 return classDetails;
@@ -193,23 +191,12 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
                 foreach (string student in studentList)
                 {
-                    //Convert the string to a json to easily access the values
-                    JObject studentJson = JObject.Parse(student);
+                    var studentObject = JsonConvert.DeserializeObject<StudentModel>(student);
 
-                    string? id = (string?)studentJson["ID"];
-                    if (id == null) return false;
+                    if (studentObject == null) return false;
 
-                    //Conver the json values to a dictionary so that firebase can save them
-                    Dictionary<string, object> studentObject = new Dictionary<string, object>
-                    {
-                        { "FirstName", (string)studentJson["details"]["FirstName"] },
-                        { "LastName", (string)studentJson["details"]["LastName"] },
-                        { "StudentId", (string)studentJson["details"]["StudentID"] },
-                        { "Username", (string)studentJson["details"]["Username"] }
-                    };
-
-                    // //Insert the student list into the selected class
-                    DocumentReference docRef = db.Collection("Users").Document(token).Collection("Classes").Document(className).Collection("Students").Document(id);
+                    //Insert the student list into the selected class
+                    DocumentReference docRef = db.Collection("Users").Document(token).Collection("Classes").Document(className).Collection("Students").Document(studentObject.StudentId);
                     batch.Set(docRef, studentObject);
                 }
 

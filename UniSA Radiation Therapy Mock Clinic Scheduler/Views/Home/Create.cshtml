@@ -181,17 +181,30 @@
 
     @*PREVIEW A CLASS*@
     <div class="tab card-body">
-        <h5 class="card-title">Select an Option</h5>
+        <h5 class="card-title">Class Preview</h5>
 
         <form id="classListForm">
             <div class="my-5" style="height:auto;">
-                <h1 class="h1">Preview Class</h1>
                 <div class="row rounded bg-white">
                     <div class=" col-12">
-                        <ul class=" list-group" id="list"></ul>
+                        <ul class="list-group"></ul>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th scope="col">First Name</th>
+                                    <th scope="col">Last Name</th>
+                                    <th scope="col">Student ID</th>
+                                    <th scope="col">Student Username</th>
+                                </tr>
+                            </thead>
+                            <tbody id="previewList">
+
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-                <button class="btn btn-primary" type="button">Finish</button>
+
+                <button style="float:right;" class="btn btn-primary" type="button">Finish</button>
             </div>
         </form>
     </div>

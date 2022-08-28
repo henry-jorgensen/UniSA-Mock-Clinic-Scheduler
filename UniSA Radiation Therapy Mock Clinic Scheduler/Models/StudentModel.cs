@@ -9,7 +9,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models
         {
         }
 
-        public StudentModel(string FirstName, string LastName, string studentId, string Username)
+        public StudentModel(string FirstName, string LastName, string StudentId, string Username)
         {
             this.FirstName = FirstName;
             this.LastName = LastName;
