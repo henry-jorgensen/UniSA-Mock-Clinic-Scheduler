@@ -4,6 +4,8 @@ using Newtonsoft.Json;
 using System.Diagnostics;
 using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models;
 using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase;
+using Google.Cloud.Firestore;
+using static Google.Rpc.Context.AttributeContext.Types;
 
 namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 {
@@ -70,12 +72,28 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         {
             try
             {
-                UserModel AccountToLogin = firebase.LoginAccountAsync(accountModel).Result;
+                var firebaseAuth = await firebase.Auth().SignInWithEmailAndPasswordAsync(accountModel.Email, accountModel.Password);
+                string token = firebaseAuth.User.LocalId;
 
-                if (AccountToLogin != null)
+                if (token != null)
                 {
-                    HttpContext.Session.SetString("_UserToken", AccountToLogin.UserToken);
-                    return RedirectToAction("Index");
+                    CollectionReference usersRef = firebase.DB().Collection("Users");
+                    QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
+
+                    foreach (DocumentSnapshot document in snapshot.Documents)
+                    {
+                        if (document.Id == token)
+                        {
+                            Console.WriteLine("User: {0}", document.Id);
+                            Dictionary<string, object> documentDictionary = document.ToDictionary();
+                            string FirstName = documentDictionary["FirstName"].ToString();
+                            string LastName = documentDictionary["LastName"].ToString();
+                            string CCCode = documentDictionary["CCCode"].ToString();
+
+                            HttpContext.Session.SetString("_UserToken", token);
+                            return RedirectToAction("Index");
+                        }
+                    }
                 }
             }
             catch (FirebaseAuthException ex)
@@ -93,11 +111,24 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         {
             try
             {
-                UserModel AccountToCreate = firebase.CreateAccountAsync(accountModel).Result;
+                await firebase.Auth().CreateUserWithEmailAndPasswordAsync(accountModel.Email, accountModel.Password);
+                var firebaseAuth = await firebase.Auth().SignInWithEmailAndPasswordAsync(accountModel.Email, accountModel.Password);
 
-                if (AccountToCreate != null)
+                string token = firebaseAuth.User.LocalId;
+
+                if (token != null)
                 {
-                    HttpContext.Session.SetString("_UserToken", AccountToCreate.UserToken);
+                    //Insert this into cloud firestore database
+                    DocumentReference docRef = firebase.DB().Collection("Users").Document(token);
+                    Dictionary<string, object> user = new Dictionary<string, object>
+                    {
+                        { "FirstName", accountModel.FirstName },
+                        { "LastName", accountModel.LastName },
+                        { "CCCode", accountModel.CCCode }
+                    };
+                    await docRef.SetAsync(user);
+
+                    HttpContext.Session.SetString("_UserToken", token);
                     return RedirectToAction("Index");
                 }
             }

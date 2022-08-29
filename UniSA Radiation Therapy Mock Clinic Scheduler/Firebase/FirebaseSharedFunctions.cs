@@ -13,6 +13,16 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
         FirestoreDb db;
         FirebaseAuthProvider auth;
 
+        public FirestoreDb DB()
+        {
+            return db;
+        }
+       
+        public FirebaseAuthProvider Auth()
+        {
+            return auth;
+        }
+
         public FirebaseSharedFunctions()
         {
             db = FirestoreDb.Create("unisa-rt-mock-clinic");
