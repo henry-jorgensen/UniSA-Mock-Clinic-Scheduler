@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
 using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models;
+using Google.Rpc;
 
 namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 {
@@ -27,6 +28,53 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
         {
             db = FirestoreDb.Create("unisa-rt-mock-clinic");
             auth = new FirebaseAuthProvider(new FirebaseConfig("AIzaSyByVk8XwhbQGoeeqkcxr5vRJWhOjep5Ulc"));
+        }
+
+        public async Task<Boolean> VerifyLoggedIn(string UserToken)
+        {
+            if (UserToken == null) return false;
+
+            CollectionReference usersRef = db.Collection("Users");
+            QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
+
+            foreach (DocumentSnapshot document in snapshot.Documents)
+            {
+                return document.Id == UserToken;
+            }
+
+            return false;
+        }
+
+        public async Task<Boolean> VerifyCoordinatorCode(string code)
+        {
+            CollectionReference usersRef = db.Collection("CoordinatorCodes");
+            QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
+
+            foreach (DocumentSnapshot document in snapshot.Documents)
+            {
+                return document.Id == code;
+            }
+
+            return false;
+        }
+
+        public async Task<Boolean> LoggedInAsCoordinator(string UserToken)
+        {
+            CollectionReference usersRef = db.Collection("Users");
+            QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
+
+            foreach (DocumentSnapshot document in snapshot.Documents)
+            {
+                if (document.Id == UserToken)
+                {
+                    Dictionary<string, object> documentDictionary = document.ToDictionary();
+                    string CCCode = documentDictionary["CCCode"].ToString();
+
+                    return VerifyCoordinatorCode(CCCode).Result;
+                }
+            }
+
+            return false;
         }
 
         public async Task<UserModel> GetUserModelAsync(string UserToken)
