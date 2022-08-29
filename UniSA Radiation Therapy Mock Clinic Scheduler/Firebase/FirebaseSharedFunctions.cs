@@ -6,6 +6,7 @@ using System.Diagnostics;
 
 using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models;
 using Google.Rpc;
+using System.Linq;
 
 namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 {
@@ -32,14 +33,13 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
         public async Task<Boolean> VerifyLoggedIn(string UserToken)
         {
-            if (UserToken == null) return false;
-
             CollectionReference usersRef = db.Collection("Users");
             QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
 
+            Console.WriteLine("Begin Users");
             foreach (DocumentSnapshot document in snapshot.Documents)
             {
-                return document.Id == UserToken;
+                if (document.Id == UserToken) return true;
             }
 
             return false;
@@ -52,7 +52,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
             foreach (DocumentSnapshot document in snapshot.Documents)
             {
-                return document.Id == code;
+                if (document.Id == code) return true;
             }
 
             return false;
@@ -86,7 +86,6 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             {
                 if (document.Id == UserToken)
                 {
-                    Console.WriteLine("User: {0}", document.Id);
                     Dictionary<string, object> documentDictionary = document.ToDictionary();
                     string FirstName = documentDictionary["FirstName"].ToString();
                     string LastName = documentDictionary["LastName"].ToString();
