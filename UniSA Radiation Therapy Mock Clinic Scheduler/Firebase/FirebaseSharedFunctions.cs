@@ -1,13 +1,15 @@
 ﻿using Firebase.Auth;
 using Google.Cloud.Firestore;
+using Newtonsoft.Json;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+
 using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models;
 
 namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 {
-	public class FirebaseSharedFunctions
-	{
+    public class FirebaseSharedFunctions
+    {
         FirestoreDb db;
         FirebaseAuthProvider auth;
 
@@ -95,6 +97,123 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             return null;
         }
 
+        /// <summary>
+        /// Create a new class document with the provided name as the document id under the current users in firebase. 
+        /// If there is no Classes it will create a new collection.
+        /// </summary>
+        /// <param name="token">A string representing the current user signed in</param>
+        /// <param name="classModel">An object contained all the required information for the new entry</param>
+        /// <returns>A string representing the ID(name) of the new document</returns>
+        public async Task<string?> CreateNewClassAsync(string token, ClassModel classModel)
+        {
+            //Insert this into cloud firestore database
+            if (token != null)
+            {
+                DocumentReference docRef = db.Collection("Users").Document(token).Collection("Classes").Document(classModel.Name);
+                await docRef.SetAsync(classModel);
+                return classModel.Name;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Collect all class details, excluding the student and schedules lists that belong to a
+        /// particular course coordinator.
+        /// <param name="token">A string representing the current user signed in</param>
+        /// </summary>
+        public async Task<List<ClassModel>?> CollectAllClassAsync(string token)
+        {
+            if (token != null)
+            {
+                Query allClassesQuery = db.Collection("Users").Document(token).Collection("Classes");
+                QuerySnapshot allClassesQuerySnapshot = await allClassesQuery.GetSnapshotAsync();
+                List<ClassModel> classes = new List<ClassModel>();
+
+                foreach (DocumentSnapshot documentSnapshot in allClassesQuerySnapshot.Documents)
+                {
+                    var currentClass = documentSnapshot.ConvertTo<ClassModel>();
+                    classes.Add(currentClass);
+                }
+
+                return classes;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Retrieve a saved classes information from firebase. The retrieved data depends on the provided user token
+        /// and class name.
+        /// </summary>
+        /// <param name="token">A string representing the current user signed in</param>
+        /// <param name="className">A string representing the ID of the class to retrieve</param>
+        /// <returns>A ClassModel object containing the information that had been saved previously</returns>
+        public async Task<ClassModel?> CollectClassAsync(string token, string className)
+        {
+            if (token != null)
+            {
+                //Collect the class details
+                DocumentReference docRef = db.Collection("Users").Document(token).Collection("Classes").Document(className);
+                DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+
+                if (!snapshot.Exists) return null;
+
+                var classDetails = snapshot.ConvertTo<ClassModel>();
+
+                //Retrieve the list of students
+                Query colRef = db.Collection("Users").Document(token).Collection("Classes").Document(className).Collection("Students");
+                QuerySnapshot allClassesQuerySnapshot = await colRef.GetSnapshotAsync();
+                List<string> students = new List<string>();
+
+                foreach (DocumentSnapshot documentSnapshot in allClassesQuerySnapshot.Documents)
+                {
+                    var currentStudent = documentSnapshot.ConvertTo<StudentModel>();
+                    students.Add(JsonConvert.SerializeObject(currentStudent));
+                }
+
+                //Join the students with a unique character as to easily separate them in javascript
+                classDetails.Students = string.Join("|", students.ToArray());
+
+                return classDetails;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Save a new class string to under the currently selected class.
+        /// </summary>
+        /// <param name="token">A string representing the current user signed in</param>
+        /// <param name="className">A string representing the ID of the class to save to</param>
+        /// <param name="studentList">A string of student values, each value separated by a ':' and each student
+        ///                             separated by a ','
+        /// <returns>A boolean representing if the operation was a success</returns>
+        public async Task<bool> SaveAClassListAsync(string token, string className, string[] studentList)
+        {
+            if (token != null)
+            {
+                WriteBatch batch = db.StartBatch();
+
+                foreach (string student in studentList)
+                {
+                    var studentObject = JsonConvert.DeserializeObject<StudentModel>(student);
+
+                    if (studentObject == null) return false;
+
+                    //Insert the student list into the selected class
+                    DocumentReference docRef = db.Collection("Users").Document(token).Collection("Classes").Document(className).Collection("Students").Document(studentObject.StudentId);
+                    batch.Set(docRef, studentObject);
+                }
+
+                await batch.CommitAsync();
+
+                return true;
+            }
+
+            return false;
+        }
+
         public async void DataRequest(string token, string type)
         {
             try
@@ -143,6 +262,5 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                 Debug.WriteLine(e);
             }           
         }
-
     }
 }
