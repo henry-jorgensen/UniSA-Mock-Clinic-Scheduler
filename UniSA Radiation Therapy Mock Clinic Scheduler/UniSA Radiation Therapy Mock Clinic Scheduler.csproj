@@ -27,7 +27,6 @@
     <PackageReference Include="Google.Cloud.Firestore.V1" Version="3.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Views\Account\" />
     <Folder Include="Firebase\" />
     <Folder Include="Firebase\Auth\" />
   </ItemGroup>
