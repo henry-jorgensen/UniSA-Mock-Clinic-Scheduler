@@ -28,7 +28,6 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Views\Account\" />
     <Folder Include="Firebase\" />
     <Folder Include="Firebase\Auth\" />
   </ItemGroup>

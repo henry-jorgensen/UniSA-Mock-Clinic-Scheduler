@@ -10,9 +10,18 @@
     @{
         if (CurrentUser!=null)
         {
-            @CurrentUser.FirstName<br />
-            @CurrentUser.LastName<br />
-            @CurrentUser.CCCode<br />
+                @CurrentUser.FirstName<br />
+                @CurrentUser.LastName<br />
+                @CurrentUser.CCCode<br />
+                <div style="margin-top: 50px;">
+
+                    <div st class="form-group">
+                        <a class="button" asp-controller="Account" asp-action="RequestUserData">Request Data (GDPR)</a>
+                    </div>
+                    <div class="form-group">
+                        <a class="button" asp-controller="Account" asp-action="DeleteUserData">Delete Data (GDPR)</a>
+                    </div>
+                </div>
         }
     }
 </div>

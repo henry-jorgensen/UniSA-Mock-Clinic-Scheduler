@@ -39,6 +39,19 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             }
         }
 
+        public IActionResult Reset()
+        {
+            var token = HttpContext.Session.GetString("_UserToken");
+            if (token == null)
+            {
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("Index");
+            }
+        }
+
         public IActionResult Register()
         {
             var token = HttpContext.Session.GetString("_UserToken");
@@ -96,6 +109,41 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             }
 
             return View();
+        }
+
+        [HttpPost]
+        public IActionResult Reset(ResetModel resetModel)
+        {
+            firebase.ResetPassword(resetModel.Email);
+            resetModel.Response = "Email has been sent";
+            ViewBag.ResetModel = resetModel;
+            return View();
+        }
+
+        public IActionResult DataRequest(string type)
+        {
+            var _UserToken = HttpContext.Session.GetString("_UserToken");
+            firebase.DataRequest(_UserToken, type);
+            return RedirectToAction("Index");
+        }
+
+        public IActionResult RequestUserData()
+        {
+            DataRequest("Request");
+            return RedirectToAction("Index");
+        }
+
+        public IActionResult DeleteUserData()
+        {
+            DataRequest("Delete");
+            return RedirectToAction("Index");
+        }
+
+        public IActionResult DeleteUserDataTest()
+        {
+            var token = HttpContext.Session.GetString("_UserToken");
+            firebase.DeleteUserData(token);
+            return RedirectToAction("Logout");
         }
 
         public IActionResult Logout()
