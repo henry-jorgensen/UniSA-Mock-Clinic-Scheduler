@@ -95,6 +95,44 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             return null;
         }
 
+        public async void DataRequest(string token, string type)
+        {
+            try
+            {
+                UserModel user = GetUserModelAsync(token).Result;
+
+                CollectionReference RequestsRef = db.Collection("DataRequests");
+                QuerySnapshot snapshot = await RequestsRef.GetSnapshotAsync();
+
+
+                DocumentReference docRef = db.Collection("DataRequests").Document();
+                Dictionary<string, object> dataRequest = new Dictionary<string, object>
+                    {
+                        { "UID", token },
+                        { "Name",  user.FirstName + " " + user.LastName},
+                        { "Type", type },
+                        { "Date", DateTime.Now.ToString() }
+                    };
+                await docRef.SetAsync(dataRequest);
+            } catch(Exception e)
+            {
+                Debug.WriteLine(e);
+            }
+        }
+
+        public async void DeleteUserData(string token)
+        {
+            try
+            {
+                DocumentReference userRef = db.Collection("Users").Document(token);
+                await userRef.DeleteAsync();
+                
+            } catch (Exception e)
+            {
+                Debug.WriteLine(e);
+            }
+        }
+
         public async void ResetPassword(string email)
         {
             try

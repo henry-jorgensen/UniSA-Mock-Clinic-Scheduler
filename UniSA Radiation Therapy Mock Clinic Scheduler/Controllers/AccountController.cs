@@ -120,14 +120,30 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             return View();
         }
 
+        public IActionResult DataRequest(string type)
+        {
+            var _UserToken = HttpContext.Session.GetString("_UserToken");
+            firebase.DataRequest(_UserToken, type);
+            return RedirectToAction("Index");
+        }
+
         public IActionResult RequestUserData()
         {
+            DataRequest("Request");
             return RedirectToAction("Index");
         }
 
         public IActionResult DeleteUserData()
         {
+            DataRequest("Delete");
             return RedirectToAction("Index");
+        }
+
+        public IActionResult DeleteUserDataTest()
+        {
+            var token = HttpContext.Session.GetString("_UserToken");
+            firebase.DeleteUserData(token);
+            return RedirectToAction("Logout");
         }
 
         public IActionResult Logout()
