@@ -1,0 +1,36 @@
+﻿@model UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models.AccountModel
+
+@{
+    ViewData["Title"] = "Login";
+    ViewData["Controller"] = "Account";
+}
+
+<div class="container">
+    <main role="main" class="pb-3">
+        <div class="row d-flex justify-content-center">
+            <div class="col-sm-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Login</h5>
+
+                        <form asp-action="Login">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                            <div class="form-group">
+                                <input asp-for="Email" type="text" placeholder="Email" class="form-control input" required />
+                            </div>
+
+                            <div class="form-group">
+                                <input asp-for="Password" type="password" placeholder="Password" class="form-control input" required />
+                            </div>
+
+                            <div class="form-group">
+                                <button type="submit" class="btn button">Login</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
