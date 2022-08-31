@@ -56,7 +56,7 @@
                         if (firebase.VerifyLoggedIn(Context.Session.GetString("_UserToken")).Result == true)
                         {
                             <li class="nav-item @(ViewData["Controller"] == "Home" ? "active" : "")">
-                                <a class="nav-link" asp-controller="Home" asp-action="Clinics">
+                                <a class="nav-link" asp-controller="Home" asp-action="Index">
                                     <i class="icon fa fal fa-graduation-cap fa-fw"></i>
                                     <span>Student</span>
                                 </a>
@@ -67,7 +67,7 @@
                         {
                             <li class="nav-item @(ViewData["Controller"] == "Coordinator" ? "active" : "")">
                                 <a class="nav-link" asp-controller="Coordinator" asp-action="Index">
-                                    <i class="icon fa fal fa-school fa-fw"></i>
+                                    <i class="icon fa fal fa-keynote fa-fw"></i>
                                     <span>Coordinator</span>
                                 </a>
                             </li>

@@ -47,7 +47,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             }
             else
             {
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Redirect", "Home");
             }
         }
 
@@ -63,7 +63,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             }
             else
             {
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Redirect", "Home");
             }
         }
 
@@ -79,7 +79,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             }
             else
             {
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Redirect", "Home");
             }
         }
 
@@ -115,7 +115,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
                             string CCCode = documentDictionary["CCCode"].ToString();
 
                             HttpContext.Session.SetString("_UserToken", token);
-                            return RedirectToAction("Index", "Home");
+                            return RedirectToAction("Redirect", "Home");
                         }
                     }
                 }
@@ -153,7 +153,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
                     await docRef.SetAsync(user);
 
                     HttpContext.Session.SetString("_UserToken", token);
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Redirect", "Home");
                 }
             }
             catch (FirebaseAuthException ex)

@@ -18,7 +18,27 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             firebase = new FirebaseSharedFunctions();
         }
 
-        //Basic home page
+        public IActionResult Redirect()
+        {
+            var UserToken = HttpContext.Session.GetString("_UserToken");
+
+            if (firebase.VerifyLoggedIn(UserToken).Result == false)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            else
+            {
+                if (firebase.LoggedInAsCoordinator(UserToken).Result == true)
+                {
+                    return RedirectToAction("Create", "Coordinator");
+                }
+                else
+                {
+                    return RedirectToAction("Clinics", "Home");
+                }
+            }
+        }
+
         public IActionResult Index()
         {
             var UserToken = HttpContext.Session.GetString("_UserToken");
