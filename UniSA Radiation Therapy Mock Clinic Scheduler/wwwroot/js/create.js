@@ -335,7 +335,7 @@ $( document ).ready(function() {
         $("#usernameInput")    
     );
 
-    const ajaxManager = new AJAXManager("Home");
+    const ajaxManager = new AJAXManager("Coordinator");
     const formWizard = new FormWizard(0); 
 
     formWizard.showInitialTab(); // Display the first tab

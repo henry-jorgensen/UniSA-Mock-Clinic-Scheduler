@@ -22,6 +22,9 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 
         public IActionResult Index()
         {
+            string CCCode = (true) ? "b" : "a";
+            Console.WriteLine(CCCode);
+
             var UserToken = HttpContext.Session.GetString("_UserToken");
 
             if (firebase.VerifyLoggedIn(UserToken).Result == true)
@@ -142,6 +145,8 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 
                 if (token != null)
                 {
+                    string CCCode = (true) ? "b" : "a";
+
                     //Insert this into cloud firestore database
                     DocumentReference docRef = firebase.DB().Collection("Users").Document(token);
                     Dictionary<string, object> user = new Dictionary<string, object>
