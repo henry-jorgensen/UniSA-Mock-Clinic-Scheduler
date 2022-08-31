@@ -7,23 +7,15 @@
     <h2>Upcoming Clinics</h2>
 </div>
 
-<div class="card w-100">
-    <div class="card-body">
-        <h5 class="card-title">Scheduled Clinic</h5>
-        <p class="card-text">Figure out what to add here</p>
-    </div>
-</div><br />
-
-<div class="card w-100">
-    <div class="card-body">
-        <h5 class="card-title">Scheduled Clinic</h5>
-        <p class="card-text">Figure out what to add here</p>
-    </div>
-</div><br />
-
-<div class="card w-100">
-    <div class="card-body">
-        <h5 class="card-title">Scheduled Clinic</h5>
-        <p class="card-text">Figure out what to add here</p>
-    </div>
-</div>
+@{
+    for (int i = 1; i <= 7; i++)
+    {
+        <div class="card w-100">
+            <div class="card-body">
+                <h5 class="card-title">Scheduled Clinic #@i</h5>
+                <p class="card-text">@i/08/2022 - UniSA City East Campus - Building GH2</p>
+            </div>
+        </div>
+        <br />
+    }
+}

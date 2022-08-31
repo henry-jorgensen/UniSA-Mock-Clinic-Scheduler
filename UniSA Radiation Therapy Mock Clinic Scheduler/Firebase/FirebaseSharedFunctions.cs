@@ -36,7 +36,6 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             CollectionReference usersRef = db.Collection("Users");
             QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
 
-            Console.WriteLine("Begin Users");
             foreach (DocumentSnapshot document in snapshot.Documents)
             {
                 if (document.Id == UserToken) return true;
@@ -106,7 +105,6 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             Debug.WriteLine(token);
             if (token != null)
             {
-                Debug.WriteLine("hit");
                 CollectionReference usersRef = db.Collection("Users");
                 QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
 
@@ -114,7 +112,6 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                 {
                     if (document.Id == token)
                     {
-                        Console.WriteLine("User: {0}", document.Id);
                         Dictionary<string, object> documentDictionary = document.ToDictionary();
                         string FirstName = documentDictionary["FirstName"].ToString();
                         string LastName = documentDictionary["LastName"].ToString();

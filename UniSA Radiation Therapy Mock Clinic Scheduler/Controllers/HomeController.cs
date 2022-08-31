@@ -20,7 +20,23 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         //Basic home page
         public IActionResult Index()
         {
-            return View();
+            var UserToken = HttpContext.Session.GetString("_UserToken");
+
+            if (firebase.VerifyLoggedIn(UserToken).Result == false)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            else
+            {
+                if (firebase.LoggedInAsCoordinator(UserToken).Result == true)
+                {
+                    return RedirectToAction("Create", "Home");
+                }
+                else
+                {
+                    return RedirectToAction("Clinics", "Home");
+                }
+            }
         }
 
         //Scheduled clinics page
@@ -35,7 +51,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             }
             else
             {
-                return RedirectToAction("Index");
+                return RedirectToAction("Login", "Account");
             }
         }
 
@@ -51,7 +67,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             }
             else
             {
-                return RedirectToAction("Index");
+                return RedirectToAction("Login", "Account");
             }
         }
 
@@ -68,7 +84,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             }
             else
             {
-                return RedirectToAction("Index");
+                return RedirectToAction("Login", "Account");
             }
         }
 

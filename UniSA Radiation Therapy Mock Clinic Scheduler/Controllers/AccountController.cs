@@ -22,10 +22,17 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 
         public IActionResult Index()
         {
-            var _UserToken = HttpContext.Session.GetString("_UserToken");
-            ViewBag.CurrentUser = firebase.GetUserModelAsync(_UserToken).Result;
+            var UserToken = HttpContext.Session.GetString("_UserToken");
 
-            return View();
+            if (firebase.VerifyLoggedIn(UserToken).Result == true)
+            {
+                ViewBag.CurrentUser = firebase.GetUserModelAsync(UserToken).Result;
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("Login");
+            }
         }
 
         //Login to account page
@@ -40,7 +47,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             }
             else
             {
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", "Home");
             }
         }
 
@@ -56,7 +63,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             }
             else
             {
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", "Home");
             }
         }
 
@@ -72,7 +79,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             }
             else
             {
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", "Home");
             }
         }
 
@@ -108,7 +115,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
                             string CCCode = documentDictionary["CCCode"].ToString();
 
                             HttpContext.Session.SetString("_UserToken", token);
-                            return RedirectToAction("Index");
+                            return RedirectToAction("Index", "Home");
                         }
                     }
                 }
@@ -146,7 +153,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
                     await docRef.SetAsync(user);
 
                     HttpContext.Session.SetString("_UserToken", token);
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Index", "Home");
                 }
             }
             catch (FirebaseAuthException ex)
