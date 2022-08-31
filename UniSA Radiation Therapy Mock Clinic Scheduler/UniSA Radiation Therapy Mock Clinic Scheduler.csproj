@@ -17,6 +17,7 @@
     <None Remove="Google.Cloud.Firestore.V1" />
     <None Remove="Firebase\" />
     <None Remove="Firebase\Auth\" />
+    <None Remove="Views\Coordinator\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.8" />
@@ -30,5 +31,6 @@
   <ItemGroup>
     <Folder Include="Firebase\" />
     <Folder Include="Firebase\Auth\" />
+    <Folder Include="Views\Coordinator\" />
   </ItemGroup>
 </Project>

@@ -56,9 +56,19 @@
                         if (firebase.VerifyLoggedIn(Context.Session.GetString("_UserToken")).Result == true)
                         {
                             <li class="nav-item @(ViewData["Controller"] == "Home" ? "active" : "")">
-                                <a class="nav-link" asp-controller="Home" asp-action="Index">
-                                    <i class="icon fa fal fa-home fa-fw"></i>
-                                    <span>Home</span>
+                                <a class="nav-link" asp-controller="Home" asp-action="Clinics">
+                                    <i class="icon fa fal fa-graduation-cap fa-fw"></i>
+                                    <span>Student</span>
+                                </a>
+                            </li>
+                        }
+
+                        if (firebase.LoggedInAsCoordinator(Context.Session.GetString("_UserToken")).Result == true)
+                        {
+                            <li class="nav-item @(ViewData["Controller"] == "Coordinator" ? "active" : "")">
+                                <a class="nav-link" asp-controller="Coordinator" asp-action="Index">
+                                    <i class="icon fa fal fa-school fa-fw"></i>
+                                    <span>Coordinator</span>
                                 </a>
                             </li>
                         }
@@ -82,19 +92,6 @@
                         //The user is currently logged in
                         if (firebase.VerifyLoggedIn(Context.Session.GetString("_UserToken")).Result == true)
                         {
-                            //The user is a course coordinator
-                            if (firebase.LoggedInAsCoordinator(Context.Session.GetString("_UserToken")).Result == true)
-                            {
-                                //Course coordinator can create classes here
-                                <div class="list-group-item @(ViewData["Title"] == "Create Class" ? "active" : "")">
-                                    <div class="list-group-item-inner-container">
-                                        <a class="list-group-item-action list-indent-1" asp-controller="Home" asp-action="Create">
-                                            <span class="nav-item-text">Create Class</span>
-                                        </a>
-                                    </div>
-                                </div>
-                            }
-
                             //List of clinics students are currently scheduled in
                             <div class="list-group-item @(ViewData["Title"] == "Clinics" ? "active" : "")">
                                 <div class="list-group-item-inner-container">
@@ -109,6 +106,23 @@
                                 <div class="list-group-item-inner-container">
                                     <a class="list-group-item-action list-indent-1" asp-controller="Home" asp-action="History">
                                         <span class="nav-item-text">Past Clinics</span>
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    }
+
+                    //We are on the course coordinator section
+                    if (ViewData["Controller"] == "Coordinator")
+                    {
+                        //The user is a course coordinator
+                        if (firebase.LoggedInAsCoordinator(Context.Session.GetString("_UserToken")).Result == true)
+                        {
+                            //Course coordinator can create classes here
+                            <div class="list-group-item @(ViewData["Title"] == "Create Class" ? "active" : "")">
+                                <div class="list-group-item-inner-container">
+                                    <a class="list-group-item-action list-indent-1" asp-controller="Coordinator" asp-action="Create">
+                                        <span class="nav-item-text">Create Class</span>
                                     </a>
                                 </div>
                             </div>
