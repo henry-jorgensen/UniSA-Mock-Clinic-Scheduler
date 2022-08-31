@@ -22,6 +22,19 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 </head>
 
+<script>
+    function openNav() {
+        document.getElementById("nav-drawer").style.width = "250px";
+        document.getElementById("page").style.marginLeft = "250px";
+    }
+
+    /* Set the width of the sidebar to 0 and the left margin of the page content to 0 */
+    function closeNav() {
+        document.getElementById("nav-drawer").style.width = "0";
+        document.getElementById("page").style.marginLeft = "0";
+    }
+</script>
+
 <body class="format-flexsections hasnavbar drawer-full">
 
     <!-- Navigation -->
@@ -29,6 +42,13 @@
         <div class="top-nav-container navbar">
             <div class="navbar-nav justify-content-between">
                 <div class="fixed-row no-gutters d-flex">
+                    <div id="drawer-toggle" data-region="drawer-toggle" class="">
+                        <button onclick="closeNav()" id="drawer-toggle-button" type="button" class="btn nav-link d-flex justify-content-center align-items-center flex-column text-light" data-action="toggle-drawer" data-side="left" data-preference-auto="drawer-auto-collapsed" data-preference-auto-value="false" data-preference="drawer-open-nav" data-toggle="tooltip" data-placement="right" title="" role="button" data-original-title="Menu">
+                            <i class="fa fa-bars"></i>
+                            <span class="sr-only">Side panel</span>
+                        </button>
+                    </div>
+
                     <a asp-controller="Home" asp-action="Index" class="navbar-brand has-logo flex-shrink-0">
                         <span class="unisalogo">
                             <img src="https://lo.unisa.edu.au/theme/image.php/unisa/theme_unisa/1658874300/logo_unisa_learnonline">
