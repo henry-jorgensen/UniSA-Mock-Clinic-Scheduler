@@ -22,9 +22,6 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 
         public IActionResult Index()
         {
-            string CCCode = (true) ? "b" : "a";
-            Console.WriteLine(CCCode);
-
             var UserToken = HttpContext.Session.GetString("_UserToken");
 
             if (firebase.VerifyLoggedIn(UserToken).Result == true)
@@ -145,7 +142,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 
                 if (token != null)
                 {
-                    string CCCode = (true) ? "b" : "a";
+                    string CCCode = (firebase.VerifyCoordinatorCode(accountModel.CCCode).Result) ? accountModel.CCCode : "";
 
                     //Insert this into cloud firestore database
                     DocumentReference docRef = firebase.DB().Collection("Users").Document(token);
@@ -153,7 +150,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
                     {
                         { "FirstName", accountModel.FirstName },
                         { "LastName", accountModel.LastName },
-                        { "CCCode", accountModel.CCCode }
+                        { "CCCode", CCCode }
                     };
                     await docRef.SetAsync(user);
 
