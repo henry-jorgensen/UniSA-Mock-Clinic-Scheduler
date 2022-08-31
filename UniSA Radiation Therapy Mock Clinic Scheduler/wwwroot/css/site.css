@@ -1,3 +1,14 @@
+/* Mobile specific styles
+-------------------------------------------------- */
+
+@media (max-width: 767.98px)
+{
+    #page-content.row>.col {
+        margin: 1.5em;
+    }
+}
+
+
 /* Page styles
 -------------------------------------------------- */
 
