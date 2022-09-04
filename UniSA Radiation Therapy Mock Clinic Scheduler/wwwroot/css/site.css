@@ -77,6 +77,82 @@ hr {
     font-size: 12px;
 }
 
+.input-upload {
+    color: rgb(0 0 0 / 0.6);
+    outline: none;
+    display: block;
+    background: rgb(0 0 0 / 0.1);
+    width: 100%;
+    border: 0;
+    border-radius: 4px;
+    box-sizing: border-box;
+    padding: 15px 0px 15px 20px;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: 500;
+    line-height: inherit;
+    transition: 0.3s ease;
+    outline: 0px !important;
+    -webkit-appearance: none;
+}
+
+.input-upload:hover {
+    background: rgb(0 0 0 / 0.2);
+    outline: 0px !important;
+    -webkit-appearance: none;
+}
+
+.input-upload:focus {
+    background: rgb(0 0 0 / 0.2);
+    outline: 0px !important;
+    -webkit-appearance: none;
+}
+
+.input-upload::placeholder {
+    color: rgb(0 0 0 / 0.3);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 12px;
+}
+
+.input-dropdown {
+    color: rgb(0 0 0 / 0.6);
+    outline: none;
+    display: block;
+    background: rgb(0 0 0 / 0.1);
+    width: 100%;
+    border: 0;
+    border-radius: 4px;
+    box-sizing: border-box;
+    padding: 0px 0px 0px 24px;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: 500;
+    line-height: inherit;
+    transition: 0.3s ease;
+    outline: 0px !important;
+    -webkit-appearance: none;
+}
+
+.input-dropdown:hover {
+    background: rgb(0 0 0 / 0.2);
+    outline: 0px !important;
+    -webkit-appearance: none;
+}
+
+.input-dropdown:focus {
+    background: rgb(0 0 0 / 0.1);
+    outline: 0px !important;
+    -webkit-appearance: none;
+}
+
+.input-dropdown::placeholder {
+    color: rgb(0 0 0 / 0.3);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 12px;
+}
+
 .btn {
     border: 0;
 }
@@ -106,6 +182,7 @@ hr {
     text-transform: uppercase;
     cursor: pointer;
     transition: 0.3s ease;
+    height: calc(1.25em + 2rem + 2px);
 }
 
 .button:hover {
@@ -115,6 +192,35 @@ hr {
 }
 
 .button:active {
+    color: white;
+    background: #0052a0;
+    filter: brightness(70%);
+}
+
+.button-navigation {
+    outline: none;
+    background: #0052a0;
+    border: 0;
+    border-radius: 4px;
+    padding: 12px 20px;
+    color: white;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: 700;
+    line-height: inherit;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: 0.3s ease;
+    height: calc(1.25em + 2rem + 2px);
+}
+
+.button-navigation:hover {
+    color: white;
+    background: #0052a0;
+    filter: brightness(85%);
+}
+
+.button-navigation:active {
     color: white;
     background: #0052a0;
     filter: brightness(70%);
