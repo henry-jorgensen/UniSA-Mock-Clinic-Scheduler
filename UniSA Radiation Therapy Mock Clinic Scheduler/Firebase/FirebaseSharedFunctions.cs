@@ -285,6 +285,8 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                 foreach (DocumentSnapshot documentSnapshot in allAppointmentsQuerySnapshot.Documents)
                 {
                     var currentAppointment = documentSnapshot.ConvertTo<AppointmentModel>();
+                    UserModel user = await GetUserModelAsync(currentAppointment.Patient);
+                    currentAppointment.Patient = user.FirstName + " " + user.LastName;
                     appointments.Add(currentAppointment);
                 }
 
