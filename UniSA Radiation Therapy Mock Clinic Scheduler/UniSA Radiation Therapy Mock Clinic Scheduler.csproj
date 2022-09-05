@@ -36,6 +36,5 @@
   <ItemGroup>
     <Folder Include="Firebase\" />
     <Folder Include="Firebase\Auth\" />
-    <Folder Include="Views\Coordinator\" />
   </ItemGroup>
 </Project>

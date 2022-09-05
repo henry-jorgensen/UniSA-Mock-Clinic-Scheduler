@@ -274,6 +274,27 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             return false;
         }
 
+        public async Task<List<AppointmentModel>?> CollectAllAppointmentsAsync(string token)
+        {
+            if (token != null)
+            {
+                Query allAppointmentsQuery = db.Collection("Appointments");
+                QuerySnapshot allAppointmentsQuerySnapshot = await allAppointmentsQuery.GetSnapshotAsync();
+                List<AppointmentModel> appointments = new List<AppointmentModel>();
+
+                foreach (DocumentSnapshot documentSnapshot in allAppointmentsQuerySnapshot.Documents)
+                {
+                    var currentAppointment = documentSnapshot.ConvertTo<AppointmentModel>();
+                    appointments.Add(currentAppointment);
+                }
+
+                return appointments;
+            }
+
+            return null;
+
+        }
+
         public async void DataRequest(string token, string type)
         {
             try

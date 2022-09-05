@@ -133,6 +133,13 @@
                                                                     </a>
                                                                 </div>
                                                             </div>
+                                                            <div class="list-group-item @(ViewData["Title"] == "Clinics" && ViewData["Controller"] == "Coordinator" ? "active" : "")">
+                                                                <div class="list-group-item-inner-container">
+                                                                    <a class="list-group-item-action list-indent-1" asp-controller="Coordinator" asp-action="Clinics">
+                                                                        <span class="nav-item-text">View Clinics</span>
+                                                                    </a>
+                                                                </div>
+                                                            </div>
                             }
                         }
 
