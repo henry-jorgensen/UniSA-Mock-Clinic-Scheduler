@@ -12,6 +12,23 @@
                 </div>
 
                 @{
+                    if (ViewBag.appointments != null)
+                    {
+                        foreach (AppointmentModel appointment in ViewBag.appointments)
+                        {
+                            <div class="card w-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">test<a href="#" class="stretched-link"></a></h5>
+                                    <p class="card-text">/08/2022 - UniSA City East Campus - Building GH2</p>
+                                </div>
+                            </div>
+                            <br />
+                        }
+                    }
+                }
+
+
+                @{
                     for (int i = 1; i <= 7; i++)
                     {
                         <div class="card w-100">

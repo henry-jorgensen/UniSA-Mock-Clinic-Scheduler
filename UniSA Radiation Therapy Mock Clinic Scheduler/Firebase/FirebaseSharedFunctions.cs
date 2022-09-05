@@ -82,6 +82,34 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             return false;
         }
 
+        public async Task<List<AppointmentModel>> GetAppointmentsAsync(string UserToken)
+        {
+            CollectionReference appointmentsRef = db.Collection("Appointments");
+            QuerySnapshot snapshot = await appointmentsRef.GetSnapshotAsync();
+
+            List<AppointmentModel> appointments = new List<AppointmentModel>();
+
+            foreach (DocumentSnapshot document in snapshot.Documents)
+            {
+                Dictionary<string, object> documentDictionary = document.ToDictionary();
+
+                AppointmentModel appointmentModel = new AppointmentModel(
+                    (string)documentDictionary["Date"],
+                    (string)documentDictionary["Patient"],
+                    (string)documentDictionary["RadiationTherapist1"],
+                    (string)documentDictionary["RadiationTherapist2"],
+                    (string)documentDictionary["Room"],
+                    (string)documentDictionary["Site"]);
+
+                if (appointmentModel.Patient.Contains(UserToken) || appointmentModel.RadiationTherapist1.Contains(UserToken) || appointmentModel.RadiationTherapist2.Contains(UserToken))
+                {
+                    appointments.Add(appointmentModel);
+                }
+            }
+
+            return appointments;
+        }
+
         public async Task<UserModel> GetUserModelAsync(string UserToken)
         {
             CollectionReference usersRef = db.Collection("Users");

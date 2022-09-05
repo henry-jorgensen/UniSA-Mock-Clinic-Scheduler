@@ -43,6 +43,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 
             if (firebase.VerifyLoggedIn(UserToken).Result == false)
             {
+                firebase.GetAppointmentsAsync(UserToken);
                 return View();
             }
             else
