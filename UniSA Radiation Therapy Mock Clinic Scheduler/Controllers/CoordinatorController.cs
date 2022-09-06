@@ -83,8 +83,8 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 
             if (firebase.LoggedInAsCoordinator(_UserToken).Result == true)
             {
-                List<AppointmentModel> success = await firebase.CollectAllAppointmentsAsync(_UserToken);
-                ViewBag.Appointments = success;
+                List<AppointmentModel> appointments = await firebase.CollectAllAppointmentsAsync(_UserToken);
+                ViewBag.Appointments = appointments;
                 return View();
             }
             else

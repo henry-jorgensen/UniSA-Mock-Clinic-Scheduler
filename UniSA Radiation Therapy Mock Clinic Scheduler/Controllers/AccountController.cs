@@ -186,6 +186,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 
         public IActionResult RequestUserData()
         {
+            Debug.WriteLine("HIT");
             DataRequest("Request");
             return RedirectToAction("Index");
         }

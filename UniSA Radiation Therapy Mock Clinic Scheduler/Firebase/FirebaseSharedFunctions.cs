@@ -285,8 +285,15 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                 foreach (DocumentSnapshot documentSnapshot in allAppointmentsQuerySnapshot.Documents)
                 {
                     var currentAppointment = documentSnapshot.ConvertTo<AppointmentModel>();
-                    UserModel user = await GetUserModelAsync(currentAppointment.Patient);
-                    currentAppointment.Patient = user.FirstName + " " + user.LastName;
+                    UserModel userPatient = await GetUserModelAsync(currentAppointment.Patient);
+                    currentAppointment.Patient = userPatient.FirstName + " " + userPatient.LastName;
+
+                    UserModel userRT1 = await GetUserModelAsync(currentAppointment.RadiationTherapist1);
+                    currentAppointment.RadiationTherapist1 = userRT1.FirstName + " " + userRT1.LastName;
+
+                    UserModel userRT2 = await GetUserModelAsync(currentAppointment.RadiationTherapist2);
+                    currentAppointment.RadiationTherapist2 = userRT2.FirstName + " " + userRT2.LastName;
+
                     appointments.Add(currentAppointment);
                 }
 
@@ -306,16 +313,34 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                 CollectionReference RequestsRef = db.Collection("DataRequests");
                 QuerySnapshot snapshot = await RequestsRef.GetSnapshotAsync();
 
-
-                DocumentReference docRef = db.Collection("DataRequests").Document();
-                Dictionary<string, object> dataRequest = new Dictionary<string, object>
+                bool found = false;
+                
+                foreach (DocumentSnapshot document in snapshot.Documents)
+                {
+                    Dictionary<string, object> documentDictionary = document.ToDictionary();
+                    string typeDict = documentDictionary["Type"].ToString();
+                    string uid = documentDictionary["UID"].ToString();
+                    if (uid == token && typeDict == type)
                     {
-                        { "UID", token },
-                        { "Name",  user.FirstName + " " + user.LastName},
-                        { "Type", type },
-                        { "Date", DateTime.Now.ToString() }
-                    };
-                await docRef.SetAsync(dataRequest);
+                        found = true;
+                        Debug.WriteLine("ALREADY EXIST");
+                    } 
+                    
+                }
+                if (found == false)
+                {
+                    Debug.WriteLine("Hit 2");
+                    DocumentReference docRef = db.Collection("DataRequests").Document();
+                    Dictionary<string, object> dataRequest = new Dictionary<string, object>
+                        {
+                            { "UID", token },
+                            { "Name",  user.FirstName + " " + user.LastName},
+                            { "Type", type },
+                            { "Date", DateTime.Now.ToString() }
+                        };
+                    await docRef.SetAsync(dataRequest);
+                }
+
             } catch(Exception e)
             {
                 Debug.WriteLine(e);
