@@ -5,6 +5,9 @@ using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase;
 using System.Runtime.Intrinsics.Arm;
 using Microsoft.Extensions.Logging;
 
+//TESTING
+using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Notification;
+
 namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 {
     public class CoordinatorController : Controller
@@ -109,6 +112,8 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         [HttpGet]
         public async Task<IActionResult> LoadAllClasses()
         {
+            //TESTING
+            //var success = await SendGridMessenger.SendEmail();
             var _UserToken = HttpContext.Session.GetString("_UserToken");
 
             if (firebase.VerifyLoggedIn(_UserToken).Result == false)
@@ -147,7 +152,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SaveAClassList(string className, string[] studentList)
+        public async Task<IActionResult> SaveAClassList(string classCode, string className, string[] studentList)
         {
             var _UserToken = HttpContext.Session.GetString("_UserToken");
 
@@ -156,7 +161,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
                 return Forbid();
             }
 
-            bool success = await firebase.SaveAClassListAsync(_UserToken, className, studentList);
+            bool success = await firebase.SaveAClassListAsync(_UserToken, classCode, className, studentList);
 
             if (success)
             {

@@ -137,6 +137,7 @@ class AJAXManager {
     constructor(controller) {
         this.controller = controller;
         this.selectedClass = null;
+        this.selectedClassCode = null;
         this.classes = []; // hold each class that is grabbed from firebase
     }
 
@@ -148,7 +149,7 @@ class AJAXManager {
     createAClass = async (classNameValue, studyPeriodValue, semesterValue, yearValue) => {
         this.selectedClass = classNameValue;
         
-        return await $.ajax({
+        let response = await $.ajax({
             type: 'POST',
             url: `/${this.controller}/CreateAClass`,
             data: {
@@ -159,13 +160,21 @@ class AJAXManager {
             },
             success: function (result) {
                 console.log(result); //Keep as log for now for testing
-                return 2; //2 to skip over the load class form
+                return result;
             },
             failure: function (result) {
                 console.log(result);
                 return 0;
             }
         });
+
+        if (response == 0) {
+            return 0;
+        } else {
+            let classObject = JSON.parse(response);
+            this.selectedClassCode = classObject.ClassCode;
+            return 2; //2 to skip over the load class form
+        }
     };
 
     /**
@@ -238,10 +247,13 @@ class AJAXManager {
 
         console.log(studentArray.toString());
 
+        console.log(this.selectedClassCode);
+
         return await $.ajax({
             type: 'POST',
             url: `/${this.controller}/SaveAClassList`,
             data: {
+                classCode: this.selectedClassCode,
                 className: this.selectedClass, 
                 studentList: studentArray
              },
