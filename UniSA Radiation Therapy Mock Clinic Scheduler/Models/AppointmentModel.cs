@@ -20,7 +20,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models
         }
 
         [FirestoreProperty]
-        public DateTime? Date { get; set; }
+        public DateTime Date { get; set; }
 
         [FirestoreProperty]
         public string? Patient { get; set; }
