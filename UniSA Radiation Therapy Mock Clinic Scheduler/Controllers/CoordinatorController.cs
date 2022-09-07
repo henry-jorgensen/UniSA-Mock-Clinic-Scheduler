@@ -84,7 +84,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == false) return Forbid();
 
             ClassModel classModel = new ClassModel(name, studyPeriod, semester, year);
-            var _UserToken = HttpContext.Session.GetString("_UserToken");
+            var _UserToken = firebase.VerifyVerificationToken(HttpContext);
             string? success = await firebase.CreateNewClassAsync(_UserToken, classModel);
 
             if (success != null) return Ok(success);
@@ -97,7 +97,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         {
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == false) return Forbid();
 
-            var _UserToken = HttpContext.Session.GetString("_UserToken");
+            var _UserToken = firebase.VerifyVerificationToken(HttpContext);
             List<ClassModel>? success = await firebase.CollectAllClassAsync(_UserToken);
 
             if (success != null) return Ok(success);
@@ -110,7 +110,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         {
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == false) return Forbid();
 
-            var _UserToken = HttpContext.Session.GetString("_UserToken");
+            var _UserToken = firebase.VerifyVerificationToken(HttpContext);
             ClassModel? success = await firebase.CollectClassAsync(_UserToken, className);
 
             if (success != null) return Ok(success);
@@ -123,7 +123,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         {
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == false) return Forbid();
 
-            var _UserToken = HttpContext.Session.GetString("_UserToken");
+            var _UserToken = firebase.VerifyVerificationToken(HttpContext);
             bool success = await firebase.SaveAClassListAsync(_UserToken, className, studentList);
 
             if (success) return Ok(success);

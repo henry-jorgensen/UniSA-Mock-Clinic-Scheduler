@@ -8,6 +8,8 @@ using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models;
 using Google.Rpc;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json.Linq;
+using System;
 
 namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 {
@@ -38,10 +40,13 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
         //********************************************************************************************************//
         //                                        User Verification Section                                       //
         //********************************************************************************************************//
-        public void SetVerificationToken(HttpContext context, string UserToken)
+        public void SetVerificationToken(HttpContext context, string UserToken, bool setCookie = false)
         {
             var verificationToken = GenerateVerificationToken(context, UserToken);
             context.Session.SetString("VerificationToken", verificationToken);
+
+            if (setCookie)
+                context.Response.Cookies.Append("VerificationToken", verificationToken, new CookieOptions { Expires = DateTime.Now.AddDays(15) });
         }
 
         public string GenerateVerificationToken(HttpContext context, string UserToken)
@@ -60,7 +65,23 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             {
                 //Retrieve the verification token and verify it is valid to the device
                 var StoredToken = context.Session.GetString("VerificationToken");
-                if (StoredToken == null) return null;
+
+                //If session token is null, check cookies
+                if (StoredToken == null)
+                {
+                    var cookieToken = context.Request.Cookies["VerificationToken"];
+
+                    if (cookieToken != null)
+                    {
+                        //Set the session token if the cookie token exists
+                        StoredToken = cookieToken;
+                        context.Session.SetString("VerificationToken", cookieToken);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
 
                 //Decrypt the token stored in session or cookies
                 var decrypted = encryptor.SymmetricDecryption(StoredToken);
@@ -295,10 +316,11 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             }
         }
 
-        public async void DeleteUserData(string token)
+        public async void DeleteUserData(HttpContext context)
         {
             try
             {
+                var token = VerifyVerificationToken(context);
                 DocumentReference userRef = db.Collection("Users").Document(token);
                 await userRef.DeleteAsync();
                 
