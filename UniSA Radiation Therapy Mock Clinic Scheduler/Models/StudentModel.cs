@@ -20,16 +20,16 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models
         }
 
         [FirestoreProperty]
-        public string? FirstName { get; set; }
+        public string FirstName { get; set; }
 
         [FirestoreProperty]
-        public string? LastName { get; set; }
+        public string LastName { get; set; }
 
         [FirestoreProperty]
-        public string? StudentId { get; set; }
+        public string StudentId { get; set; }
 
         [FirestoreProperty]
-        public string? Username { get; set; }
+        public string Username { get; set; }
 
         [FirestoreProperty]
         public List<string> ClassCode { get; set; }

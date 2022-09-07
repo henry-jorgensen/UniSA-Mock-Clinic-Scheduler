@@ -240,8 +240,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                 var classDetails = snapshot.ConvertTo<ClassModel>();
 
                 //Retrieve the list of students that have the class code
-                //Query colRef = db.CollectionGroup("Students").WhereArrayContains("ClassCode", classDetails.ClassCode);
-                Query colRef = db.CollectionGroup("Students").WhereArrayContains("ScheduleCode", classDetails.ClassCode);
+                Query colRef = db.CollectionGroup("Students").WhereArrayContains("ClassCode", classDetails.ClassCode);
                 QuerySnapshot allClassesQuerySnapshot = await colRef.GetSnapshotAsync();
                 List<string> students = new List<string>();
 
@@ -274,12 +273,17 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
         {
             if (token != null)
             {
-                //Collect the student list as to detect if a student already exists
-                //CollectionReference colRef = db.Collection("Students");
-                //QuerySnapshot snapshot = await colRef.GetSnapshotAsync();
+                HashSet<string> existingStudents = new HashSet<string>();
 
-                //Console.WriteLine("Snapshot");
-                //Console.WriteLine(snapshot);
+                //Collect the student list as to detect if a student already exists
+                CollectionReference colRef = db.Collection("Students");
+                QuerySnapshot snapshot = await colRef.GetSnapshotAsync();
+
+                foreach (DocumentSnapshot documentSnapshot in snapshot.Documents)
+                {
+                    StudentModel student = documentSnapshot.ConvertTo<StudentModel>();
+                    existingStudents.Add(student.Username);
+                }
 
                 WriteBatch batch = db.StartBatch();
 
@@ -290,9 +294,13 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
                     if (studentObject == null) return false;
 
-                    createNewStudentEntry(studentObject, classCode, ref batch);
-
-                    //ModifyCurrentStudentEntry(studentObject.Username, classCode, ref batch);
+                    if (existingStudents.Contains(studentObject.Username))
+                    {
+                        ModifyCurrentStudentEntry(studentObject, classCode, ref batch);
+                    } else
+                    {
+                        createNewStudentEntry(studentObject, classCode, ref batch);
+                    }
                 }
 
                 await batch.CommitAsync();
@@ -317,9 +325,14 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             batch.Set(docRef, student);
         }
 
-        private void ModifyCurrentStudentEntry(string username, string classCode, ref WriteBatch batch)
+        private void ModifyCurrentStudentEntry(StudentModel student, string classCode, ref WriteBatch batch)
         {
+            student.ClassCode.Add(classCode);
 
+            DocumentReference docRef = db.Collection("Students").Document(student.Username);
+            //await docRef.UpdateAsync("classCode", FieldValue.ArrayUnion(classCode));
+
+            batch.Update(docRef, "ClassCode", FieldValue.ArrayUnion(classCode));
         }
 
         public async void DataRequest(string token, string type)
