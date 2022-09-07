@@ -66,6 +66,8 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         {
             var _UserToken = HttpContext.Session.GetString("_UserToken");
 
+            firebase.GenerateVerificationToken(HttpContext, _UserToken);
+
             if (firebase.LoggedInAsCoordinator(_UserToken).Result == true)
             {
                 ViewBag.CurrentUser = firebase.GetUserModelAsync(_UserToken).Result;

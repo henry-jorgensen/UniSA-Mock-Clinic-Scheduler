@@ -7,6 +7,7 @@ using System.Diagnostics;
 using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models;
 using Google.Rpc;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 {
@@ -14,6 +15,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
     {
         FirestoreDb db;
         FirebaseAuthProvider auth;
+        FirebaseSymmetricEncryption encryptor;
 
         public FirestoreDb DB()
         {
@@ -35,8 +37,22 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             }.Build();
 
             auth = new FirebaseAuthProvider(new FirebaseConfig("AIzaSyByVk8XwhbQGoeeqkcxr5vRJWhOjep5Ulc"));
+            encryptor = new FirebaseSymmetricEncryption("b14ca5898a4e4133bbce2ea2315a1916");
         }
 
+        public string GenerateVerificationToken(HttpContext context, string UserToken)
+        {
+            var headers = context.Request.Headers["User-Agent"];
+            var verificationToken = headers + "|" + UserToken;
+
+            return encryptor.SymmetricEnctyption(verificationToken);
+        }
+
+        public string VerifyVerificationToken(HttpContext context, string hash)
+        {
+            return null;
+        }
+        
         public async Task<Boolean> VerifyLoggedIn(string UserToken)
         {
             CollectionReference usersRef = db.Collection("Users");

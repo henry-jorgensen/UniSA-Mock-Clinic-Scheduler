@@ -40,7 +40,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         public IActionResult Login()
         {
             var UserToken = HttpContext.Session.GetString("_UserToken");
-
+            
             if (firebase.VerifyLoggedIn(UserToken).Result == false)
             {
                 return View();
