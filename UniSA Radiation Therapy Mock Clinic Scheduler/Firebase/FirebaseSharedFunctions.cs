@@ -60,11 +60,12 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             {
                 //Retrieve the verification token and verify it is valid to the device
                 var StoredToken = context.Session.GetString("VerificationToken");
-
                 if (StoredToken == null) return null;
 
                 //Decrypt the token stored in session or cookies
                 var decrypted = encryptor.SymmetricDecryption(StoredToken);
+                if (decrypted == null) return null;
+
                 string[] storedToken = Regex.Split(decrypted, "\n");
 
                 if (storedToken.Length == 2)

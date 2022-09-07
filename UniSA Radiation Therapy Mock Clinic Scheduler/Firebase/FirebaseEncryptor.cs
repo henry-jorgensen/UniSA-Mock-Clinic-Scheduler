@@ -18,54 +18,66 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
         public string SymmetricEnctyption(string toEncrypt)
         {
-            byte[] bytes = new byte[16];
-            byte[] array;
-
-            using (Aes aes = Aes.Create())
+            try
             {
-                aes.Key = Encoding.UTF8.GetBytes(encryptionKey);
-                aes.IV = bytes;
+                byte[] bytes = new byte[16];
+                byte[] array;
 
-                ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
-
-                using (MemoryStream memoryStream = new MemoryStream())
+                using (Aes aes = Aes.Create())
                 {
-                    using (CryptoStream cryptoStream = new CryptoStream((Stream)memoryStream, encryptor, CryptoStreamMode.Write))
+                    aes.Key = Encoding.UTF8.GetBytes(encryptionKey);
+                    aes.IV = bytes;
+
+                    ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
+
+                    using (MemoryStream memoryStream = new MemoryStream())
                     {
-                        using (StreamWriter streamWriter = new StreamWriter((Stream)cryptoStream))
+                        using (CryptoStream cryptoStream = new CryptoStream((Stream)memoryStream, encryptor, CryptoStreamMode.Write))
                         {
-                            streamWriter.Write(toEncrypt);
+                            using (StreamWriter streamWriter = new StreamWriter((Stream)cryptoStream))
+                            {
+                                streamWriter.Write(toEncrypt);
+                            }
+                            array = memoryStream.ToArray();
                         }
-                        array = memoryStream.ToArray();
                     }
                 }
-            }
     
-            return Convert.ToBase64String(array);
+                return Convert.ToBase64String(array);
+            }
+            catch { }
+
+            return null;
         }
 
         public string SymmetricDecryption(string toDecrypt)
         {
-            byte[] bytes = new byte[16];
-            byte[] buffer = Convert.FromBase64String(toDecrypt);
-
-            using (Aes aes = Aes.Create())
+            try
             {
-                aes.Key = Encoding.UTF8.GetBytes(encryptionKey);
-                aes.IV = bytes;
-                ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
+                byte[] bytes = new byte[16];
+                byte[] buffer = Convert.FromBase64String(toDecrypt);
 
-                using (MemoryStream memoryStream = new MemoryStream(buffer))
+                using (Aes aes = Aes.Create())
                 {
-                    using (CryptoStream cryptoStream = new CryptoStream((Stream)memoryStream, decryptor, CryptoStreamMode.Read))
+                    aes.Key = Encoding.UTF8.GetBytes(encryptionKey);
+                    aes.IV = bytes;
+                    ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
+
+                    using (MemoryStream memoryStream = new MemoryStream(buffer))
                     {
-                        using (StreamReader streamReader = new StreamReader((Stream)cryptoStream))
+                        using (CryptoStream cryptoStream = new CryptoStream((Stream)memoryStream, decryptor, CryptoStreamMode.Read))
                         {
-                            return streamReader.ReadToEnd();
+                            using (StreamReader streamReader = new StreamReader((Stream)cryptoStream))
+                            {
+                                return streamReader.ReadToEnd();
+                            }
                         }
                     }
                 }
             }
+            catch { }
+
+            return null;
         }
     }
 }
