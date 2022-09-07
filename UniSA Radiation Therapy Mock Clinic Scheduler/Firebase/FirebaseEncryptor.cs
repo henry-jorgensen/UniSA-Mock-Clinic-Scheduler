@@ -2,15 +2,16 @@
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 
 namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 {
-    public class FirebaseSymmetricEncryption
+    public class FirebaseEncryptor
     {
-        private string encryptionKey;
+        string encryptionKey;
 
-        public FirebaseSymmetricEncryption(string encryptionKey)
+        public FirebaseEncryptor(string encryptionKey)
         {
             this.encryptionKey = encryptionKey;
         }
