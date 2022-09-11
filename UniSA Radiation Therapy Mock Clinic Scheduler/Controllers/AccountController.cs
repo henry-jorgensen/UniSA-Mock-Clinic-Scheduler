@@ -105,6 +105,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             try
             {
                 //If course coordinator
+                //TODO Change this to account for any emails instead of just the UniSA one
                 if (accountModel.Email.Contains("@mymail.unisa.edu.au"))
                 {
                     var firebaseAuth = await firebase.Auth().SignInWithEmailAndPasswordAsync(accountModel.Email, accountModel.Password);
@@ -132,7 +133,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
                     }
                 }
 
-                //If student
+                //If only a student username is provided
                 else
                 {
                     StudentModel? studentModel = await firebase.LoginAnonymousAccountAsync(accountModel.Email, accountModel.Password);
