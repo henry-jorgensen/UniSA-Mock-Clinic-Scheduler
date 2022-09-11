@@ -60,7 +60,7 @@
                     <ul class="list-group">
                         @{
                             //The user is currently logged in
-                            if (firebase.VerifyLoggedIn(Context.Session.GetString("_UserToken")).Result == true)
+                            if (firebase.VerifyLoggedIn(Context.Session.GetString("_UserToken")).Result == true || firebase.VerifyAnonymousLoggedIn(Context.Session.GetString("_UserName")).Result == true)
                             {
                                                             <li class="nav-item @(ViewData["Controller"] == "Home" ? "active" : "")">
                                                                 <a class="nav-link" asp-controller="Home" asp-action="Index">
@@ -97,7 +97,7 @@
                         if (ViewData["Controller"] == "Home")
                         {
                             //The user is currently logged in
-                            if (firebase.VerifyLoggedIn(Context.Session.GetString("_UserToken")).Result == true)
+                            if (firebase.VerifyLoggedIn(Context.Session.GetString("_UserToken")).Result == true || firebase.VerifyAnonymousLoggedIn(Context.Session.GetString("_UserName")).Result == true)
                             {
                                 //List of clinics students are currently scheduled in
                                                             <div class="list-group-item @(ViewData["Title"] == "Clinics" ? "active" : "")">
@@ -148,7 +148,7 @@
                         if (ViewData["Controller"] == "Account")
                         {
                             //The user is currently logged in
-                            if (firebase.VerifyLoggedIn(Context.Session.GetString("_UserToken")).Result == true)
+                            if (firebase.VerifyLoggedIn(Context.Session.GetString("_UserToken")).Result == true || firebase.VerifyAnonymousLoggedIn(Context.Session.GetString("_UserName")).Result == true)
                             {
                                 //Account home page, view account details, etc...
                                                             <div class="list-group-item @(ViewData["Title"] == "Account" ? "active" : "")">

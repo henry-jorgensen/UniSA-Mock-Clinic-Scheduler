@@ -23,10 +23,16 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         public IActionResult Index()
         {
             var UserToken = HttpContext.Session.GetString("_UserToken");
+            var UserName = HttpContext.Session.GetString("_UserName");
 
             if (firebase.VerifyLoggedIn(UserToken).Result == true)
             {
                 ViewBag.CurrentUser = firebase.GetUserModelAsync(UserToken).Result;
+                return View();
+            }
+            else if (firebase.VerifyAnonymousLoggedIn(UserName).Result == true)
+            {
+                ViewBag.CurrentUser = firebase.GetAnonymousUserModelAsync(UserToken, UserName).Result;
                 return View();
             }
             else
@@ -40,8 +46,9 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         public IActionResult Login()
         {
             var UserToken = HttpContext.Session.GetString("_UserToken");
+            var UserName = HttpContext.Session.GetString("_UserName");
 
-            if (firebase.VerifyLoggedIn(UserToken).Result == false)
+            if (firebase.VerifyLoggedIn(UserToken).Result == false && firebase.VerifyAnonymousLoggedIn(UserName).Result == false)
             {
                 return View();
             }
@@ -88,6 +95,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         public IActionResult Logout()
         {
             HttpContext.Session.Remove("_UserToken");
+            HttpContext.Session.Remove("_UserName");
             return RedirectToAction("Login");
         }
 
@@ -136,10 +144,12 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 
                     string token = studentModel.Token;
 
+                    Console.WriteLine(token);
+
                     if (token != null)
                     {
                         HttpContext.Session.SetString("_UserToken", token);
-                        HttpContext.Session.SetString("_Username", studentModel.Username);
+                        HttpContext.Session.SetString("_UserName", studentModel.Username);
                         return RedirectToAction("Redirect", "Home");
                     }
                 }
