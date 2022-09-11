@@ -30,7 +30,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             {
                 if (firebase.LoggedInAsCoordinator(UserToken).Result == true)
                 {
-                    return RedirectToAction("Create", "Coordinator");
+                    return RedirectToAction("CreateClass", "Coordinator");
                 }
                 else
                 {

@@ -128,8 +128,16 @@
                                 //Course coordinator can create classes here
                                                             <div class="list-group-item @(ViewData["Title"] == "Create Class" ? "active" : "")">
                                                                 <div class="list-group-item-inner-container">
-                                                                    <a class="list-group-item-action list-indent-1" asp-controller="Coordinator" asp-action="Create">
+                                                                    <a class="list-group-item-action list-indent-1" asp-controller="Coordinator" asp-action="CreateClass">
                                                                         <span class="nav-item-text">Create Class</span>
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="list-group-item @(ViewData["Title"] == "Create Schedule" ? "active" : "")">
+                                                                <div class="list-group-item-inner-container">
+                                                                    <a class="list-group-item-action list-indent-1" asp-controller="Coordinator" asp-action="CreateSchedule">
+                                                                        <span class="nav-item-text">Create Schedule</span>
                                                                     </a>
                                                                 </div>
                                                             </div>
