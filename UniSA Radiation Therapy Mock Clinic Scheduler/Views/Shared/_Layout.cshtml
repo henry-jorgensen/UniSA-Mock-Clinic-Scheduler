@@ -2,7 +2,7 @@
 @using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase;
 @{
     FirebaseSharedFunctions firebase;
-    firebase = new FirebaseSharedFunctions();
+    firebase = new FirebaseSharedFunctions(Context);
 }
 
 <!DOCTYPE html>
@@ -60,24 +60,24 @@
                     <ul class="list-group">
                         @{
                             //The user is currently logged in
-                            if (firebase.VerifyLoggedIn(Context.Session.GetString("_UserToken")).Result == true)
+                            if (firebase.VerifyLoggedinSession(Context).Result)
                             {
-                                                            <li class="nav-item @(ViewData["Controller"] == "Home" ? "active" : "")">
-                                                                <a class="nav-link" asp-controller="Home" asp-action="Index">
-                                                                    <i class="icon fa fal fa-graduation-cap fa-fw"></i>
-                                                                    <span>Student</span>
-                                                                </a>
-                                                            </li>
+                                <li class="nav-item @(ViewData["Controller"] == "Home" ? "active" : "")">
+                                    <a class="nav-link" asp-controller="Home" asp-action="Index">
+                                        <i class="icon fa fal fa-graduation-cap fa-fw"></i>
+                                        <span>Student</span>
+                                    </a>
+                                </li>
                             }
 
-                            if (firebase.LoggedInAsCoordinator(Context.Session.GetString("_UserToken")).Result == true)
+                            if (firebase.VerifyLoggedInCoordinator(Context).Result)
                             {
-                                                            <li class="nav-item @(ViewData["Controller"] == "Coordinator" ? "active" : "")">
-                                                                <a class="nav-link" asp-controller="Coordinator" asp-action="Index">
-                                                                    <i class="icon fa fal fa-chalkboard fa-fw"></i>
-                                                                    <span>Coordinator</span>
-                                                                </a>
-                                                            </li>
+                                <li class="nav-item @(ViewData["Controller"] == "Coordinator" ? "active" : "")">
+                                    <a class="nav-link" asp-controller="Coordinator" asp-action="Index">
+                                        <i class="icon fa fal fa-chalkboard fa-fw"></i>
+                                        <span>Coordinator</span>
+                                    </a>
+                                </li>
                             }
                         }
 
@@ -97,25 +97,25 @@
                         if (ViewData["Controller"] == "Home")
                         {
                             //The user is currently logged in
-                            if (firebase.VerifyLoggedIn(Context.Session.GetString("_UserToken")).Result == true)
+                            if (firebase.VerifyLoggedinSession(Context).Result)
                             {
                                 //List of clinics students are currently scheduled in
-                                                            <div class="list-group-item @(ViewData["Title"] == "Clinics" ? "active" : "")">
-                                                                <div class="list-group-item-inner-container">
-                                                                    <a class="list-group-item-action list-indent-1" asp-controller="Home" asp-action="Clinics">
-                                                                        <span class="nav-item-text">My Clinics</span>
-                                                                    </a>
-                                                                </div>
-                                                            </div>
+                                <div class="list-group-item @(ViewData["Title"] == "Clinics" ? "active" : "")">
+                                    <div class="list-group-item-inner-container">
+                                        <a class="list-group-item-action list-indent-1" asp-controller="Home" asp-action="Clinics">
+                                            <span class="nav-item-text">My Clinics</span>
+                                        </a>
+                                    </div>
+                                </div>
 
                                 //List of historically scheduled clinics for students
-                                                            <div class="list-group-item @(ViewData["Title"] == "Past Clinics" ? "active" : "")">
-                                                                <div class="list-group-item-inner-container">
-                                                                    <a class="list-group-item-action list-indent-1" asp-controller="Home" asp-action="History">
-                                                                        <span class="nav-item-text">Past Clinics</span>
-                                                                    </a>
-                                                                </div>
-                                                            </div>
+                                <div class="list-group-item @(ViewData["Title"] == "Past Clinics" ? "active" : "")">
+                                    <div class="list-group-item-inner-container">
+                                        <a class="list-group-item-action list-indent-1" asp-controller="Home" asp-action="History">
+                                            <span class="nav-item-text">Past Clinics</span>
+                                        </a>
+                                    </div>
+                                </div>
                             }
                         }
 
@@ -123,23 +123,23 @@
                         if (ViewData["Controller"] == "Coordinator")
                         {
                             //The user is a course coordinator
-                            if (firebase.LoggedInAsCoordinator(Context.Session.GetString("_UserToken")).Result == true)
+                            if (firebase.VerifyLoggedInCoordinator(Context).Result)
                             {
                                 //Course coordinator can create classes here
-                                                            <div class="list-group-item @(ViewData["Title"] == "Create Class" ? "active" : "")">
-                                                                <div class="list-group-item-inner-container">
-                                                                    <a class="list-group-item-action list-indent-1" asp-controller="Coordinator" asp-action="Create">
-                                                                        <span class="nav-item-text">Create Class</span>
-                                                                    </a>
-                                                                </div>
-                                                            </div>
-                                                            <div class="list-group-item @(ViewData["Title"] == "Clinics" && ViewData["Controller"] == "Coordinator" ? "active" : "")">
-                                                                <div class="list-group-item-inner-container">
-                                                                    <a class="list-group-item-action list-indent-1" asp-controller="Coordinator" asp-action="Clinics">
-                                                                        <span class="nav-item-text">View Clinics</span>
-                                                                    </a>
-                                                                </div>
-                                                            </div>
+                                <div class="list-group-item @(ViewData["Title"] == "Create Class" ? "active" : "")">
+                                    <div class="list-group-item-inner-container">
+                                        <a class="list-group-item-action list-indent-1" asp-controller="Coordinator" asp-action="Create">
+                                            <span class="nav-item-text">Create Class</span>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="list-group-item @(ViewData["Title"] == "Clinics" && ViewData["Controller"] == "Coordinator" ? "active" : "")">
+                                    <div class="list-group-item-inner-container">
+                                        <a class="list-group-item-action list-indent-1" asp-controller="Coordinator" asp-action="Clinics">
+                                            <span class="nav-item-text">View Clinics</span>
+                                        </a>
+                                    </div>
+                                </div>
                             }
                         }
 
@@ -147,47 +147,47 @@
                         if (ViewData["Controller"] == "Account")
                         {
                             //The user is currently logged in
-                            if (firebase.VerifyLoggedIn(Context.Session.GetString("_UserToken")).Result == true)
+                            if (firebase.VerifyLoggedinSession(Context).Result)
                             {
                                 //Account home page, view account details, etc...
-                                                            <div class="list-group-item @(ViewData["Title"] == "Account" ? "active" : "")">
-                                                                <div class="list-group-item-inner-container">
-                                                                    <a class="list-group-item-action list-indent-1" asp-controller="Account" asp-action="Index">
-                                                                        <span class="nav-item-text">General</span>
-                                                                    </a>
-                                                                </div>
-                                                            </div>
+                                <div class="list-group-item @(ViewData["Title"] == "Account" ? "active" : "")">
+                                    <div class="list-group-item-inner-container">
+                                        <a class="list-group-item-action list-indent-1" asp-controller="Account" asp-action="Index">
+                                            <span class="nav-item-text">General</span>
+                                        </a>
+                                    </div>
+                                </div>
 
                                 //Logout of account page
-                                                            <div class="list-group-item @(ViewData["Title"] == "Logout" ? "active" : "")">
-                                                                <div class="list-group-item-inner-container">
-                                                                    <a class="list-group-item-action list-indent-1" asp-controller="Account" asp-action="Logout">
-                                                                        <span class="nav-item-text">Logout</span>
-                                                                    </a>
-                                                                </div>
-                                                            </div>
+                                <div class="list-group-item @(ViewData["Title"] == "Logout" ? "active" : "")">
+                                    <div class="list-group-item-inner-container">
+                                        <a class="list-group-item-action list-indent-1" asp-controller="Account" asp-action="Logout">
+                                            <span class="nav-item-text">Logout</span>
+                                        </a>
+                                    </div>
+                                </div>
                             }
 
                             //The user is not logged in
                             else
                             {
                                 //Login to account page
-                                                            <div class="list-group-item @(ViewData["Title"] == "Login" ? "active" : "")">
-                                                                <div class="list-group-item-inner-container">
-                                                                    <a class="list-group-item-action list-indent-1" asp-controller="Account" asp-action="Login">
-                                                                        <span class="nav-item-text">Login</span>
-                                                                    </a>
-                                                                </div>
-                                                            </div>
+                                <div class="list-group-item @(ViewData["Title"] == "Login" ? "active" : "")">
+                                    <div class="list-group-item-inner-container">
+                                        <a class="list-group-item-action list-indent-1" asp-controller="Account" asp-action="Login">
+                                            <span class="nav-item-text">Login</span>
+                                        </a>
+                                    </div>
+                                </div>
 
                                 //Create a new account page
-                                                            <div class="list-group-item @(ViewData["Title"] == "Register" ? "active" : "")">
-                                                                <div class="list-group-item-inner-container">
-                                                                    <a class="list-group-item-action list-indent-1" asp-controller="Account" asp-action="Register">
-                                                                        <span class="nav-item-text">Register</span>
-                                                                    </a>
-                                                                </div>
-                                                            </div>
+                                <div class="list-group-item @(ViewData["Title"] == "Register" ? "active" : "")">
+                                    <div class="list-group-item-inner-container">
+                                        <a class="list-group-item-action list-indent-1" asp-controller="Account" asp-action="Register">
+                                            <span class="nav-item-text">Register</span>
+                                        </a>
+                                    </div>
+                                </div>
                             }
                         }
                     }
