@@ -60,7 +60,7 @@
                     <ul class="list-group">
                         @{
                             //The user is currently logged in
-                            if (firebase.VerifyLoggedinSession(Context).Result)
+                            if (firebase.VerifyLoggedinSession(Context).Result || firebase.VerifyAnonymousLoggedIn(Context.Session.GetString("_UserName")).Result == true)
                             {
                                 <li class="nav-item @(ViewData["Controller"] == "Home" ? "active" : "")">
                                     <a class="nav-link" asp-controller="Home" asp-action="Index">
@@ -97,7 +97,7 @@
                         if (ViewData["Controller"] == "Home")
                         {
                             //The user is currently logged in
-                            if (firebase.VerifyLoggedinSession(Context).Result)
+                            if (firebase.VerifyLoggedinSession(Context).Result || firebase.VerifyAnonymousLoggedIn(Context.Session.GetString("_UserName")).Result == true)
                             {
                                 //List of clinics students are currently scheduled in
                                 <div class="list-group-item @(ViewData["Title"] == "Clinics" ? "active" : "")">
@@ -128,8 +128,16 @@
                                 //Course coordinator can create classes here
                                 <div class="list-group-item @(ViewData["Title"] == "Create Class" ? "active" : "")">
                                     <div class="list-group-item-inner-container">
-                                        <a class="list-group-item-action list-indent-1" asp-controller="Coordinator" asp-action="Create">
+                                        <a class="list-group-item-action list-indent-1" asp-controller="Coordinator" asp-action="CreateClass">
                                             <span class="nav-item-text">Create Class</span>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <div class="list-group-item @(ViewData["Title"] == "Create Schedule" ? "active" : "")">
+                                    <div class="list-group-item-inner-container">
+                                        <a class="list-group-item-action list-indent-1" asp-controller="Coordinator" asp-action="CreateSchedule">
+                                            <span class="nav-item-text">Create Schedule</span>
                                         </a>
                                     </div>
                                 </div>
@@ -147,7 +155,7 @@
                         if (ViewData["Controller"] == "Account")
                         {
                             //The user is currently logged in
-                            if (firebase.VerifyLoggedinSession(Context).Result)
+                            if (firebase.VerifyLoggedinSession(Context).Result || firebase.VerifyAnonymousLoggedIn(Context.Session.GetString("_UserName")).Result == true)
                             {
                                 //Account home page, view account details, etc...
                                 <div class="list-group-item @(ViewData["Title"] == "Account" ? "active" : "")">

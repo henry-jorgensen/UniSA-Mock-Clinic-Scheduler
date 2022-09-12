@@ -22,9 +22,16 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 
         public IActionResult Index()
         {
+            var UserName = HttpContext.Session.GetString("_UserName");
+
             if (firebase.VerifyLoggedinSession(HttpContext).Result)
             {
                 ViewBag.CurrentUser = firebase.GenerateUserModel(HttpContext).Result;
+                return View();
+            }
+            else if (firebase.VerifyAnonymousLoggedIn(UserName).Result == true)
+            {
+                ViewBag.CurrentUser = firebase.GetAnonymousUserModelAsync(UserToken, UserName).Result;
                 return View();
             }
             else
@@ -37,7 +44,9 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         //Cannot visit this page while logged in
         public IActionResult Login()
         {
-            if (firebase.VerifyLoggedinSession(HttpContext).Result == false)
+            var UserName = HttpContext.Session.GetString("_UserName");
+
+            if (firebase.VerifyLoggedinSession(HttpContext).Result == false && firebase.VerifyAnonymousLoggedIn(UserName).Result == false)
             {
                 return View();
             }
@@ -79,6 +88,8 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         //Will clear user token whether present or not
         public IActionResult Logout()
         {
+            HttpContext.Session.Remove("_UserName");
+            
             //Delete cookies and session
             HttpContext.Response.Cookies.Delete("VerificationToken");
             HttpContext.Session.Remove("VerificationToken");
@@ -90,27 +101,54 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         {
             try
             {
-                var firebaseAuth = await firebase.Auth().SignInWithEmailAndPasswordAsync(accountModel.Email, accountModel.Password);
-                string token = firebaseAuth.User.LocalId;
-
-                if (token != null)
+                //If course coordinator
+                //TODO Change this to account for any emails instead of just the UniSA one
+                if (accountModel.Email.Contains("@mymail.unisa.edu.au"))
                 {
-                    CollectionReference usersRef = firebase.DB().Collection("Users");
-                    QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
+                    var firebaseAuth = await firebase.Auth().SignInWithEmailAndPasswordAsync(accountModel.Email, accountModel.Password);
+                    string token = firebaseAuth.User.LocalId;
 
-                    foreach (DocumentSnapshot document in snapshot.Documents)
+                    if (token != null)
                     {
-                        if (document.Id == token)
-                        {
-                            Dictionary<string, object> documentDictionary = document.ToDictionary();
-                            string FirstName = documentDictionary["FirstName"].ToString();
-                            string LastName = documentDictionary["LastName"].ToString();
-                            string CCCode = documentDictionary["CCCode"].ToString();
+                        CollectionReference usersRef = firebase.DB().Collection("Users");
+                        QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
 
-                            //Set the session token and redirect away from Login.
-                            firebase.SetVerificationToken(HttpContext, token, accountModel.RememberLogin);
-                            return RedirectToAction("Redirect", "Home");
+                        foreach (DocumentSnapshot document in snapshot.Documents)
+                        {
+                            if (document.Id == token)
+                            {
+                                Console.WriteLine("User: {0}", document.Id);
+                                Dictionary<string, object> documentDictionary = document.ToDictionary();
+                                string FirstName = documentDictionary["FirstName"].ToString();
+                                string LastName = documentDictionary["LastName"].ToString();
+                                string CCCode = documentDictionary["CCCode"].ToString();
+
+                                HttpContext.Session.SetString("_UserToken", token);
+                                return RedirectToAction("Redirect", "Home");
+                            }
                         }
+                    }
+                }
+
+                //If only a student username is provided
+                else
+                {
+                    StudentModel? studentModel = await firebase.LoginAnonymousAccountAsync(accountModel.Email, accountModel.Password);
+
+                    if (studentModel == null)
+                    {
+                        return View();
+                    }
+
+                    string token = studentModel.Token;
+
+                    Console.WriteLine(token);
+
+                    if (token != null)
+                    {
+                        HttpContext.Session.SetString("_UserToken", token);
+                        HttpContext.Session.SetString("_UserName", studentModel.Username);
+                        return RedirectToAction("Redirect", "Home");
                     }
                 }
             }

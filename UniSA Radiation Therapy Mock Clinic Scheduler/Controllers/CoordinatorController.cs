@@ -5,6 +5,9 @@ using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase;
 using System.Runtime.Intrinsics.Arm;
 using Microsoft.Extensions.Logging;
 
+//TESTING
+using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Notification;
+
 namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 {
     public class CoordinatorController : Controller
@@ -47,7 +50,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             {
                 if (firebase.VerifyLoggedInCoordinator(HttpContext).Result)
                 {
-                    return RedirectToAction("Create", "Coordinator");
+                    return RedirectToAction("CreateClass", "Coordinator");
                 }
                 else
                 {
@@ -58,7 +61,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 
         //Create clinics page
         //Must be logged into course coordinator account to see
-        public IActionResult Create()
+        public IActionResult CreateSchedule()
         {
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result)
             {
@@ -88,10 +91,42 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         }
 
         [HttpPost]
-        public IActionResult DoSomethingWithFirebase(string value)
+        public async Task<IActionResult> CreateASchedule(string className, string name, string date, string startTime, string appointmentDuration, string locations, string schedule)
         {
-            string response = value + " Success";
-            return Ok(response);
+            ScheduleModel scheduleModel = new ScheduleModel(name, date, startTime, appointmentDuration, locations, schedule);
+
+            var _UserToken = HttpContext.Session.GetString("_UserToken");
+
+            if (firebase.VerifyLoggedIn(_UserToken).Result == false)
+            {
+                return Forbid();
+            }
+
+            string? success = await firebase.CreateNewScheduleAsync(_UserToken, className, scheduleModel);
+
+            if (success != null)
+            {
+                return Ok(success);
+            }
+
+            return BadRequest();
+        }
+
+        //Create clinics page
+        //Must be logged into course coordinator account to see
+        public IActionResult CreateClass()
+        {
+            var _UserToken = HttpContext.Session.GetString("_UserToken");
+
+            if (firebase.LoggedInAsCoordinator(_UserToken).Result == true)
+            {
+                ViewBag.CurrentUser = firebase.GetUserModelAsync(_UserToken).Result;
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("Login", "Account");
+            }
         }
 
         [HttpPost]
@@ -111,6 +146,9 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         [HttpGet]
         public async Task<IActionResult> LoadAllClasses()
         {
+            //TESTING
+            //var success = await SendGridMessenger.SendEmail();
+
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == false) return Forbid();
 
             var _UserToken = firebase.VerifyVerificationToken(HttpContext);
@@ -135,7 +173,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SaveAClassList(string className, string[] studentList)
+        public async Task<IActionResult> SaveAClassList(string classCode, string className, string[] studentList)
         {
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == false) return Forbid();
 

@@ -20,7 +20,9 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         //Basic home page
         public IActionResult Redirect()
         {
-            if (firebase.VerifyLoggedinSession(HttpContext).Result == false)
+            var UserName = HttpContext.Session.GetString("_UserName");
+            
+            if (firebase.VerifyLoggedinSession(HttpContext).Result == false && firebase.VerifyAnonymousLoggedIn(UserName).Result == false)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -28,7 +30,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             {
                 if (firebase.VerifyLoggedinSession(HttpContext).Result)
                 {
-                    return RedirectToAction("Create", "Coordinator");
+                    return RedirectToAction("CreateClass", "Coordinator");
                 }
                 else
                 {
@@ -40,7 +42,9 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         //Basic home page
         public IActionResult Index()
         {
-            if (firebase.VerifyLoggedinSession(HttpContext).Result == false)
+            var UserName = HttpContext.Session.GetString("_UserName");
+
+            if (firebase.VerifyLoggedinSession(HttpContext).Result == false && firebase.VerifyAnonymousLoggedIn(UserName).Result == false)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -54,15 +58,17 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         //Must be logged into a valid account to see
         public async Task<IActionResult> Clinics()
         {
-            if (firebase.VerifyLoggedinSession(HttpContext).Result == true)
+            var UserName = HttpContext.Session.GetString("_UserName");
+            
+            if (firebase.VerifyLoggedinSession(HttpContext).Result == false && firebase.VerifyAnonymousLoggedIn(UserName).Result == false)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            else
             {
                 List<AppointmentModel> appointments = await firebase.CollectStudentsAppointmentsAsync(_UserToken);
                 ViewBag.Appointments = appointments;
                 return View();
-            }
-            else
-            {
-                return RedirectToAction("Login", "Account");
             }
         }
 

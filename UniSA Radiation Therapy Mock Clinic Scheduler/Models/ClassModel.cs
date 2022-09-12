@@ -15,7 +15,9 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models
             this.StudyPeriod = StudyPeriod;
             this.Semester = Semester;
             this.Year = Year;
-            this.Students = null;
+            Students = null;
+            ClassCode = Guid.NewGuid().ToString(); //Generate a unique class code to link in students
+            ScheduleCode = new List<string>(); //A list containing the unique schedule codes used to link in assoicated schedules
         }
 
         [FirestoreProperty]
@@ -29,6 +31,12 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models
 
         [FirestoreProperty]
         public string? Year { get; set; }
+
+        [FirestoreProperty]
+        public string? ClassCode { get; set; }
+
+        [FirestoreProperty]
+        public List<string>? ScheduleCode { get; set; }
 
         public string? Students { get; set; }
     }
