@@ -178,7 +178,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == false) return Forbid();
 
             var _UserToken = firebase.VerifyVerificationToken(HttpContext);
-            bool success = await firebase.SaveAClassListAsync(_UserToken, className, studentList);
+            bool success = await firebase.SaveAClassListAsync(_UserToken, classCode, className, studentList);
 
             if (success) return Ok(success);
 
