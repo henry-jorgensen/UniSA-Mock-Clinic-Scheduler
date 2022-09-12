@@ -31,7 +31,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             }
             else if (firebase.VerifyAnonymousLoggedIn(UserName).Result == true)
             {
-                ViewBag.CurrentUser = firebase.GetAnonymousUserModelAsync(UserToken, UserName).Result;
+                ViewBag.CurrentUser = firebase.GetAnonymousUserModelAsync(HttpContext, UserName).Result;
                 return View();
             }
             else

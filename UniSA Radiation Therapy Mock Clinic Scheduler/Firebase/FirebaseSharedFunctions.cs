@@ -185,15 +185,18 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                     string LastName = documentDictionary["LastName"].ToString();
                     string CCCode = documentDictionary["CCCode"].ToString();
 
-                    return new UserModel(UserToken, FirstName, LastName, CCCode);
+                    return new UserModel(document.Id, FirstName, LastName, CCCode);
                 }
             }
 
             return null;
         }
 
-        public async Task<UserModel?> GetAnonymousUserModelAsync(string UserToken, string UserName)
+        public async Task<UserModel?> GetAnonymousUserModelAsync(HttpContext context, string UserName)
         {
+            //Retrieve the verification token and verify it is valid to the device
+            var UserToken = context.Session.GetString("VerificationToken");
+
             DocumentReference anonRef = db.Collection("Students").Document(UserName);
             DocumentSnapshot snapshot = await anonRef.GetSnapshotAsync();
 
@@ -537,8 +540,10 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
         }
 
-        public async Task<List<AppointmentModel>> CollectStudentsAppointmentsAsync(string token)
+        public async Task<List<AppointmentModel>> CollectStudentsAppointmentsAsync(HttpContext context)
         {
+            string token = VerifyVerificationToken(context);
+
             if (token != null)
             {
                 Query allAppointmentsQuery = db.Collection("Appointments")
