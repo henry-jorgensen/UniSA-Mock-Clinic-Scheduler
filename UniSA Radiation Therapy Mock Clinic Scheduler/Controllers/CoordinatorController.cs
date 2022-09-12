@@ -71,6 +71,22 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             }
         }
 
+        public async Task<IActionResult> Clinics()
+        {
+            var _UserToken = HttpContext.Session.GetString("_UserToken");
+
+            if (firebase.LoggedInAsCoordinator(_UserToken).Result == true)
+            {
+                List<AppointmentModel> appointments = await firebase.CollectAllAppointmentsAsync(_UserToken);
+                ViewBag.Appointments = appointments;
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("Login", "Account");
+            }
+        }
+
         [HttpPost]
         public IActionResult DoSomethingWithFirebase(string value)
         {

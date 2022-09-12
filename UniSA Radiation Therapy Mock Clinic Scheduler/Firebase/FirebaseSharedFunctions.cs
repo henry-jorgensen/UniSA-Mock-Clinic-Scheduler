@@ -290,6 +290,74 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             return false;
         }
 
+        public async Task<List<AppointmentModel>> CollectAllAppointmentsAsync(string token)
+        {
+            if (token != null)
+            {
+                Query allAppointmentsQuery = db.Collection("Appointments")
+                                                .OrderByDescending("Date");
+                QuerySnapshot allAppointmentsQuerySnapshot = await allAppointmentsQuery.GetSnapshotAsync();
+                List<AppointmentModel> appointments = new List<AppointmentModel>();
+
+                foreach (DocumentSnapshot documentSnapshot in allAppointmentsQuerySnapshot.Documents)
+                {
+                    AppointmentModel currentAppointment = documentSnapshot.ConvertTo<AppointmentModel>();
+
+                    currentAppointment.Date = currentAppointment.Date.AddHours(9.5);
+
+                    UserModel userPatient = await GetUserModelAsync(currentAppointment.Patient);
+                    currentAppointment.Patient = userPatient.FirstName + " " + userPatient.LastName;
+
+                    UserModel userRT1 = await GetUserModelAsync(currentAppointment.RadiationTherapist1);
+                    currentAppointment.RadiationTherapist1 = userRT1.FirstName + " " + userRT1.LastName;
+
+                    UserModel userRT2 = await GetUserModelAsync(currentAppointment.RadiationTherapist2);
+                    currentAppointment.RadiationTherapist2 = userRT2.FirstName + " " + userRT2.LastName;
+
+                    appointments.Add(currentAppointment);
+                }
+
+                return appointments;
+            }
+
+            return null;
+
+        }
+
+        public async Task<List<AppointmentModel>> CollectStudentsAppointmentsAsync(string token)
+        {
+            if (token != null)
+            {
+                Query allAppointmentsQuery = db.Collection("Appointments")
+                                               .OrderByDescending("Date");
+                QuerySnapshot allAppointmentsQuerySnapshot = await allAppointmentsQuery.GetSnapshotAsync();
+                List<AppointmentModel> appointments = new List<AppointmentModel>();
+
+                foreach (DocumentSnapshot documentSnapshot in allAppointmentsQuerySnapshot.Documents)
+                {
+                    AppointmentModel currentAppointment = documentSnapshot.ConvertTo<AppointmentModel>();
+                    currentAppointment.Date = currentAppointment.Date.AddHours(9.5);
+                    if (currentAppointment.Patient == token || currentAppointment.RadiationTherapist1 == token || currentAppointment.RadiationTherapist2 == token)
+                    {
+                        UserModel userPatient = await GetUserModelAsync(currentAppointment.Patient);
+                        currentAppointment.Patient = userPatient.FirstName + " " + userPatient.LastName;
+
+                        UserModel userRT1 = await GetUserModelAsync(currentAppointment.RadiationTherapist1);
+                        currentAppointment.RadiationTherapist1 = userRT1.FirstName + " " + userRT1.LastName;
+
+                        UserModel userRT2 = await GetUserModelAsync(currentAppointment.RadiationTherapist2);
+                        currentAppointment.RadiationTherapist2 = userRT2.FirstName + " " + userRT2.LastName;
+
+                        appointments.Add(currentAppointment);
+                    }
+
+                }
+                return appointments;
+
+            }
+            return null;
+        }
+
         public async void DataRequest(string type, HttpContext context)
         {
             try
@@ -300,16 +368,33 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                 CollectionReference RequestsRef = db.Collection("DataRequests");
                 QuerySnapshot snapshot = await RequestsRef.GetSnapshotAsync();
 
-
-                DocumentReference docRef = db.Collection("DataRequests").Document();
-                Dictionary<string, object> dataRequest = new Dictionary<string, object>
+                bool found = false;
+                
+                foreach (DocumentSnapshot document in snapshot.Documents)
+                {
+                    Dictionary<string, object> documentDictionary = document.ToDictionary();
+                    string typeDict = documentDictionary["Type"].ToString();
+                    string uid = documentDictionary["UID"].ToString();
+                    if (uid == token && typeDict == type)
                     {
-                        { "UID", token },
-                        { "Name",  user.FirstName + " " + user.LastName},
-                        { "Type", type },
-                        { "Date", DateTime.Now.ToString() }
-                    };
-                await docRef.SetAsync(dataRequest);
+                        found = true;
+                        Debug.WriteLine("ALREADY EXIST");
+                    } 
+                    
+                }
+                if (found == false)
+                {
+                    DocumentReference docRef = db.Collection("DataRequests").Document();
+                    Dictionary<string, object> dataRequest = new Dictionary<string, object>
+                        {
+                            { "UID", token },
+                            { "Name",  user.FirstName + " " + user.LastName},
+                            { "Type", type },
+                            { "Date", DateTime.Now.ToString() }
+                        };
+                    await docRef.SetAsync(dataRequest);
+                }
+
             } catch(Exception e)
             {
                 Debug.WriteLine(e);
