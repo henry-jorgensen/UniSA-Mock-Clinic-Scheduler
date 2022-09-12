@@ -17,17 +17,16 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         public AccountController(ILogger<HomeController> logger)
         {
             _logger = logger;
-            firebase = new FirebaseSharedFunctions();
+            firebase = new FirebaseSharedFunctions(HttpContext);
         }
 
         public IActionResult Index()
         {
-            var UserToken = HttpContext.Session.GetString("_UserToken");
             var UserName = HttpContext.Session.GetString("_UserName");
 
-            if (firebase.VerifyLoggedIn(UserToken).Result == true)
+            if (firebase.VerifyLoggedinSession(HttpContext).Result)
             {
-                ViewBag.CurrentUser = firebase.GetUserModelAsync(UserToken).Result;
+                ViewBag.CurrentUser = firebase.GenerateUserModel(HttpContext).Result;
                 return View();
             }
             else if (firebase.VerifyAnonymousLoggedIn(UserName).Result == true)
@@ -45,10 +44,9 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         //Cannot visit this page while logged in
         public IActionResult Login()
         {
-            var UserToken = HttpContext.Session.GetString("_UserToken");
             var UserName = HttpContext.Session.GetString("_UserName");
 
-            if (firebase.VerifyLoggedIn(UserToken).Result == false && firebase.VerifyAnonymousLoggedIn(UserName).Result == false)
+            if (firebase.VerifyLoggedinSession(HttpContext).Result == false && firebase.VerifyAnonymousLoggedIn(UserName).Result == false)
             {
                 return View();
             }
@@ -62,9 +60,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         //Cannot visit this page while logged in
         public IActionResult Reset()
         {
-            var UserToken = HttpContext.Session.GetString("_UserToken");
-
-            if (firebase.VerifyLoggedIn(UserToken).Result == false)
+            if (firebase.VerifyLoggedinSession(HttpContext).Result == false)
             {
                 return View();
             }
@@ -78,9 +74,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         //Cannot visit this page while logged in
         public IActionResult Register()
         {
-            var UserToken = HttpContext.Session.GetString("_UserToken");
-
-            if (firebase.VerifyLoggedIn(UserToken).Result == false)
+            if (firebase.VerifyLoggedinSession(HttpContext).Result == false)
             {
                 return View();
             }
@@ -94,8 +88,11 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         //Will clear user token whether present or not
         public IActionResult Logout()
         {
-            HttpContext.Session.Remove("_UserToken");
             HttpContext.Session.Remove("_UserName");
+            
+            //Delete cookies and session
+            HttpContext.Response.Cookies.Delete("VerificationToken");
+            HttpContext.Session.Remove("VerificationToken");
             return RedirectToAction("Login");
         }
 
@@ -189,7 +186,8 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
                     };
                     await docRef.SetAsync(user);
 
-                    HttpContext.Session.SetString("_UserToken", token);
+                    //Set the session token and redirect away from Register.
+                    firebase.SetVerificationToken(HttpContext, token);
                     return RedirectToAction("Redirect", "Home");
                 }
             }
@@ -214,13 +212,13 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 
         public IActionResult DataRequest(string type)
         {
-            var _UserToken = HttpContext.Session.GetString("_UserToken");
-            firebase.DataRequest(_UserToken, type);
+            firebase.DataRequest(type, HttpContext);
             return RedirectToAction("Index");
         }
 
         public IActionResult RequestUserData()
         {
+            Debug.WriteLine("HIT");
             DataRequest("Request");
             return RedirectToAction("Index");
         }
@@ -233,8 +231,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 
         public IActionResult DeleteUserDataTest()
         {
-            var token = HttpContext.Session.GetString("_UserToken");
-            firebase.DeleteUserData(token);
+            firebase.DeleteUserData(HttpContext);
             return RedirectToAction("Logout");
         }
 

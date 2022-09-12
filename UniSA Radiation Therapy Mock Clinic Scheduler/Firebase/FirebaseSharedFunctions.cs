@@ -7,6 +7,9 @@ using System.Diagnostics;
 using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models;
 using Google.Rpc;
 using System.Linq;
+using System.Text.RegularExpressions;
+using Newtonsoft.Json.Linq;
+using System;
 
 namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 {
@@ -14,6 +17,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
     {
         FirestoreDb db;
         FirebaseAuthProvider auth;
+        public FirebaseEncryptor encryptor;
 
         public FirestoreDb DB()
         {
@@ -25,29 +29,79 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             return auth;
         }
 
-        public FirebaseSharedFunctions()
+        public FirebaseSharedFunctions(HttpContext context)
         {
             //TODO hide this in the future with ENV
-            db = new FirestoreDbBuilder
-            {
-                ProjectId = "unisa-rt-mock-clinic",
-                JsonCredentials = "{ 'type': 'service_account',   'project_id': 'unisa-rt-mock-clinic',   'private_key_id': '6aa0d9f7dc80f52392dd906a85d0f4f462432f52',   'private_key': '-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDP+Pn9NZkcvnxs\n7sTgbHBZJqlqK/wv5qVSdyQeUZuC4Dp1uFffRcGS2OSrq+v0CMgRxaBtF5ox4oca\nrk5+B0AqtDpuWLoKVOlAbzEjbdZgcV2WZccfxb1VqMMeNJRFF1g3O+idQIAzI0ax\nDH+RQoPaco6pc8LjfTG5NAfcyZQcSoYGyUgFVaMfmbay7DQwyvIsyY9uZ52ZPYWG\n3N2KZI69uKYVPKflgqOtzZuedAtDG2MMnyHe8Majjt/MtGFLKeI/hE+TpYvpn5c6\ncV33BpFyN7D1LP2pVCP83rtmCswWbZPfZL+Fpjnc/QANqzVVJb3SLIBWOmeEkuIi\n8dw60uaNAgMBAAECggEAAd04dD9Q9bibYYRSjXGkbj8ZCN65ihdVd/A9iaOvn2C8\nzcGV5wIhGjAq5qRrYe2CDIqO0NPcxESSc3J363iqH31vB8bJeVTBbL2EfsKsGx7Z\nth5858iRIxEeOsli0lKAl/eKlyTb82dOdN0dr29VU1An/hMxFJP5hvM8OcNSLxvD\nC8a+uiSWl0OBGnDNBulkmffZsdjiphPVooY/khLGpTxUN8ec7HZEhhlGvaPvvBPW\n6ywKxtjssblc22CkIkexVsnFqtf1ZkUSAKggnmv8aKImzKkkG+8PQcPiJNAp6FC9\nZ9bdXwrFDtrPU+V3gFCS4Z7yogU1fcaTM9wI0tjPoQKBgQD+poIAr4BYmVIaO86S\nSFifnurNfYOsTBEa8cn//i8W125LyV93Ee4ThCV4zgP9sT7HblnxT6U+mB+Hmkz7\nNeIfbYfL3RR+R7GFqkbYs8P5GPUP8FSsTMzyLvdMHF1TQz4G0Qbn+r1AgwXZcVdL\nuvNyE8MYKft2xAz8uCSKwL0ahQKBgQDREyOvKOKE0JadMLrE1wCaapUamHmLZiAO\nJsYzQjz/186FwKKyQyLAZSAbGdkzLK2U8ZSosoQZnrokeDxfmXoZniKqcFbuFIJi\ngyFhpfp6mK4GPhyD+bzsIoT3WX9Xwtrmv2OfudalY1hd6fNaapYomyYqTdoWUA88\nvxdLe/zOaQKBgQCaD2B9S7ApafC7AE3UQEKlpz5EvdfIiGic1YUxA7W3avRGk3jX\nD5jqY7tL38+YTwA9JWzyyg2d1ejVYCuMm6fG/bv3QTRhxbwHsuGTvwYkEM5KK0r+\nxqQDLRjeChcIBZlkBFfaRt7yRZJnX+PBZEReUshoORXyX1/AESPCciK2BQKBgD64\nCyBkl29YU5ZcI+sgxGGOT6Rm0S9sN3mHUDXYTQxC5QViwGvRj/8/Vt5KZsnfQUNJ\nJVtmEhLNdvGx0Aqts98zfRq8EJfjNynuRHlSnU1ht/LPdyZwKKh9wn2hL35YSeqm\nx3AHA8khgETMBeC90MXlpRFTwXSoF6oVeRt/2lrhAoGBAL8IsbiE9hKv7MUK1xR3\nrW194MfKocnFuAi+GdbhJjw6jG88/3l3nnVE+unz8ORP5Kj6m9XwISWrU9/H0KJ7\n/lJ8pafeBWsc8i+B+x2/vwZNjxGVzwpWzBLnHwjgsZ3qT1w2h3I7boAnn3Ezouwv\n5w2vKJXCIjteoyLxZ83Zao3w\n-----END PRIVATE KEY-----\n',   'client_email': 'firebase-adminsdk-vjevh@unisa-rt-mock-clinic.iam.gserviceaccount.com',   'client_id': '103711456653250716580',   'auth_uri': 'https://accounts.google.com/o/oauth2/auth',   'token_uri': 'https://oauth2.googleapis.com/token',   'auth_provider_x509_cert_url': 'https://www.googleapis.com/oauth2/v1/certs',   'client_x509_cert_url': 'https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-vjevh%40unisa-rt-mock-clinic.iam.gserviceaccount.com' }"
-            }.Build();
-
+            db = new FirestoreDbBuilder { ProjectId = "unisa-rt-mock-clinic", JsonCredentials = "{ 'type': 'service_account',   'project_id': 'unisa-rt-mock-clinic',   'private_key_id': '6aa0d9f7dc80f52392dd906a85d0f4f462432f52',   'private_key': '-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDP+Pn9NZkcvnxs\n7sTgbHBZJqlqK/wv5qVSdyQeUZuC4Dp1uFffRcGS2OSrq+v0CMgRxaBtF5ox4oca\nrk5+B0AqtDpuWLoKVOlAbzEjbdZgcV2WZccfxb1VqMMeNJRFF1g3O+idQIAzI0ax\nDH+RQoPaco6pc8LjfTG5NAfcyZQcSoYGyUgFVaMfmbay7DQwyvIsyY9uZ52ZPYWG\n3N2KZI69uKYVPKflgqOtzZuedAtDG2MMnyHe8Majjt/MtGFLKeI/hE+TpYvpn5c6\ncV33BpFyN7D1LP2pVCP83rtmCswWbZPfZL+Fpjnc/QANqzVVJb3SLIBWOmeEkuIi\n8dw60uaNAgMBAAECggEAAd04dD9Q9bibYYRSjXGkbj8ZCN65ihdVd/A9iaOvn2C8\nzcGV5wIhGjAq5qRrYe2CDIqO0NPcxESSc3J363iqH31vB8bJeVTBbL2EfsKsGx7Z\nth5858iRIxEeOsli0lKAl/eKlyTb82dOdN0dr29VU1An/hMxFJP5hvM8OcNSLxvD\nC8a+uiSWl0OBGnDNBulkmffZsdjiphPVooY/khLGpTxUN8ec7HZEhhlGvaPvvBPW\n6ywKxtjssblc22CkIkexVsnFqtf1ZkUSAKggnmv8aKImzKkkG+8PQcPiJNAp6FC9\nZ9bdXwrFDtrPU+V3gFCS4Z7yogU1fcaTM9wI0tjPoQKBgQD+poIAr4BYmVIaO86S\nSFifnurNfYOsTBEa8cn//i8W125LyV93Ee4ThCV4zgP9sT7HblnxT6U+mB+Hmkz7\nNeIfbYfL3RR+R7GFqkbYs8P5GPUP8FSsTMzyLvdMHF1TQz4G0Qbn+r1AgwXZcVdL\nuvNyE8MYKft2xAz8uCSKwL0ahQKBgQDREyOvKOKE0JadMLrE1wCaapUamHmLZiAO\nJsYzQjz/186FwKKyQyLAZSAbGdkzLK2U8ZSosoQZnrokeDxfmXoZniKqcFbuFIJi\ngyFhpfp6mK4GPhyD+bzsIoT3WX9Xwtrmv2OfudalY1hd6fNaapYomyYqTdoWUA88\nvxdLe/zOaQKBgQCaD2B9S7ApafC7AE3UQEKlpz5EvdfIiGic1YUxA7W3avRGk3jX\nD5jqY7tL38+YTwA9JWzyyg2d1ejVYCuMm6fG/bv3QTRhxbwHsuGTvwYkEM5KK0r+\nxqQDLRjeChcIBZlkBFfaRt7yRZJnX+PBZEReUshoORXyX1/AESPCciK2BQKBgD64\nCyBkl29YU5ZcI+sgxGGOT6Rm0S9sN3mHUDXYTQxC5QViwGvRj/8/Vt5KZsnfQUNJ\nJVtmEhLNdvGx0Aqts98zfRq8EJfjNynuRHlSnU1ht/LPdyZwKKh9wn2hL35YSeqm\nx3AHA8khgETMBeC90MXlpRFTwXSoF6oVeRt/2lrhAoGBAL8IsbiE9hKv7MUK1xR3\nrW194MfKocnFuAi+GdbhJjw6jG88/3l3nnVE+unz8ORP5Kj6m9XwISWrU9/H0KJ7\n/lJ8pafeBWsc8i+B+x2/vwZNjxGVzwpWzBLnHwjgsZ3qT1w2h3I7boAnn3Ezouwv\n5w2vKJXCIjteoyLxZ83Zao3w\n-----END PRIVATE KEY-----\n',   'client_email': 'firebase-adminsdk-vjevh@unisa-rt-mock-clinic.iam.gserviceaccount.com',   'client_id': '103711456653250716580',   'auth_uri': 'https://accounts.google.com/o/oauth2/auth',   'token_uri': 'https://oauth2.googleapis.com/token',   'auth_provider_x509_cert_url': 'https://www.googleapis.com/oauth2/v1/certs',   'client_x509_cert_url': 'https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-vjevh%40unisa-rt-mock-clinic.iam.gserviceaccount.com' }"}.Build();
             auth = new FirebaseAuthProvider(new FirebaseConfig("AIzaSyByVk8XwhbQGoeeqkcxr5vRJWhOjep5Ulc"));
+            encryptor = new FirebaseEncryptor("b14ca5898a4e4133bbce2ea2315a1916");
         }
 
-        public async Task<Boolean> VerifyLoggedIn(string UserToken)
+        //********************************************************************************************************//
+        //                                        User Verification Section                                       //
+        //********************************************************************************************************//
+        public void SetVerificationToken(HttpContext context, string UserToken, bool setCookie = false)
         {
-            CollectionReference usersRef = db.Collection("Users");
-            QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
+            var verificationToken = GenerateVerificationToken(context, UserToken);
+            context.Session.SetString("VerificationToken", verificationToken);
 
-            foreach (DocumentSnapshot document in snapshot.Documents)
+            if (setCookie)
+                context.Response.Cookies.Append("VerificationToken", verificationToken, new CookieOptions { Expires = DateTime.Now.AddDays(15) });
+        }
+
+        public string GenerateVerificationToken(HttpContext context, string UserToken)
+        {
+            //Generate info headers for the device and combine them with the user token
+            var headers = context.Request.Headers["User-Agent"];
+            var verificationToken = headers + "\n" + UserToken;
+
+            //Encrypt the combination string using AES encryption
+            return encryptor.SymmetricEnctyption(verificationToken);
+        }
+
+        public string VerifyVerificationToken(HttpContext context)
+        {
+            try
             {
-                if (document.Id == UserToken) return true;
-            }
+                //Retrieve the verification token and verify it is valid to the device
+                var StoredToken = context.Session.GetString("VerificationToken");
 
-            return false;
+                //If session token is null, check cookies
+                if (StoredToken == null)
+                {
+                    var cookieToken = context.Request.Cookies["VerificationToken"];
+
+                    if (cookieToken != null)
+                    {
+                        //Set the session token if the cookie token exists
+                        StoredToken = cookieToken;
+                        context.Session.SetString("VerificationToken", cookieToken);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+
+                //Decrypt the token stored in session or cookies
+                var decrypted = encryptor.SymmetricDecryption(StoredToken);
+                if (decrypted == null) return null;
+
+                string[] storedToken = Regex.Split(decrypted, "\n");
+
+                if (storedToken.Length == 2)
+                {
+                    var userAgent = storedToken[0];
+                    var userToken = storedToken[1];
+
+                    //If current device matches, return the stored user token
+                    if (userAgent == context.Request.Headers["User-Agent"]) return userToken;
+                }
+            }
+            catch { }
+
+            //The stored token is not valid to the current current browser / device / user
+            return null;
         }
 
         public async Task<Boolean> VerifyAnonymousLoggedIn(string UserName)
@@ -63,27 +117,30 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             return false;
         }
 
-        public async Task<Boolean> VerifyCoordinatorCode(string code)
+        public async Task<bool> VerifyLoggedinSession(HttpContext context)
         {
-            CollectionReference usersRef = db.Collection("CoordinatorCodes");
-            QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
-
-            foreach (DocumentSnapshot document in snapshot.Documents)
-            {
-                if (document.Id == code) return true;
-            }
-
-            return false;
-        }
-
-        public async Task<Boolean> LoggedInAsCoordinator(string UserToken)
-        {
+            //Check the database whether the user token is valid
             CollectionReference usersRef = db.Collection("Users");
             QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
 
             foreach (DocumentSnapshot document in snapshot.Documents)
             {
-                if (document.Id == UserToken)
+                //Return true if it exists in the database
+                if (document.Id == VerifyVerificationToken(context)) return true;
+            }
+            return false;
+        }
+
+        public async Task<bool> VerifyLoggedInCoordinator(HttpContext context)
+        {
+            //Check the database whether the user token is valid
+            CollectionReference usersRef = db.Collection("Users");
+            QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
+
+            foreach (DocumentSnapshot document in snapshot.Documents)
+            {
+                //Return true if it exists in the database
+                if (document.Id == VerifyVerificationToken(context))
                 {
                     Dictionary<string, object> documentDictionary = document.ToDictionary();
                     string CCCode = documentDictionary["CCCode"].ToString();
@@ -113,14 +170,15 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             return false;
         }
 
-        public async Task<UserModel?> GetUserModelAsync(string UserToken)
+        public async Task<UserModel> GenerateUserModel(HttpContext context)
+
         {
             CollectionReference usersRef = db.Collection("Users");
             QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
 
             foreach (DocumentSnapshot document in snapshot.Documents)
             {
-                if (document.Id == UserToken)
+                if (document.Id == VerifyVerificationToken(context))
                 {
                     Dictionary<string, object> documentDictionary = document.ToDictionary();
                     string FirstName = documentDictionary["FirstName"].ToString();
@@ -225,30 +283,17 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             return null;
         }
 
-        public async Task<UserModel?> CreateAccountAsync(AccountModel accountModel)
+        public async Task<Boolean> VerifyCoordinatorCode(string code)
         {
-            await auth.CreateUserWithEmailAndPasswordAsync(accountModel.Email, accountModel.Password);
-            var firebaseAuth = await auth.SignInWithEmailAndPasswordAsync(accountModel.Email, accountModel.Password);
+            CollectionReference usersRef = db.Collection("CoordinatorCodes");
+            QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
 
-            string token = firebaseAuth.User.LocalId;
-
-            if (token != null)
+            foreach (DocumentSnapshot document in snapshot.Documents)
             {
-                //Insert this into cloud firestore database
-                DocumentReference docRef = db.Collection("Users").Document(token);
-                Dictionary<string, object> user = new Dictionary<string, object>
-                    {
-                        { "FirstName", accountModel.FirstName },
-                        { "LastName", accountModel.LastName },
-                        { "CCCode", accountModel.CCCode }
-                    };
-                await docRef.SetAsync(user);
-                
-
-                return new UserModel(token, accountModel.FirstName, accountModel.LastName, accountModel.CCCode);
+                if (document.Id == code) return true;
             }
 
-            return null;
+            return false;
         }
 
         /// <summary>
@@ -458,35 +503,122 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             batch.Update(docRef, "ClassCode", FieldValue.ArrayUnion(classCode));
         }
 
-        public async void DataRequest(string token, string type)
+        public async Task<List<AppointmentModel>> CollectAllAppointmentsAsync(string token)
+        {
+            if (token != null)
+            {
+                Query allAppointmentsQuery = db.Collection("Appointments")
+                                                .OrderByDescending("Date");
+                QuerySnapshot allAppointmentsQuerySnapshot = await allAppointmentsQuery.GetSnapshotAsync();
+                List<AppointmentModel> appointments = new List<AppointmentModel>();
+
+                foreach (DocumentSnapshot documentSnapshot in allAppointmentsQuerySnapshot.Documents)
+                {
+                    AppointmentModel currentAppointment = documentSnapshot.ConvertTo<AppointmentModel>();
+
+                    currentAppointment.Date = currentAppointment.Date.AddHours(9.5);
+
+                    UserModel userPatient = await GetUserModelAsync(currentAppointment.Patient);
+                    currentAppointment.Patient = userPatient.FirstName + " " + userPatient.LastName;
+
+                    UserModel userRT1 = await GetUserModelAsync(currentAppointment.RadiationTherapist1);
+                    currentAppointment.RadiationTherapist1 = userRT1.FirstName + " " + userRT1.LastName;
+
+                    UserModel userRT2 = await GetUserModelAsync(currentAppointment.RadiationTherapist2);
+                    currentAppointment.RadiationTherapist2 = userRT2.FirstName + " " + userRT2.LastName;
+
+                    appointments.Add(currentAppointment);
+                }
+
+                return appointments;
+            }
+
+            return null;
+
+        }
+
+        public async Task<List<AppointmentModel>> CollectStudentsAppointmentsAsync(string token)
+        {
+            if (token != null)
+            {
+                Query allAppointmentsQuery = db.Collection("Appointments")
+                                               .OrderByDescending("Date");
+                QuerySnapshot allAppointmentsQuerySnapshot = await allAppointmentsQuery.GetSnapshotAsync();
+                List<AppointmentModel> appointments = new List<AppointmentModel>();
+
+                foreach (DocumentSnapshot documentSnapshot in allAppointmentsQuerySnapshot.Documents)
+                {
+                    AppointmentModel currentAppointment = documentSnapshot.ConvertTo<AppointmentModel>();
+                    currentAppointment.Date = currentAppointment.Date.AddHours(9.5);
+                    if (currentAppointment.Patient == token || currentAppointment.RadiationTherapist1 == token || currentAppointment.RadiationTherapist2 == token)
+                    {
+                        UserModel userPatient = await GetUserModelAsync(currentAppointment.Patient);
+                        currentAppointment.Patient = userPatient.FirstName + " " + userPatient.LastName;
+
+                        UserModel userRT1 = await GetUserModelAsync(currentAppointment.RadiationTherapist1);
+                        currentAppointment.RadiationTherapist1 = userRT1.FirstName + " " + userRT1.LastName;
+
+                        UserModel userRT2 = await GetUserModelAsync(currentAppointment.RadiationTherapist2);
+                        currentAppointment.RadiationTherapist2 = userRT2.FirstName + " " + userRT2.LastName;
+
+                        appointments.Add(currentAppointment);
+                    }
+
+                }
+                return appointments;
+
+            }
+            return null;
+        }
+
+        public async void DataRequest(string type, HttpContext context)
         {
             try
             {
-                UserModel user = GetUserModelAsync(token).Result;
+                UserModel user = GenerateUserModel(context).Result;
+                string token = VerifyVerificationToken(context);
 
                 CollectionReference RequestsRef = db.Collection("DataRequests");
                 QuerySnapshot snapshot = await RequestsRef.GetSnapshotAsync();
 
-
-                DocumentReference docRef = db.Collection("DataRequests").Document();
-                Dictionary<string, object> dataRequest = new Dictionary<string, object>
+                bool found = false;
+                
+                foreach (DocumentSnapshot document in snapshot.Documents)
+                {
+                    Dictionary<string, object> documentDictionary = document.ToDictionary();
+                    string typeDict = documentDictionary["Type"].ToString();
+                    string uid = documentDictionary["UID"].ToString();
+                    if (uid == token && typeDict == type)
                     {
-                        { "UID", token },
-                        { "Name",  user.FirstName + " " + user.LastName},
-                        { "Type", type },
-                        { "Date", DateTime.Now.ToString() }
-                    };
-                await docRef.SetAsync(dataRequest);
+                        found = true;
+                        Debug.WriteLine("ALREADY EXIST");
+                    } 
+                    
+                }
+                if (found == false)
+                {
+                    DocumentReference docRef = db.Collection("DataRequests").Document();
+                    Dictionary<string, object> dataRequest = new Dictionary<string, object>
+                        {
+                            { "UID", token },
+                            { "Name",  user.FirstName + " " + user.LastName},
+                            { "Type", type },
+                            { "Date", DateTime.Now.ToString() }
+                        };
+                    await docRef.SetAsync(dataRequest);
+                }
+
             } catch(Exception e)
             {
                 Debug.WriteLine(e);
             }
         }
 
-        public async void DeleteUserData(string token)
+        public async void DeleteUserData(HttpContext context)
         {
             try
             {
+                var token = VerifyVerificationToken(context);
                 DocumentReference userRef = db.Collection("Users").Document(token);
                 await userRef.DeleteAsync();
                 

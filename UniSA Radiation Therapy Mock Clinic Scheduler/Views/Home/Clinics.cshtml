@@ -1,6 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Clinics";
     ViewData["Controller"] = "Home";
+    List<AppointmentModel> appointments = ViewBag.Appointments;
 }
 
 <div class="container">
@@ -11,7 +12,21 @@
                     <h2>Upcoming Clinics</h2>
                 </div>
 
-                @{
+                @foreach (var appointment in appointments)
+                {
+                    <div class="card w-100">
+                            <div class="card-body">
+                                <h5 class="card-title">@appointment.Date || @appointment.Room<a href="#" class="stretched-link"></a></h5>
+                                <p class="card-text"><strong>Patient:</strong> @appointment.Patient</p>
+                                <p class="card-text"><strong>Radiation Therapist 1:</strong> @appointment.RadiationTherapist1</p>
+                                <p class="card-text"><strong>Radiation Therapist 2:</strong> @appointment.RadiationTherapist2</p>
+                                <p class="card-text"><strong>Site:</strong> @appointment.Site</p>
+                            </div>
+                        </div>
+                        <br />
+                }
+
+                @*@{
                     for (int i = 1; i <= 7; i++)
                     {
                         <div class="card w-100">
@@ -22,7 +37,9 @@
                         </div>
                         <br />
                     }
-                }
+                }*@
+
+
             </div>
         </div>
     </main>

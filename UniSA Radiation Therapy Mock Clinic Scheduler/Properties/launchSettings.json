@@ -11,7 +11,7 @@
     "UniSA_Radiation_Therapy_Mock_Clinic_Scheduler": {
       "commandName": "Project",
       "launchBrowser": true,
-      "applicationUrl": "http://localhost:11128",
+      "applicationUrl": "http://192.168.0.185:11128",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "GOOGLE_APPLICATION_CREDENTIALS": "Firebase/Auth/service.json"
