@@ -56,12 +56,14 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 
         //Scheduled clinics page
         //Must be logged into a valid account to see
-        public IActionResult Clinics()
+        public async Task<IActionResult> Clinics()
         {
-            var UserToken = HttpContext.Session.GetString("_UserToken");
+            var _UserToken = HttpContext.Session.GetString("_UserToken");
 
-            if (firebase.VerifyLoggedIn(UserToken).Result == true)
+            if (firebase.VerifyLoggedIn(_UserToken).Result == true)
             {
+                List<AppointmentModel> appointments = await firebase.CollectStudentsAppointmentsAsync(_UserToken);
+                ViewBag.Appointments = appointments;
                 return View();
             }
             else

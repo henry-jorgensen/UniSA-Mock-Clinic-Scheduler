@@ -274,6 +274,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             return false;
         }
 
+
         public async Task<List<AppointmentModel>> CollectAllAppointmentsAsync(string token)
         {
             if (token != null)
@@ -286,6 +287,9 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                 foreach (DocumentSnapshot documentSnapshot in allAppointmentsQuerySnapshot.Documents)
                 {
                     AppointmentModel currentAppointment = documentSnapshot.ConvertTo<AppointmentModel>();
+
+                    currentAppointment.Date = currentAppointment.Date.AddHours(9.5);
+
                     UserModel userPatient = await GetUserModelAsync(currentAppointment.Patient);
                     currentAppointment.Patient = userPatient.FirstName + " " + userPatient.LastName;
 
@@ -303,6 +307,40 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
             return null;
 
+        }
+
+        public async Task<List<AppointmentModel>> CollectStudentsAppointmentsAsync(string token)
+        {
+            if (token != null)
+            {
+                Query allAppointmentsQuery = db.Collection("Appointments")
+                                               .OrderByDescending("Date");
+                QuerySnapshot allAppointmentsQuerySnapshot = await allAppointmentsQuery.GetSnapshotAsync();
+                List<AppointmentModel> appointments = new List<AppointmentModel>();
+
+                foreach (DocumentSnapshot documentSnapshot in allAppointmentsQuerySnapshot.Documents)
+                {
+                    AppointmentModel currentAppointment = documentSnapshot.ConvertTo<AppointmentModel>();
+                    currentAppointment.Date = currentAppointment.Date.AddHours(9.5);
+                    if (currentAppointment.Patient == token || currentAppointment.RadiationTherapist1 == token || currentAppointment.RadiationTherapist2 == token)
+                    {
+                        UserModel userPatient = await GetUserModelAsync(currentAppointment.Patient);
+                        currentAppointment.Patient = userPatient.FirstName + " " + userPatient.LastName;
+
+                        UserModel userRT1 = await GetUserModelAsync(currentAppointment.RadiationTherapist1);
+                        currentAppointment.RadiationTherapist1 = userRT1.FirstName + " " + userRT1.LastName;
+
+                        UserModel userRT2 = await GetUserModelAsync(currentAppointment.RadiationTherapist2);
+                        currentAppointment.RadiationTherapist2 = userRT2.FirstName + " " + userRT2.LastName;
+
+                        appointments.Add(currentAppointment);
+                    }
+
+                }
+                return appointments;
+
+            }
+            return null;
         }
 
         public async void DataRequest(string token, string type)
@@ -330,7 +368,6 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                 }
                 if (found == false)
                 {
-                    Debug.WriteLine("Hit 2");
                     DocumentReference docRef = db.Collection("DataRequests").Document();
                     Dictionary<string, object> dataRequest = new Dictionary<string, object>
                         {
