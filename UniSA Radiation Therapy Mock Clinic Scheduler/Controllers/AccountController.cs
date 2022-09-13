@@ -103,7 +103,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             {
                 //If course coordinator
                 //TODO Change this to account for any emails instead of just the UniSA one
-                if (accountModel.Email.Contains("@mymail.unisa.edu.au"))
+                if (accountModel.Email.Contains("@mymail.unisa.edu.au") || accountModel.Email.Contains("@gmail.com"))
                 {
                     var firebaseAuth = await firebase.Auth().SignInWithEmailAndPasswordAsync(accountModel.Email, accountModel.Password);
                     string token = firebaseAuth.User.LocalId;

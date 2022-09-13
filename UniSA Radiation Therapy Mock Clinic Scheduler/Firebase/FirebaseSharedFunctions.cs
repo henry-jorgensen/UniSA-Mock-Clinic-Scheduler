@@ -509,6 +509,32 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             batch.Update(docRef, "ClassCode", FieldValue.ArrayUnion(classCode));
         }
 
+
+        //TEMP USE OF FUNCTION FOR DEMO
+
+        public async Task<UserModel> GetUserModelAsync(string UserToken)
+        {
+            CollectionReference usersRef = db.Collection("Users");
+            QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
+
+            foreach (DocumentSnapshot document in snapshot.Documents)
+            {
+                if (document.Id == UserToken)
+                {
+                    Console.WriteLine("User: {0}", document.Id);
+                    Dictionary<string, object> documentDictionary = document.ToDictionary();
+                    string FirstName = documentDictionary["FirstName"].ToString();
+                    string LastName = documentDictionary["LastName"].ToString();
+                    string CCCode = documentDictionary["CCCode"].ToString();
+
+                    return new UserModel(UserToken, FirstName, LastName, CCCode);
+                }
+            }
+
+            return null;
+        }
+
+
         public async Task<List<AppointmentModel>> CollectAllAppointmentsAsync(HttpContext context)
         {
             string token = VerifyVerificationToken(context);
@@ -526,14 +552,14 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
                     currentAppointment.Date = currentAppointment.Date.AddHours(9.5);
 
-                    //UserModel userPatient = await GetUserModelAsync(currentAppointment.Patient);
-                    //currentAppointment.Patient = userPatient.FirstName + " " + userPatient.LastName;
+                    UserModel userPatient = await GetUserModelAsync(currentAppointment.Patient);
+                    currentAppointment.Patient = userPatient.FirstName + " " + userPatient.LastName;
 
-                    //UserModel userRT1 = await GetUserModelAsync(currentAppointment.RadiationTherapist1);
-                    //currentAppointment.RadiationTherapist1 = userRT1.FirstName + " " + userRT1.LastName;
+                    UserModel userRT1 = await GetUserModelAsync(currentAppointment.RadiationTherapist1);
+                    currentAppointment.RadiationTherapist1 = userRT1.FirstName + " " + userRT1.LastName;
 
-                    //UserModel userRT2 = await GetUserModelAsync(currentAppointment.RadiationTherapist2);
-                    //currentAppointment.RadiationTherapist2 = userRT2.FirstName + " " + userRT2.LastName;
+                    UserModel userRT2 = await GetUserModelAsync(currentAppointment.RadiationTherapist2);
+                    currentAppointment.RadiationTherapist2 = userRT2.FirstName + " " + userRT2.LastName;
 
                     appointments.Add(currentAppointment);
                 }
@@ -562,14 +588,14 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                     currentAppointment.Date = currentAppointment.Date.AddHours(9.5);
                     if (currentAppointment.Patient == token || currentAppointment.RadiationTherapist1 == token || currentAppointment.RadiationTherapist2 == token)
                     {
-                        //UserModel userPatient = await GetUserModelAsync(currentAppointment.Patient);
-                        //currentAppointment.Patient = userPatient.FirstName + " " + userPatient.LastName;
+                        UserModel userPatient = await GetUserModelAsync(currentAppointment.Patient);
+                        currentAppointment.Patient = userPatient.FirstName + " " + userPatient.LastName;
 
-                        //UserModel userRT1 = await GetUserModelAsync(currentAppointment.RadiationTherapist1);
-                        //currentAppointment.RadiationTherapist1 = userRT1.FirstName + " " + userRT1.LastName;
+                        UserModel userRT1 = await GetUserModelAsync(currentAppointment.RadiationTherapist1);
+                        currentAppointment.RadiationTherapist1 = userRT1.FirstName + " " + userRT1.LastName;
 
-                        //UserModel userRT2 = await GetUserModelAsync(currentAppointment.RadiationTherapist2);
-                        //currentAppointment.RadiationTherapist2 = userRT2.FirstName + " " + userRT2.LastName;
+                        UserModel userRT2 = await GetUserModelAsync(currentAppointment.RadiationTherapist2);
+                        currentAppointment.RadiationTherapist2 = userRT2.FirstName + " " + userRT2.LastName;
 
                         appointments.Add(currentAppointment);
                     }
