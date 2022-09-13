@@ -5,7 +5,7 @@ using System.Diagnostics;
 using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models;
 using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase;
 using Google.Cloud.Firestore;
-using static Google.Rpc.Context.AttributeContext.Types;
+//using static Google.Rpc.Context.AttributeContext.Types;
 
 namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 {
@@ -24,7 +24,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         {
             var UserName = HttpContext.Session.GetString("_UserName");
 
-            if (firebase.VerifyLoggedinSession(HttpContext).Result)
+            if (firebase.VerifyLoggedInSession(HttpContext).Result)
             {
                 ViewBag.CurrentUser = firebase.GenerateUserModel(HttpContext).Result;
                 return View();
@@ -46,7 +46,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         {
             var UserName = HttpContext.Session.GetString("_UserName");
 
-            if (firebase.VerifyLoggedinSession(HttpContext).Result == false && firebase.VerifyAnonymousLoggedIn(UserName).Result == false)
+            if (firebase.VerifyLoggedInSession(HttpContext).Result == false && firebase.VerifyAnonymousLoggedIn(UserName).Result == false)
             {
                 return View();
             }
@@ -60,7 +60,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         //Cannot visit this page while logged in
         public IActionResult Reset()
         {
-            if (firebase.VerifyLoggedinSession(HttpContext).Result == false)
+            if (firebase.VerifyLoggedInSession(HttpContext).Result == false)
             {
                 return View();
             }
@@ -74,7 +74,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         //Cannot visit this page while logged in
         public IActionResult Register()
         {
-            if (firebase.VerifyLoggedinSession(HttpContext).Result == false)
+            if (firebase.VerifyLoggedInSession(HttpContext).Result == false)
             {
                 return View();
             }
@@ -123,7 +123,8 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
                                 string LastName = documentDictionary["LastName"].ToString();
                                 string CCCode = documentDictionary["CCCode"].ToString();
 
-                                HttpContext.Session.SetString("_UserToken", token);
+                                //Set the session token and redirect away from Register.
+                                firebase.SetVerificationToken(HttpContext, token);
                                 return RedirectToAction("Redirect", "Home");
                             }
                         }
@@ -146,7 +147,8 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 
                     if (token != null)
                     {
-                        HttpContext.Session.SetString("_UserToken", token);
+                        //Set the session token and redirect away from Register.
+                        firebase.SetVerificationToken(HttpContext, token);
                         HttpContext.Session.SetString("_UserName", studentModel.Username);
                         return RedirectToAction("Redirect", "Home");
                     }
