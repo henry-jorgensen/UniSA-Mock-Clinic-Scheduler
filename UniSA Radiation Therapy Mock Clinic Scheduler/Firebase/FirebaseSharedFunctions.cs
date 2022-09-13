@@ -1,15 +1,15 @@
 ﻿using Firebase.Auth;
 using Google.Cloud.Firestore;
 using Newtonsoft.Json;
-using Microsoft.AspNetCore.Mvc;
+//using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
 using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models;
-using Google.Rpc;
-using System.Linq;
+//using Google.Rpc;
+//using System.Linq;
 using System.Text.RegularExpressions;
-using Newtonsoft.Json.Linq;
-using System;
+//using Newtonsoft.Json.Linq;
+//using System;
 
 namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 {
@@ -117,7 +117,8 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             return false;
         }
 
-        public async Task<bool> VerifyLoggedinSession(HttpContext context)
+        //TODO THIS IS SLOW AND BEING CALLED MULTIPLE TIMES PER PAGE CHANGE - WORK ON OPTIMISATION
+        public async Task<bool> VerifyLoggedInSession(HttpContext context)
         {
             //Check the database whether the user token is valid
             CollectionReference usersRef = db.Collection("Users");
@@ -306,8 +307,10 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
         /// <param name="token">A string representing the current user signed in</param>
         /// <param name="classModel">An object contained all the required information for the new entry</param>
         /// <returns>A string representing the ID(name) of the new document</returns>
-        public async Task<string?> CreateNewScheduleAsync(string token, string className, ScheduleModel scheduleModel)
+        public async Task<string?> CreateNewScheduleAsync(HttpContext context, string className, ScheduleModel scheduleModel)
         {
+            string token = VerifyVerificationToken(context);
+
             //Insert this into cloud firestore database
             if (token != null)
             {
@@ -506,8 +509,10 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             batch.Update(docRef, "ClassCode", FieldValue.ArrayUnion(classCode));
         }
 
-        public async Task<List<AppointmentModel>> CollectAllAppointmentsAsync(string token)
+        public async Task<List<AppointmentModel>> CollectAllAppointmentsAsync(HttpContext context)
         {
+            string token = VerifyVerificationToken(context);
+
             if (token != null)
             {
                 Query allAppointmentsQuery = db.Collection("Appointments")
@@ -521,14 +526,14 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
                     currentAppointment.Date = currentAppointment.Date.AddHours(9.5);
 
-                    UserModel userPatient = await GetUserModelAsync(currentAppointment.Patient);
-                    currentAppointment.Patient = userPatient.FirstName + " " + userPatient.LastName;
+                    //UserModel userPatient = await GetUserModelAsync(currentAppointment.Patient);
+                    //currentAppointment.Patient = userPatient.FirstName + " " + userPatient.LastName;
 
-                    UserModel userRT1 = await GetUserModelAsync(currentAppointment.RadiationTherapist1);
-                    currentAppointment.RadiationTherapist1 = userRT1.FirstName + " " + userRT1.LastName;
+                    //UserModel userRT1 = await GetUserModelAsync(currentAppointment.RadiationTherapist1);
+                    //currentAppointment.RadiationTherapist1 = userRT1.FirstName + " " + userRT1.LastName;
 
-                    UserModel userRT2 = await GetUserModelAsync(currentAppointment.RadiationTherapist2);
-                    currentAppointment.RadiationTherapist2 = userRT2.FirstName + " " + userRT2.LastName;
+                    //UserModel userRT2 = await GetUserModelAsync(currentAppointment.RadiationTherapist2);
+                    //currentAppointment.RadiationTherapist2 = userRT2.FirstName + " " + userRT2.LastName;
 
                     appointments.Add(currentAppointment);
                 }
@@ -557,14 +562,14 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                     currentAppointment.Date = currentAppointment.Date.AddHours(9.5);
                     if (currentAppointment.Patient == token || currentAppointment.RadiationTherapist1 == token || currentAppointment.RadiationTherapist2 == token)
                     {
-                        UserModel userPatient = await GetUserModelAsync(currentAppointment.Patient);
-                        currentAppointment.Patient = userPatient.FirstName + " " + userPatient.LastName;
+                        //UserModel userPatient = await GetUserModelAsync(currentAppointment.Patient);
+                        //currentAppointment.Patient = userPatient.FirstName + " " + userPatient.LastName;
 
-                        UserModel userRT1 = await GetUserModelAsync(currentAppointment.RadiationTherapist1);
-                        currentAppointment.RadiationTherapist1 = userRT1.FirstName + " " + userRT1.LastName;
+                        //UserModel userRT1 = await GetUserModelAsync(currentAppointment.RadiationTherapist1);
+                        //currentAppointment.RadiationTherapist1 = userRT1.FirstName + " " + userRT1.LastName;
 
-                        UserModel userRT2 = await GetUserModelAsync(currentAppointment.RadiationTherapist2);
-                        currentAppointment.RadiationTherapist2 = userRT2.FirstName + " " + userRT2.LastName;
+                        //UserModel userRT2 = await GetUserModelAsync(currentAppointment.RadiationTherapist2);
+                        //currentAppointment.RadiationTherapist2 = userRT2.FirstName + " " + userRT2.LastName;
 
                         appointments.Add(currentAppointment);
                     }

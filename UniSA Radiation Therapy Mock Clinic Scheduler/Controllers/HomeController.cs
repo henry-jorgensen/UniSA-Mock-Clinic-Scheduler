@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models;
 using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase;
-using System.Runtime.Intrinsics.Arm;
+//using System.Runtime.Intrinsics.Arm;
 
 namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 {
@@ -22,13 +22,13 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         {
             var UserName = HttpContext.Session.GetString("_UserName");
             
-            if (firebase.VerifyLoggedinSession(HttpContext).Result == false && firebase.VerifyAnonymousLoggedIn(UserName).Result == false)
+            if (firebase.VerifyLoggedInSession(HttpContext).Result == false && firebase.VerifyAnonymousLoggedIn(UserName).Result == false)
             {
                 return RedirectToAction("Login", "Account");
             }
             else
             {
-                if (firebase.VerifyLoggedinSession(HttpContext).Result)
+                if (firebase.VerifyLoggedInSession(HttpContext).Result)
                 {
                     return RedirectToAction("CreateClass", "Coordinator");
                 }
@@ -44,7 +44,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         {
             var UserName = HttpContext.Session.GetString("_UserName");
 
-            if (firebase.VerifyLoggedinSession(HttpContext).Result == false && firebase.VerifyAnonymousLoggedIn(UserName).Result == false)
+            if (firebase.VerifyLoggedInSession(HttpContext).Result == false && firebase.VerifyAnonymousLoggedIn(UserName).Result == false)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -60,7 +60,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         {
             var UserName = HttpContext.Session.GetString("_UserName");
             
-            if (firebase.VerifyLoggedinSession(HttpContext).Result == false && firebase.VerifyAnonymousLoggedIn(UserName).Result == false)
+            if (firebase.VerifyLoggedInSession(HttpContext).Result == false && firebase.VerifyAnonymousLoggedIn(UserName).Result == false)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -76,7 +76,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         //Must be logged into a valid account to see
         public IActionResult History()
         {
-            if (firebase.VerifyLoggedinSession(HttpContext).Result)
+            if (firebase.VerifyLoggedInSession(HttpContext).Result)
             {
                 return View();
             }

@@ -2,11 +2,11 @@
 using System.Diagnostics;
 using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models;
 using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase;
-using System.Runtime.Intrinsics.Arm;
-using Microsoft.Extensions.Logging;
+//using System.Runtime.Intrinsics.Arm;
+//using Microsoft.Extensions.Logging;
 
-//TESTING
-using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Notification;
+////TESTING
+//using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Notification;
 
 namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 {
@@ -23,7 +23,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 
         public IActionResult Redirect()
         {
-            if (firebase.VerifyLoggedinSession(HttpContext).Result == false)
+            if (firebase.VerifyLoggedInSession(HttpContext).Result == false)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -42,7 +42,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 
         public IActionResult Index()
         {
-            if (firebase.VerifyLoggedinSession(HttpContext).Result == false)
+            if (firebase.VerifyLoggedInSession(HttpContext).Result == false)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -76,11 +76,9 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 
         public async Task<IActionResult> Clinics()
         {
-            var _UserToken = HttpContext.Session.GetString("_UserToken");
-
-            if (firebase.LoggedInAsCoordinator(_UserToken).Result == true)
+            if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == true)
             {
-                List<AppointmentModel> appointments = await firebase.CollectAllAppointmentsAsync(_UserToken);
+                List<AppointmentModel> appointments = await firebase.CollectAllAppointmentsAsync(HttpContext);
                 ViewBag.Appointments = appointments;
                 return View();
             }
@@ -95,14 +93,12 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         {
             ScheduleModel scheduleModel = new ScheduleModel(name, date, startTime, appointmentDuration, locations, schedule);
 
-            var _UserToken = HttpContext.Session.GetString("_UserToken");
-
-            if (firebase.VerifyLoggedIn(_UserToken).Result == false)
+            if (firebase.VerifyLoggedInSession(HttpContext).Result == false)
             {
                 return Forbid();
             }
 
-            string? success = await firebase.CreateNewScheduleAsync(_UserToken, className, scheduleModel);
+            string? success = await firebase.CreateNewScheduleAsync(HttpContext, className, scheduleModel);
 
             if (success != null)
             {
@@ -116,11 +112,9 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         //Must be logged into course coordinator account to see
         public IActionResult CreateClass()
         {
-            var _UserToken = HttpContext.Session.GetString("_UserToken");
-
-            if (firebase.LoggedInAsCoordinator(_UserToken).Result == true)
+            if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == true)
             {
-                ViewBag.CurrentUser = firebase.GetUserModelAsync(_UserToken).Result;
+                ViewBag.CurrentUser = firebase.GenerateUserModel(HttpContext).Result;
                 return View();
             }
             else
