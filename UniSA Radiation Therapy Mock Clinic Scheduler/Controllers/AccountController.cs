@@ -125,7 +125,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 
                                 //Set the session token and redirect away from Register.
                                 firebase.SetVerificationToken(HttpContext, token);
-                                return RedirectToAction("Redirect", "Home");
+                                return RedirectToAction("Index");
                             }
                         }
                     }
