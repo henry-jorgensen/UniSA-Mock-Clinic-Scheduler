@@ -19,10 +19,8 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 
         //Basic home page
         public IActionResult Redirect()
-        {
-            var UserName = HttpContext.Session.GetString("_UserName");
-            
-            if (firebase.VerifyLoggedInSession(HttpContext).Result == false && firebase.VerifyAnonymousLoggedIn(UserName).Result == false)
+        {            
+            if (firebase.VerifyLoggedInSession(HttpContext).Result == false)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -42,25 +40,19 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         //Basic home page
         public IActionResult Index()
         {
-            var UserName = HttpContext.Session.GetString("_UserName");
-
-            if (firebase.VerifyLoggedInSession(HttpContext).Result == false && firebase.VerifyAnonymousLoggedIn(UserName).Result == false)
+            if (firebase.VerifyLoggedInSession(HttpContext).Result == false)
             {
                 return RedirectToAction("Login", "Account");
             }
-            else
-            {
-                return RedirectToAction("Clinics", "Home");
-            }
+
+            return RedirectToAction("Clinics", "Home");
         }
 
         //Scheduled clinics page
         //Must be logged into a valid account to see
         public async Task<IActionResult> Clinics()
-        {
-            var UserName = HttpContext.Session.GetString("_UserName");
-            
-            if (firebase.VerifyLoggedInSession(HttpContext).Result == false && firebase.VerifyAnonymousLoggedIn(UserName).Result == false)
+        {            
+            if (firebase.VerifyLoggedInSession(HttpContext).Result == false)
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -80,10 +72,23 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             {
                 return View();
             }
-            else
+
+            return RedirectToAction("Login", "Account");
+        }
+
+        /// <summary>
+        /// A basic treatment page that relates to the appointment that has been selected
+        /// </summary>
+        /// <returns>A redirect action dependent on whether a user is logged in</returns>
+        public IActionResult Treatment()
+        {
+            if (firebase.VerifyLoggedInSession(HttpContext).Result)
             {
-                return RedirectToAction("Login", "Account");
+                return View();
+
             }
+            
+            return RedirectToAction("Login", "Account");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

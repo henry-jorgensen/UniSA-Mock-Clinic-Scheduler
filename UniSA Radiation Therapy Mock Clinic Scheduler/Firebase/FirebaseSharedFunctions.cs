@@ -59,7 +59,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             return encryptor.SymmetricEnctyption(verificationToken);
         }
 
-        public string VerifyVerificationToken(HttpContext context)
+        public string? VerifyVerificationToken(HttpContext context)
         {
             try
             {
@@ -104,18 +104,18 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             return null;
         }
 
-        public async Task<Boolean> VerifyAnonymousLoggedIn(string UserName)
-        {
-            CollectionReference usersRef = db.Collection("Students");
-            QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
+        //public async Task<Boolean> VerifyAnonymousLoggedIn(string UserName)
+        //{
+        //    CollectionReference usersRef = db.Collection("Students");
+        //    QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
 
-            foreach (DocumentSnapshot document in snapshot.Documents)
-            {
-                if (document.Id == UserName) return true;
-            }
+        //    foreach (DocumentSnapshot document in snapshot.Documents)
+        //    {
+        //        if (document.Id == UserName) return true;
+        //    }
 
-            return false;
-        }
+        //    return false;
+        //}
 
         //TODO THIS IS SLOW AND BEING CALLED MULTIPLE TIMES PER PAGE CHANGE - WORK ON OPTIMISATION
         public async Task<bool> VerifyLoggedInSession(HttpContext context)
@@ -144,7 +144,9 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                 if (document.Id == VerifyVerificationToken(context))
                 {
                     Dictionary<string, object> documentDictionary = document.ToDictionary();
-                    string CCCode = documentDictionary["CCCode"].ToString();
+                    string? CCCode = documentDictionary["CCCode"].ToString();
+
+                    if (CCCode == null) return false;
 
                     return VerifyCoordinatorCode(CCCode).Result;
                 }
@@ -171,7 +173,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             return false;
         }
 
-        public async Task<UserModel> GenerateUserModel(HttpContext context)
+        public async Task<UserModel?> GenerateUserModel(HttpContext context)
 
         {
             CollectionReference usersRef = db.Collection("Users");
@@ -182,9 +184,11 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                 if (document.Id == VerifyVerificationToken(context))
                 {
                     Dictionary<string, object> documentDictionary = document.ToDictionary();
-                    string FirstName = documentDictionary["FirstName"].ToString();
-                    string LastName = documentDictionary["LastName"].ToString();
-                    string CCCode = documentDictionary["CCCode"].ToString();
+                    string? FirstName = documentDictionary["FirstName"].ToString();
+                    string? LastName = documentDictionary["LastName"].ToString();
+                    string? CCCode = documentDictionary["CCCode"].ToString();
+
+                    if (FirstName == null || LastName == null || CCCode == null) return null;
 
                     return new UserModel(document.Id, FirstName, LastName, CCCode);
                 }
@@ -193,34 +197,34 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             return null;
         }
 
-        public async Task<UserModel?> GetAnonymousUserModelAsync(HttpContext context, string UserName)
-        {
-            //Retrieve the verification token and verify it is valid to the device
-            var UserToken = context.Session.GetString("VerificationToken");
+        //public async Task<UserModel?> GetAnonymousUserModelAsync(HttpContext context, string UserName)
+        //{
+        //    //Retrieve the verification token and verify it is valid to the device
+        //    var UserToken = context.Session.GetString("VerificationToken");
 
-            DocumentReference anonRef = db.Collection("Students").Document(UserName);
-            DocumentSnapshot snapshot = await anonRef.GetSnapshotAsync();
+        //    DocumentReference anonRef = db.Collection("Students").Document(UserName);
+        //    DocumentSnapshot snapshot = await anonRef.GetSnapshotAsync();
 
-            if(!snapshot.Exists)
-            {
-                return null;
-            }
+        //    if(!snapshot.Exists)
+        //    {
+        //        return null;
+        //    }
 
-            try
-            {
-                string firstName = snapshot.GetValue<string>("FirstName");
-                string lastName = snapshot.GetValue<string>("LastName");
-                return new UserModel(UserToken, firstName, lastName, "Student");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
+        //    try
+        //    {
+        //        string firstName = snapshot.GetValue<string>("FirstName");
+        //        string lastName = snapshot.GetValue<string>("LastName");
+        //        return new UserModel(UserToken, firstName, lastName, "Student");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine(ex.Message);
+        //    }
 
-            return null;
-        }
+        //    return null;
+        //}
 
-        public async Task<UserModel> LoginAccountAsync(AccountModel accountModel)
+        public async Task<UserModel?> LoginAccountAsync(AccountModel accountModel)
         {
             var firebaseAuth = await auth.SignInWithEmailAndPasswordAsync(accountModel.Email, accountModel.Password);
             string token = firebaseAuth.User.LocalId;
@@ -236,9 +240,11 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                     if (document.Id == token)
                     {
                         Dictionary<string, object> documentDictionary = document.ToDictionary();
-                        string FirstName = documentDictionary["FirstName"].ToString();
-                        string LastName = documentDictionary["LastName"].ToString();
-                        string CCCode = documentDictionary["CCCode"].ToString();
+                        string? FirstName = documentDictionary["FirstName"].ToString();
+                        string? LastName = documentDictionary["LastName"].ToString();
+                        string? CCCode = documentDictionary["CCCode"].ToString();
+
+                        if (FirstName == null || LastName == null || CCCode == null) return null;
 
                         return new UserModel(token, FirstName, LastName, CCCode);
                     }
@@ -254,38 +260,56 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
         /// a semi-temporary account.
         /// </summary>
         /// <param name="username"></param>
-        /// <param name="password"></param>
+        /// <param name="password">A string representing a password or a login code</param>
         /// <returns></returns>
-        public async Task<StudentModel?> LoginAnonymousAccountAsync(string username, string password)
-        {
-            DocumentReference docRef = db.Collection("Students").Document(username);
-            DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+        //public async Task<StudentModel?> LoginAnonymousAccountAsync(string username, string password)
+        //{
+        //    DocumentReference docRef = db.Collection("Students").Document(username);
+        //    DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
 
-            if(!snapshot.Exists)
-            {
-                return null;
-            }
+        //    if(!snapshot.Exists)
+        //    {
+        //        return null;
+        //    }
 
-            StudentModel temp = snapshot.ConvertTo<StudentModel>();
+        //    StudentModel temp = snapshot.ConvertTo<StudentModel>();
 
-            if(!temp.Password.Equals(password))
-            {
-                return null;
-            }
+        //    //The user has already set a password
+        //    if(temp.Password == null)
+        //    {
+        //        //If the user is logging in for the first time
+        //        if(!temp.LoginCode.Equals(password))
+        //        {
+        //            return null;
+        //        }
 
-            var firebaseAuth = await auth.SignInAnonymouslyAsync();
-            string token = firebaseAuth.User.LocalId;
+        //        //Redirect to the password setting page with no token set
+        //        return temp;
+        //    }
+        //    else if (!temp.Password.Equals(password))
+        //    {
+        //        return null;
+        //    }
 
-            //Add the token to the student model
-            temp.Token = token;
+        //    //Check if the login code matches
+        //    //if(!temp.Password.Equals(password))
+        //    //{
+        //    //    return null;
+        //    //}
 
-            if (token != null)
-            {
-                return temp;
-            }
+        //    var firebaseAuth = await auth.SignInAnonymouslyAsync();
+        //    string token = firebaseAuth.User.LocalId;
 
-            return null;
-        }
+        //    //Add the token to the student model
+        //    temp.Token = token;
+
+        //    if (token != null)
+        //    {
+        //        return temp;
+        //    }
+
+        //    return null;
+        //}
 
         public async Task<Boolean> VerifyCoordinatorCode(string code)
         {
@@ -495,6 +519,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
         /// <param name="classCode">A string representing the unqiue code of the class the student is linked with</param>
         /// <param name="batch">A reference to a batch write</param>
         private void createNewStudentEntry(StudentModel student, string classCode, ref WriteBatch batch) {
+            if (student.ClassCode == null) return;
             student.ClassCode.Add(classCode);
 
             DocumentReference docRef = db.Collection("Students").Document(student.Username);
@@ -503,13 +528,52 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
         private void ModifyCurrentStudentEntry(StudentModel student, string classCode, ref WriteBatch batch)
         {
+            if(student.ClassCode == null) return;
             student.ClassCode.Add(classCode);
 
             DocumentReference docRef = db.Collection("Students").Document(student.Username);
             batch.Update(docRef, "ClassCode", FieldValue.ArrayUnion(classCode));
         }
 
-        public async Task<List<AppointmentModel>> CollectAllAppointmentsAsync(HttpContext context)
+
+        /// <summary>
+        /// 
+        /// </summary>
+        //private async void SetStudentPassword(string username, string password)
+        //{
+        //    DocumentReference docRef = db.Collection("Students").Document(username);
+        //    await docRef.UpdateAsync({ "Password": password});
+        //}
+
+
+        //TEMP USE OF FUNCTION FOR DEMO
+
+        public async Task<UserModel?> GetUserModelAsync(string UserToken)
+        {
+            CollectionReference usersRef = db.Collection("Users");
+            QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
+
+            foreach (DocumentSnapshot document in snapshot.Documents)
+            {
+                if (document.Id == UserToken)
+                {
+                    Console.WriteLine("User: {0}", document.Id);
+                    Dictionary<string, object> documentDictionary = document.ToDictionary();
+                    string? FirstName = documentDictionary["FirstName"].ToString();
+                    string? LastName = documentDictionary["LastName"].ToString();
+                    string? CCCode = documentDictionary["CCCode"].ToString();
+
+                    if (FirstName == null || LastName == null || CCCode == null) return null;
+
+                    return new UserModel(UserToken, FirstName, LastName, CCCode);
+                }
+            }
+
+            return null;
+        }
+
+
+        public async Task<List<AppointmentModel>?> CollectAllAppointmentsAsync(HttpContext context)
         {
             string token = VerifyVerificationToken(context);
 
@@ -526,14 +590,14 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
                     currentAppointment.Date = currentAppointment.Date.AddHours(9.5);
 
-                    //UserModel userPatient = await GetUserModelAsync(currentAppointment.Patient);
-                    //currentAppointment.Patient = userPatient.FirstName + " " + userPatient.LastName;
+                    UserModel userPatient = await GetUserModelAsync(currentAppointment.Patient);
+                    currentAppointment.Patient = userPatient.FirstName + " " + userPatient.LastName;
 
-                    //UserModel userRT1 = await GetUserModelAsync(currentAppointment.RadiationTherapist1);
-                    //currentAppointment.RadiationTherapist1 = userRT1.FirstName + " " + userRT1.LastName;
+                    UserModel userRT1 = await GetUserModelAsync(currentAppointment.RadiationTherapist1);
+                    currentAppointment.RadiationTherapist1 = userRT1.FirstName + " " + userRT1.LastName;
 
-                    //UserModel userRT2 = await GetUserModelAsync(currentAppointment.RadiationTherapist2);
-                    //currentAppointment.RadiationTherapist2 = userRT2.FirstName + " " + userRT2.LastName;
+                    UserModel userRT2 = await GetUserModelAsync(currentAppointment.RadiationTherapist2);
+                    currentAppointment.RadiationTherapist2 = userRT2.FirstName + " " + userRT2.LastName;
 
                     appointments.Add(currentAppointment);
                 }
@@ -545,9 +609,9 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
         }
 
-        public async Task<List<AppointmentModel>> CollectStudentsAppointmentsAsync(HttpContext context)
+        public async Task<List<AppointmentModel>?> CollectStudentsAppointmentsAsync(HttpContext context)
         {
-            string token = VerifyVerificationToken(context);
+            string? token = VerifyVerificationToken(context);
 
             if (token != null)
             {
@@ -562,14 +626,14 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                     currentAppointment.Date = currentAppointment.Date.AddHours(9.5);
                     if (currentAppointment.Patient == token || currentAppointment.RadiationTherapist1 == token || currentAppointment.RadiationTherapist2 == token)
                     {
-                        //UserModel userPatient = await GetUserModelAsync(currentAppointment.Patient);
-                        //currentAppointment.Patient = userPatient.FirstName + " " + userPatient.LastName;
+                        UserModel userPatient = await GetUserModelAsync(currentAppointment.Patient);
+                        currentAppointment.Patient = userPatient.FirstName + " " + userPatient.LastName;
 
-                        //UserModel userRT1 = await GetUserModelAsync(currentAppointment.RadiationTherapist1);
-                        //currentAppointment.RadiationTherapist1 = userRT1.FirstName + " " + userRT1.LastName;
+                        UserModel userRT1 = await GetUserModelAsync(currentAppointment.RadiationTherapist1);
+                        currentAppointment.RadiationTherapist1 = userRT1.FirstName + " " + userRT1.LastName;
 
-                        //UserModel userRT2 = await GetUserModelAsync(currentAppointment.RadiationTherapist2);
-                        //currentAppointment.RadiationTherapist2 = userRT2.FirstName + " " + userRT2.LastName;
+                        UserModel userRT2 = await GetUserModelAsync(currentAppointment.RadiationTherapist2);
+                        currentAppointment.RadiationTherapist2 = userRT2.FirstName + " " + userRT2.LastName;
 
                         appointments.Add(currentAppointment);
                     }
@@ -596,8 +660,8 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                 foreach (DocumentSnapshot document in snapshot.Documents)
                 {
                     Dictionary<string, object> documentDictionary = document.ToDictionary();
-                    string typeDict = documentDictionary["Type"].ToString();
-                    string uid = documentDictionary["UID"].ToString();
+                    string? typeDict = documentDictionary["Type"].ToString();
+                    string? uid = documentDictionary["UID"].ToString();
                     if (uid == token && typeDict == type)
                     {
                         found = true;
