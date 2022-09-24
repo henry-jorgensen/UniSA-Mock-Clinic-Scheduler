@@ -27,76 +27,62 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
                 ViewBag.CurrentUser = firebase.GenerateUserModel(HttpContext).Result;
                 return View();
             }
-            else
-            {
-                return RedirectToAction("Login");
-            }
+
+            return RedirectToAction("Login");
         }
 
         //Login to account page
         //Cannot visit this page while logged in
         public IActionResult Login()
         {
-            var UserName = HttpContext.Session.GetString("_UserName");
-
-            if (firebase.VerifyLoggedInSession(HttpContext).Result == false)
-            {
-                return View();
-            }
-            else
+            if (firebase.VerifyLoggedInSession(HttpContext).Result)
             {
                 return RedirectToAction("Redirect", "Home");
             }
+
+            return View();
         }
 
         //Reset account password page
         //Cannot visit this page while logged in
         public IActionResult Reset()
         {
-            if (firebase.VerifyLoggedInSession(HttpContext).Result == false)
-            {
-                return View();
-            }
-            else
+            if (firebase.VerifyLoggedInSession(HttpContext).Result)
             {
                 return RedirectToAction("Redirect", "Home");
             }
+
+            return View();
         }
 
         //Set a student password for a new account page
         //Cannot visit this page while logged in
         public IActionResult Set()
         {
-            if (firebase.VerifyLoggedInSession(HttpContext).Result == false)
-            {
-                return View();
-            }
-            else
+            if (firebase.VerifyLoggedInSession(HttpContext).Result)
             {
                 return RedirectToAction("Redirect", "Home");
             }
+
+            return View();
         }
 
         //Register a new account page
         //Cannot visit this page while logged in
         public IActionResult Register()
         {
-            if (firebase.VerifyLoggedInSession(HttpContext).Result == false)
-            {
-                return View();
-            }
-            else
+            if (firebase.VerifyLoggedInSession(HttpContext).Result)
             {
                 return RedirectToAction("Redirect", "Home");
             }
+
+            return View();
         }
 
         //Logout of account page
         //Will clear user token whether present or not
         public IActionResult Logout()
-        {
-            HttpContext.Session.Remove("_UserName");
-            
+        {            
             //Delete cookies and session
             HttpContext.Response.Cookies.Delete("VerificationToken");
             HttpContext.Session.Remove("VerificationToken");
@@ -113,24 +99,24 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 
                 if (token != null)
                 {
-                    CollectionReference usersRef = firebase.DB().Collection("Users");
-                    QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
+                    //Course Coordinators
+                    DocumentReference courseRef = firebase.DB().Collection("Users").Document(token);
+                    DocumentSnapshot courseSnapshot = await courseRef.GetSnapshotAsync();
 
-                    foreach (DocumentSnapshot document in snapshot.Documents)
+                    if (courseSnapshot.Exists)
                     {
-                        if (document.Id == token)
-                        {
-                            //TODO this doesn't do anything?
-                            Console.WriteLine("User: {0}", document.Id);
-                            Dictionary<string, object> documentDictionary = document.ToDictionary();
-                            string? FirstName = documentDictionary["FirstName"].ToString();
-                            string? LastName = documentDictionary["LastName"].ToString();
-                            string? CCCode = documentDictionary["CCCode"].ToString();
+                        firebase.SetVerificationToken(HttpContext, token);
+                        return RedirectToAction("Redirect", "Home");
+                    }
 
-                            //Set the session token and redirect away from Register.
-                            firebase.SetVerificationToken(HttpContext, token);
-                            return RedirectToAction("Redirect", "Home");
-                        }
+                    //Students
+                    DocumentReference studentRef = firebase.DB().Collection("Students").Document(token);
+                    DocumentSnapshot studentSnapshot = await studentRef.GetSnapshotAsync();
+
+                    if (studentSnapshot.Exists)
+                    {
+                        firebase.SetVerificationToken(HttpContext, token);
+                        return RedirectToAction("Redirect", "Home");
                     }
                 }
             }
@@ -202,6 +188,8 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         [HttpPost]
         public IActionResult Reset(ResetModel resetModel)
         {
+            if(resetModel.Email == null) return View();
+
             firebase.ResetPassword(resetModel.Email);
             resetModel.Response = "Email has been sent";
             ViewBag.ResetModel = resetModel;

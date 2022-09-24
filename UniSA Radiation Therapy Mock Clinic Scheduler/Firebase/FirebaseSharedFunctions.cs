@@ -104,52 +104,46 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             return null;
         }
 
-        //public async Task<Boolean> VerifyAnonymousLoggedIn(string UserName)
-        //{
-        //    CollectionReference usersRef = db.Collection("Students");
-        //    QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
-
-        //    foreach (DocumentSnapshot document in snapshot.Documents)
-        //    {
-        //        if (document.Id == UserName) return true;
-        //    }
-
-        //    return false;
-        //}
-
-        //TODO THIS IS SLOW AND BEING CALLED MULTIPLE TIMES PER PAGE CHANGE - WORK ON OPTIMISATION
         public async Task<bool> VerifyLoggedInSession(HttpContext context)
         {
-            //Check the database whether the user token is valid
-            CollectionReference usersRef = db.Collection("Users");
-            QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
+            string? token = VerifyVerificationToken(context);
 
-            foreach (DocumentSnapshot document in snapshot.Documents)
+            if(token == null) return false;
+
+            //Course Coordinators
+            DocumentReference courseRef = db.Collection("Users").Document(token);
+            DocumentSnapshot courseSnapshot = await courseRef.GetSnapshotAsync();
+
+            if (courseSnapshot.Exists)
             {
-                //Return true if it exists in the database
-                if (document.Id == VerifyVerificationToken(context)) return true;
+                return true;
             }
+
+            //Students
+            DocumentReference studentRef = db.Collection("Students").Document(token);
+            DocumentSnapshot studentSnapshot = await studentRef.GetSnapshotAsync();
+
+            if (studentSnapshot.Exists)
+            {
+                return true;
+            }
+
             return false;
         }
 
         public async Task<bool> VerifyLoggedInCoordinator(HttpContext context)
         {
-            //Check the database whether the user token is valid
-            CollectionReference usersRef = db.Collection("Users");
-            QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
+            string? token = VerifyVerificationToken(context);
 
-            foreach (DocumentSnapshot document in snapshot.Documents)
+            if (token == null) return false;
+
+            DocumentReference courseRef = db.Collection("Users").Document(token);
+            DocumentSnapshot courseSnapshot = await courseRef.GetSnapshotAsync();
+
+            if (courseSnapshot.Exists)
             {
-                //Return true if it exists in the database
-                if (document.Id == VerifyVerificationToken(context))
-                {
-                    Dictionary<string, object> documentDictionary = document.ToDictionary();
-                    string? CCCode = documentDictionary["CCCode"].ToString();
-
-                    if (CCCode == null) return false;
-
-                    return VerifyCoordinatorCode(CCCode).Result;
-                }
+                string? CCCode = courseSnapshot.GetValue<string>("CCCode");
+                return VerifyCoordinatorCode(CCCode).Result;
             }
 
             return false;
@@ -160,167 +154,70 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
         /// </summary>
         /// <param name="UserToken"></param>
         /// <returns></returns>
-        public async Task<Boolean> LoggedInAsStudent(string UserName)
+        public async Task<Boolean> LoggedInAsStudent(HttpContext context)
         {
-            CollectionReference usersRef = db.Collection("Students");
-            QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
+            string? token = VerifyVerificationToken(context);
 
-            foreach (DocumentSnapshot document in snapshot.Documents)
+            if (token == null) return false;
+
+            DocumentReference studentRef = db.Collection("Students").Document(token);
+            DocumentSnapshot studentSnapshot = await studentRef.GetSnapshotAsync();
+
+            if (studentSnapshot.Exists)
             {
-                if (document.Id == UserName) return true;
+                return true;
             }
 
             return false;
         }
 
         public async Task<UserModel?> GenerateUserModel(HttpContext context)
-
         {
-            CollectionReference usersRef = db.Collection("Users");
-            QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
+            string? token = VerifyVerificationToken(context);
 
-            foreach (DocumentSnapshot document in snapshot.Documents)
+            if (token == null) return null;
+
+            //Course Coordinators
+            DocumentReference courseRef = db.Collection("Users").Document(token);
+            DocumentSnapshot courseSnapshot = await courseRef.GetSnapshotAsync();
+
+            if (courseSnapshot.Exists)
             {
-                if (document.Id == VerifyVerificationToken(context))
-                {
-                    Dictionary<string, object> documentDictionary = document.ToDictionary();
-                    string? FirstName = documentDictionary["FirstName"].ToString();
-                    string? LastName = documentDictionary["LastName"].ToString();
-                    string? CCCode = documentDictionary["CCCode"].ToString();
+                string? FirstName = courseSnapshot.GetValue<string>("FirstName");
+                string? LastName = courseSnapshot.GetValue<string>("LastName");
+                string? CCCode = courseSnapshot.GetValue<string>("CCCode");
 
-                    if (FirstName == null || LastName == null || CCCode == null) return null;
+                if (FirstName == null || LastName == null) return null;
+                return new UserModel(token, FirstName, LastName, CCCode);
+            }
 
-                    return new UserModel(document.Id, FirstName, LastName, CCCode);
-                }
+            //Students
+            DocumentReference studentRef = db.Collection("Users").Document(token);
+            DocumentSnapshot studentSnapshot = await studentRef.GetSnapshotAsync();
+
+            if (studentSnapshot.Exists)
+            {
+                string? FirstName = courseSnapshot.GetValue<string>("FirstName");
+                string? LastName = courseSnapshot.GetValue<string>("LastName");
+
+                if (FirstName == null || LastName == null) return null;
+                return new UserModel(token, FirstName, LastName);
             }
 
             return null;
         }
 
-        //public async Task<UserModel?> GetAnonymousUserModelAsync(HttpContext context, string UserName)
-        //{
-        //    //Retrieve the verification token and verify it is valid to the device
-        //    var UserToken = context.Session.GetString("VerificationToken");
-
-        //    DocumentReference anonRef = db.Collection("Students").Document(UserName);
-        //    DocumentSnapshot snapshot = await anonRef.GetSnapshotAsync();
-
-        //    if(!snapshot.Exists)
-        //    {
-        //        return null;
-        //    }
-
-        //    try
-        //    {
-        //        string firstName = snapshot.GetValue<string>("FirstName");
-        //        string lastName = snapshot.GetValue<string>("LastName");
-        //        return new UserModel(UserToken, firstName, lastName, "Student");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine(ex.Message);
-        //    }
-
-        //    return null;
-        //}
-
-        public async Task<UserModel?> LoginAccountAsync(AccountModel accountModel)
-        {
-            var firebaseAuth = await auth.SignInWithEmailAndPasswordAsync(accountModel.Email, accountModel.Password);
-            string token = firebaseAuth.User.LocalId;
-
-            Debug.WriteLine(token);
-            if (token != null)
-            {
-                CollectionReference usersRef = db.Collection("Users");
-                QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
-
-                foreach (DocumentSnapshot document in snapshot.Documents)
-                {
-                    if (document.Id == token)
-                    {
-                        Dictionary<string, object> documentDictionary = document.ToDictionary();
-                        string? FirstName = documentDictionary["FirstName"].ToString();
-                        string? LastName = documentDictionary["LastName"].ToString();
-                        string? CCCode = documentDictionary["CCCode"].ToString();
-
-                        if (FirstName == null || LastName == null || CCCode == null) return null;
-
-                        return new UserModel(token, FirstName, LastName, CCCode);
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Using a supplied username and password search the database for a matching student
-        /// document. If there is a matching record use Firebase's anonymous function to create
-        /// a semi-temporary account.
-        /// </summary>
-        /// <param name="username"></param>
-        /// <param name="password">A string representing a password or a login code</param>
-        /// <returns></returns>
-        //public async Task<StudentModel?> LoginAnonymousAccountAsync(string username, string password)
-        //{
-        //    DocumentReference docRef = db.Collection("Students").Document(username);
-        //    DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
-
-        //    if(!snapshot.Exists)
-        //    {
-        //        return null;
-        //    }
-
-        //    StudentModel temp = snapshot.ConvertTo<StudentModel>();
-
-        //    //The user has already set a password
-        //    if(temp.Password == null)
-        //    {
-        //        //If the user is logging in for the first time
-        //        if(!temp.LoginCode.Equals(password))
-        //        {
-        //            return null;
-        //        }
-
-        //        //Redirect to the password setting page with no token set
-        //        return temp;
-        //    }
-        //    else if (!temp.Password.Equals(password))
-        //    {
-        //        return null;
-        //    }
-
-        //    //Check if the login code matches
-        //    //if(!temp.Password.Equals(password))
-        //    //{
-        //    //    return null;
-        //    //}
-
-        //    var firebaseAuth = await auth.SignInAnonymouslyAsync();
-        //    string token = firebaseAuth.User.LocalId;
-
-        //    //Add the token to the student model
-        //    temp.Token = token;
-
-        //    if (token != null)
-        //    {
-        //        return temp;
-        //    }
-
-        //    return null;
-        //}
-
+        //TODO OPTIMISE
         public async Task<Boolean> VerifyCoordinatorCode(string? code)
         {
             if(code == null) return false;
 
-            CollectionReference usersRef = db.Collection("CoordinatorCodes");
-            QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
+            DocumentReference codeRef = db.Collection("CoordinatorCodes").Document(code);
+            DocumentSnapshot snapshot = await codeRef.GetSnapshotAsync();
 
-            foreach (DocumentSnapshot document in snapshot.Documents)
+            if (snapshot.Exists)
             {
-                if (document.Id == code) return true;
+                return true;
             }
 
             return false;
@@ -605,19 +502,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             return new string(chars);
         }
 
-
-        /// <summary>
-        /// 
-        /// </summary>
-        //private async void SetStudentPassword(string username, string password)
-        //{
-        //    DocumentReference docRef = db.Collection("Students").Document(username);
-        //    await docRef.UpdateAsync({ "Password": password});
-        //}
-
-
         //TEMP USE OF FUNCTION FOR DEMO
-
         public async Task<UserModel?> GetUserModelAsync(string UserToken)
         {
             CollectionReference usersRef = db.Collection("Users");
@@ -641,7 +526,6 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
             return null;
         }
-
 
         public async Task<List<AppointmentModel>?> CollectAllAppointmentsAsync(HttpContext context)
         {

@@ -17,7 +17,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             this.encryptionKey = encryptionKey;
         }
 
-        public string GenerateRandomPassword(PasswordOptions opts = null)
+        public string GenerateRandomPassword(PasswordOptions? opts = null)
         {
             if (opts == null) opts = new PasswordOptions()
             {
@@ -97,7 +97,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             }
             catch { }
 
-            return null;
+            return "";
         }
 
         public string SymmetricDecryption(string toDecrypt)
@@ -127,7 +127,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             }
             catch { }
 
-            return null;
+            return "";
         }
     }
 }

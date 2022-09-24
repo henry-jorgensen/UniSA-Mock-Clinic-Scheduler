@@ -27,16 +27,14 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             {
                 return RedirectToAction("Login", "Account");
             }
+
+            if (firebase.VerifyLoggedInCoordinator(HttpContext).Result)
+            {
+                return RedirectToAction("Create", "Coordinator");
+            }
             else
             {
-                if (firebase.VerifyLoggedInCoordinator(HttpContext).Result)
-                {
-                    return RedirectToAction("Create", "Coordinator");
-                }
-                else
-                {
-                    return RedirectToAction("Clinics", "Home");
-                }
+                return RedirectToAction("Clinics", "Home");
             }
         }
 
@@ -46,29 +44,25 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             {
                 return RedirectToAction("Login", "Account");
             }
+
+            if (firebase.VerifyLoggedInCoordinator(HttpContext).Result)
+            {
+                return RedirectToAction("CreateClass", "Coordinator");
+            }
             else
             {
-                if (firebase.VerifyLoggedInCoordinator(HttpContext).Result)
-                {
-                    return RedirectToAction("CreateClass", "Coordinator");
-                }
-                else
-                {
-                    return RedirectToAction("Clinics", "Home");
-                }
+                return RedirectToAction("Clinics", "Home");
             }
         }
 
         public IActionResult Classes()
         {
-            if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == true)
+            if (firebase.VerifyLoggedInCoordinator(HttpContext).Result)
             {
                 return View();
             }
-            else
-            {
-                return RedirectToAction("Login", "Account");
-            }
+
+            return RedirectToAction("Login", "Account");
         }
 
         //Create clinics page
