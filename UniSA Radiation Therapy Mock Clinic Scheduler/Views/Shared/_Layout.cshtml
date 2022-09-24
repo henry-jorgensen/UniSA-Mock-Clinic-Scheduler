@@ -3,6 +3,10 @@
 @{
     FirebaseSharedFunctions firebase;
     firebase = new FirebaseSharedFunctions(Context);
+
+    //Only call once here instead of multiple times throughout the layout
+    bool loggedIn = firebase.VerifyLoggedInSession(Context).Result;
+    bool coordinator = firebase.VerifyLoggedInCoordinator(Context).Result;
 }
 
 <!DOCTYPE html>
@@ -60,7 +64,7 @@
                     <ul class="list-group">
                         @{
                             //The user is currently logged in
-                            if (firebase.VerifyLoggedInSession(Context).Result)
+                            if (loggedIn)
                             {
                                 <li class="nav-item @((string?) ViewData["Controller"] == "Home" ? "active" : "")">
                                     <a class="nav-link" asp-controller="Home" asp-action="Index">
@@ -70,7 +74,7 @@
                                 </li>
                             }
 
-                            if (firebase.VerifyLoggedInCoordinator(Context).Result)
+                            if (coordinator)
                             {
                                 <li class="nav-item @((string?) ViewData["Controller"] == "Coordinator" ? "active" : "")">
                                     <a class="nav-link" asp-controller="Coordinator" asp-action="Index">
@@ -97,7 +101,7 @@
                         if ((string?) ViewData["Controller"] == "Home")
                         {
                             //The user is currently logged in
-                            if (firebase.VerifyLoggedInSession(Context).Result)
+                            if (loggedIn)
                             {
                                 //List of clinics students are currently scheduled in
                                 <div class="list-group-item @((string?) ViewData["Title"] == "Clinics" ? "active" : "")">
@@ -123,7 +127,7 @@
                         if ((string?) ViewData["Controller"] == "Coordinator")
                         {
                             //The user is a course coordinator
-                            if (firebase.VerifyLoggedInCoordinator(Context).Result)
+                            if (coordinator)
                             {
                                 //Course coordinator can create classes here
                                 <div class="list-group-item @((string?) ViewData["Title"] == "Create Class" ? "active" : "")">
@@ -164,7 +168,7 @@
                         if ((string?) ViewData["Controller"] == "Account")
                         {
                             //The user is currently logged in
-                            if (firebase.VerifyLoggedInSession(Context).Result)
+                            if (loggedIn)
                             {
                                 //Account home page, view account details, etc...
                                 <div class="list-group-item @((string?) ViewData["Title"] == "Account" ? "active" : "")">

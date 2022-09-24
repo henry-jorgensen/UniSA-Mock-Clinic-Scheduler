@@ -52,6 +52,6 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models
         /// Used to link course coordinators & students to their related schedules
         /// </summary>
         [FirestoreProperty]
-        public string ScheduleCode { get; set; }
+        public string? ScheduleCode { get; set; }
     }
 }

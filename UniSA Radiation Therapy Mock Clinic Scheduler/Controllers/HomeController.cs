@@ -19,49 +19,45 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 
         //Basic home page
         public IActionResult Redirect()
-        {            
+        {           
             if (firebase.VerifyLoggedInSession(HttpContext).Result == false)
             {
                 return RedirectToAction("Login", "Account");
             }
+
+            if (firebase.VerifyLoggedInCoordinator(HttpContext).Result)
+            {
+                return RedirectToAction("CreateClass", "Coordinator");
+            }
             else
             {
-                if (firebase.VerifyLoggedInSession(HttpContext).Result)
-                {
-                    return RedirectToAction("CreateClass", "Coordinator");
-                }
-                else
-                {
-                    return RedirectToAction("Clinics", "Home");
-                }
+                return RedirectToAction("Clinics", "Home");
             }
         }
 
         //Basic home page
         public IActionResult Index()
         {
-            if (firebase.VerifyLoggedInSession(HttpContext).Result == false)
+            if (firebase.VerifyLoggedInSession(HttpContext).Result)
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Clinics", "Home");
             }
 
-            return RedirectToAction("Clinics", "Home");
+            return RedirectToAction("Login", "Account");
         }
 
         //Scheduled clinics page
         //Must be logged into a valid account to see
         public async Task<IActionResult> Clinics()
         {            
-            if (firebase.VerifyLoggedInSession(HttpContext).Result == false)
+            if (firebase.VerifyLoggedInSession(HttpContext).Result)
             {
-                return RedirectToAction("Login", "Account");
-            }
-            else
-            {
-                List<AppointmentModel> appointments = await firebase.CollectStudentsAppointmentsAsync(HttpContext);
+                List<AppointmentModel>? appointments = await firebase.CollectStudentsAppointmentsAsync(HttpContext);
                 ViewBag.Appointments = appointments;
                 return View();
             }
+
+            return RedirectToAction("Login", "Account");
         }
 
         //Historical clinics page
