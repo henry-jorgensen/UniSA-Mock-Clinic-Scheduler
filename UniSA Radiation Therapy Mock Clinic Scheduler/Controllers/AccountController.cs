@@ -120,11 +120,12 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
                     {
                         if (document.Id == token)
                         {
+                            //TODO this doesn't do anything?
                             Console.WriteLine("User: {0}", document.Id);
                             Dictionary<string, object> documentDictionary = document.ToDictionary();
-                            string FirstName = documentDictionary["FirstName"].ToString();
-                            string LastName = documentDictionary["LastName"].ToString();
-                            string CCCode = documentDictionary["CCCode"].ToString();
+                            string? FirstName = documentDictionary["FirstName"].ToString();
+                            string? LastName = documentDictionary["LastName"].ToString();
+                            string? CCCode = documentDictionary["CCCode"].ToString();
 
                             //Set the session token and redirect away from Register.
                             firebase.SetVerificationToken(HttpContext, token);
@@ -162,7 +163,9 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 
                 if (token != null)
                 {
-                    string CCCode = (firebase.VerifyCoordinatorCode(accountModel.CCCode).Result) ? accountModel.CCCode : "";
+                    string? CCCode = (firebase.VerifyCoordinatorCode(accountModel.CCCode).Result) ? accountModel.CCCode : "";
+
+                    if (CCCode == null || accountModel.FirstName == null || accountModel.LastName == null) return View();
 
                     //Insert this into cloud firestore database
                     DocumentReference docRef = firebase.DB().Collection("Users").Document(token);

@@ -253,8 +253,7 @@ class AJAXManager {
             type: 'POST',
             url: `/${this.controller}/SaveAClassList`,
             data: {
-                classCode: this.selectedClassCode,
-                className: this.selectedClass, 
+                classCode: this.selectedClassCode, 
                 studentList: studentArray
              },
             success: function (result) {

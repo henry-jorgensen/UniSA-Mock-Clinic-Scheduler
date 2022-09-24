@@ -48,19 +48,5 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models
                 ":" + LastName +
                 ":" + Username;
         }
-
-        //Use for ACCOUNT CREATION?
-        //private string CreateRandomLoginCode(int CodeLength)
-        //{
-        //    string _allowedChars = "0123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZ!@#$%^&*()[]{}";
-        //    Random randNum = new Random();
-        //    char[] chars = new char[CodeLength];
-        //    int allowedCharCount = _allowedChars.Length;
-        //    for (int i = 0; i < CodeLength; i++)
-        //    {
-        //        chars[i] = _allowedChars[(int)((_allowedChars.Length) * randNum.NextDouble())];
-        //    }
-        //    return new string(chars);
-        //}
     }
 }

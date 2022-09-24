@@ -58,7 +58,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             }
             else
             {
-                List<AppointmentModel> appointments = await firebase.CollectStudentsAppointmentsAsync(HttpContext);
+                List<AppointmentModel>? appointments = await firebase.CollectStudentsAppointmentsAsync(HttpContext);
                 ViewBag.Appointments = appointments;
                 return View();
             }

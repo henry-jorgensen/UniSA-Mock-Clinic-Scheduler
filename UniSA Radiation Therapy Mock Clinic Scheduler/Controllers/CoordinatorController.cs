@@ -90,7 +90,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         {
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == true)
             {
-                List<AppointmentModel> appointments = await firebase.CollectAllAppointmentsAsync(HttpContext);
+                List<AppointmentModel>? appointments = await firebase.CollectAllAppointmentsAsync(HttpContext);
                 ViewBag.Appointments = appointments;
                 return View();
             }
@@ -141,8 +141,8 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == false) return Forbid();
 
             ClassModel classModel = new ClassModel(name, studyPeriod, semester, year);
-            var _UserToken = firebase.VerifyVerificationToken(HttpContext);
-            string? success = await firebase.CreateNewClassAsync(_UserToken, classModel);
+
+            string? success = await firebase.CreateNewClassAsync(HttpContext, classModel);
 
             if (success != null) return Ok(success);
 
@@ -157,8 +157,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == false) return Forbid();
 
-            var _UserToken = firebase.VerifyVerificationToken(HttpContext);
-            List<ClassModel>? success = await firebase.CollectAllClassAsync(_UserToken);
+            List<ClassModel>? success = await firebase.CollectAllClassAsync(HttpContext);
 
             if (success != null) return Ok(success);
 
@@ -170,8 +169,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         {
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == false) return Forbid();
 
-            var _UserToken = firebase.VerifyVerificationToken(HttpContext);
-            ClassModel? success = await firebase.CollectClassAsync(_UserToken, className);
+            ClassModel? success = await firebase.CollectClassAsync(HttpContext, className);
 
             if (success != null) return Ok(success);
 
@@ -179,12 +177,11 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SaveAClassList(string classCode, string className, string[] studentList)
+        public async Task<IActionResult> SaveAClassList(string classCode, string[] studentList)
         {
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == false) return Forbid();
 
-            var _UserToken = firebase.VerifyVerificationToken(HttpContext);
-            bool success = await firebase.SaveAClassListAsync(_UserToken, classCode, className, studentList);
+            bool success = await firebase.SaveAClassListAsync(HttpContext, classCode, studentList);
 
             if (success) return Ok(success);
 
