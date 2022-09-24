@@ -409,7 +409,11 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                     if (!existingStudents.ContainsKey(studentObject.Username))
                     {
                         //Create a new student account
-                        string? Id = await RegisterNewStudentAccount(studentObject.Username);
+                        //UNCOMMENT FOR AUTOMATIC STUDENT ACCOUNT CREATION
+                        //string? Id = await RegisterNewStudentAccount(studentObject.Username);
+
+                        //USE THIS FOR TESTING AT THE MOMENT
+                        string? Id = studentObject.Username;
 
                         if (Id == null) return false;
                         //Notify the user that an account has not been created
