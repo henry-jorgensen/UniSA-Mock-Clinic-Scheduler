@@ -307,9 +307,6 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                 //Loop through each appointment in a schedule
                 foreach (var appointment in schedule.Value)
                 {
-                    Console.WriteLine("LOOPING");
-                    Console.WriteLine(appointment);
-
 #pragma warning disable CS8604 // Possible null reference argument.
                     Dictionary<string, object> data = new Dictionary<string, object>
                         {
