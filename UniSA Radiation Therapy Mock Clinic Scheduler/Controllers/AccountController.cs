@@ -127,9 +127,16 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
                 {
                     ModelState.AddModelError(String.Empty, "Unknown Firebase Error has occurred");
                 }
-                else
+                else if (firebaseEx.error != null)
                 {
-                    ModelState.AddModelError(String.Empty, firebaseEx.error.message);
+                    if (firebaseEx.error.message != null)
+                    {
+                        ModelState.AddModelError(String.Empty, firebaseEx.error.message);
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(String.Empty, "Unknown Firebase Error has occurred");
+                    }
                 }
                 return View(accountModel);
             }
@@ -175,9 +182,16 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
                 {
                     ModelState.AddModelError(String.Empty, "Unknown Firebase Error has occurred");
                 }
-                else
+                else if (firebaseEx.error != null)
                 {
-                    ModelState.AddModelError(String.Empty, firebaseEx.error.message);
+                    if (firebaseEx.error.message != null)
+                    {
+                        ModelState.AddModelError(String.Empty, firebaseEx.error.message);
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(String.Empty, "Unknown Firebase Error has occurred");
+                    }
                 }
                 return View(accountModel);
             }

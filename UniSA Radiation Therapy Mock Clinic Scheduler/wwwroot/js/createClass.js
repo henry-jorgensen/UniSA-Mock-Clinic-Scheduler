@@ -42,8 +42,8 @@ class TableManager {
         object.forEach(row => {
             let nameSplit = row["Student Name"].split(",");
             let newRow = this.createRow(
-                nameSplit[0],
-                nameSplit[1].trim(),
+                nameSplit[1],
+                nameSplit[0].trim(),
                 row["Student ID"],
                 row["Student Username"],
                 true

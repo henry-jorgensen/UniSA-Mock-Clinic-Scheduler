@@ -142,14 +142,17 @@ class TableManager {
             class: "scheduleEntry"
         })
 
-        let tdTime = $('<td>', { text: time });
-        let tdPatient = $('<td>', { text: patient });
-        let tdSite = $('<td>', { text: site });
-        let tdRT1 = $('<td>', { text: RT1 });
-        let tdRT2 = $('<td>', { text: RT2 });
+        let tdTime = $('<td>', { text: time, contenteditable: "true" });
+        let tdPatient = $('<td>', { text: patient, contenteditable: "true" });
+        let tdSite = $('<td>', { text: site, contenteditable: "true" });
+        let tdRT1 = $('<td>', { text: RT1, contenteditable: "true" });
+        let tdRT2 = $('<td>', { text: RT2, contenteditable: "true" });
 
-        //Create delete button
-        tr.append(tdTime, tdPatient, tdSite, tdRT1, tdRT2);
+        let tdInfectious = $('<td>', { class: "text-center" });
+        let checkbox = $('<input>', { type: "checkbox" });
+        tdInfectious.append(checkbox);
+
+        tr.append(tdTime, tdPatient, tdInfectious, tdSite, tdRT1, tdRT2);
 
         return tr;
     }
@@ -315,11 +318,11 @@ class AJAXManager {
      * using the AJAX post method. A successful call will increment the form wizard to the
      * appropriate form.
      */
-    createASchedule = async (classNameValue, scheduleNameValue, dateValue, startTimeValue, appointmentDurationValue, locationsValue, scheduleValue) => {
+    saveAClinic = async (classNameValue, scheduleNameValue, dateValue, startTimeValue, appointmentDurationValue, locationsValue, scheduleValue) => {
 
         let response = await $.ajax({
             type: 'POST',
-            url: `/${this.controller}/CreateASchedule`,
+            url: `/${this.controller}/SaveAClinic`,
             data: {
                 className: classNameValue,
                 name: scheduleNameValue,
@@ -448,21 +451,43 @@ $(document).ready(function () {
 
         try {
             switch (e.currentTarget.id) {
-                case "createAScheduleForm":
-                    //Optimise the schedule -- WHEN COMPLETE ADD TO THE AJAX BELOW
-                    let schedule = optimiseSchedule(
-                        $("#scheduleStartTimeInput").val(),
-                        $("#scheduleDurationInput").val(),
-                        $("#locationInput").val(),
-                        $(".studentEntry")
-                    );
+                case "createAClinicForm":
+                    let schedules = [];
+
+                    //Determine how many locations there are
+                    let locations = $("#locationInput").val().split(",");
+
+                    //For each location split the students?
+                    let studentArray = [].slice.call($(".studentEntry"));
+                    let chunks = splitToChunks(studentArray, locations.length);
+
+                    //Create a schedule for each chunk of students
+                    for (let i = 0; i < chunks.length; i++) {
+                        //Optimise the schedule
+                        let schedule = optimiseSchedule(
+                            $("#scheduleStartTimeInput").val(),
+                            $("#scheduleDurationInput").val(),
+                            chunks[i]
+                        );
+
+                        schedules.push(schedule);
+                    }                    
 
                     generateSchedulePreview(
                         $("#scheduleDateInput").val(),
-                        schedule
+                        locations,
+                        schedules
                     );
 
-                    //response = await ajaxManager.createASchedule(
+                    //Populate the tables with the information
+                    performStep(1);
+
+                    break;
+
+                case "saveAClinicForm":
+                    //GRAB THE SCHEDULE FROM THE TABLE AGAIN INCASE A USER HAS CHANGED ANY VALUES
+                    console.log("SAVING")
+                    //response = await ajaxManager.saveAClinic(
                     //    tableManager.selectedClass,
                     //    $("#scheduleNameInput").val(),
                     //    $("#scheduleDateInput").val(),
@@ -475,11 +500,6 @@ $(document).ready(function () {
                     //if (response == null) {
                     //    return;
                     //}
-
-                    //Populate the tables with the information
-                    performStep(1);
-
-                    break;
 
                 default:
                     break;
@@ -543,44 +563,104 @@ async function populateTable(className) {
     tableManager.classAdd(response);
 }
 
-//TODO finish this in the next sprint
-function optimiseSchedule(startTime, duration, location, entries) {
+//Split an array into equal chunks
+function splitToChunks(array, parts) {
+    let result = [];
+    for (let i = parts; i > 0; i--) {
+        result.push(array.splice(0, Math.ceil(array.length / i)));
+    }
+    return result;
+}
+
+//Create an optimised schedule for the individuals that have been entered into a table
+function optimiseSchedule(startTime, duration, entries) {
     let arrayScheduleData = [];
-
-    // Can split the list at the end into however many sections need based on the number of locations
-    let numOfLocations = location.split(",");
-
     let headers = ["Time", "Patient", "Site", "RT1", "RT2"];
 
-    //TODO probably better to get these from the tableManage instead?
-    for (let x = 0; x < entries.length; x++) {
-        let cells = entries[x].cells;
+    let entriesArray = [].slice.call(entries); //turn the HTMLCollection into an array
+    
+    //Assign patients
+    for (let x = 0; x < entriesArray.length; x++) {
+        let cells = entriesArray[x].cells;
+        //cells[3].textContent is a students username
+
         let jsonData = {}
 
-        jsonData[headers[0]] = startTime;
+        jsonData[headers[0]] = calculateTimeDifference(startTime, x, duration);;
         jsonData[headers[1]] = cells[3].textContent;
         jsonData[headers[2]] = "Brain";
-        jsonData[headers[3]] = cells[3].textContent;
-        jsonData[headers[4]] = cells[3].textContent;
 
         arrayScheduleData.push(jsonData);
+    };
+
+    entriesArray = shiftArray(entriesArray, 2);
+
+    //Assign rt1
+    for (let x = 0; x < entriesArray.length; x++) {
+        let cells = entriesArray[x].cells;
+        
+        let jsonData = arrayScheduleData[x]
+
+        jsonData[headers[3]] = cells[3].textContent;
+    };
+
+    entriesArray = shiftArray(entriesArray, 4);
+
+    //Assign rt2
+    for (let x = 0; x < entriesArray.length; x++) {
+        let cells = entriesArray[x].cells;
+        let jsonData = arrayScheduleData[x]
+
+        jsonData[headers[4]] = cells[3].textContent;
     };
 
     return arrayScheduleData;
 }
 
-function generateSchedulePreview(date, schedule) {
-    console.log(schedule);
-    tableManager.clearTable($("#scheduleList0"));
-    tableManager.scheduleAdd(schedule, $("#scheduleList0"));
+//Calculate the time gap between different 
+function calculateTimeDifference(start, step, duration) {
+    var time = moment(start, 'HH:mm');
+    time.add(step * duration, 'm');
+    return time.format("HH:mm");
+}
+
+//Move the first x (step) number of entries to the end of the supplied array
+function shiftArray(arr, step) {
+    for (let x = 0; x < step; x++) {
+        arr.push(arr.shift());
+    }
+
+    return arr;
+}
+
+//Generate a preview table of the schedules that have been created
+function generateSchedulePreview(date, locations, schedules) {
+    console.log(schedules);
+    //Set the date
+    $("#clinicDate").text(date);
+
+    //Remove any old tables, generate new tables and append to the html page
+    for (let i = 0; i < locations.length; i++) {
+        let location = locations[i].trim();
+
+        if ($(`#${location}`)) {
+            $(`#table${location}`).remove()
+        }
+        
+        table = generateTable(location);
+        $("#scheduleHolder").append(table);
+        tableManager.scheduleAdd(schedules[i], $(`#${location}`));
+    }
 }
 
 //Generate a table to hold a schedule in, there may be one or many depending on the number
-//of locations
-function generateTable() {
+//of locations. Use the location as the id of where to add students
+function generateTable(location) {
     //Main table object
-    var table = $("<table>");
-    table.addClass("table table-sm")
+    var table = $("<table>").attr({
+        id: `table${location}`
+    });
+    table.addClass("table table-sm table-hover text-center")
 
     var thead = $("<thead>");
 
@@ -589,10 +669,10 @@ function generateTable() {
     trLoc.addClass("text-center");
 
     var thLoc = $("<th>").attr({
-        colspan: "5",
+        colspan: "12"
     });
     thLoc.addClass("text-center");
-    thLoc.text("Location 2");
+    thLoc.text(location);
 
     trLoc.append(thLoc);
 
@@ -608,6 +688,11 @@ function generateTable() {
         scope: "col"
     });
     thPatient.text("Patient");
+
+    var thInfectious = $("<th>").attr({
+        scope: "col"
+    });
+    thInfectious.text("Infectious");
 
     var thSite = $("<th>").attr({
         scope: "col"
@@ -626,10 +711,11 @@ function generateTable() {
 
     //Main body area
     var body = $("<tbody>").attr({
-        id: "list2"
+        id: location
     });
+    body.addClass("text-center");
 
-    trMain.append(thTime, thPatient, thSite, thRT1, thRT2);
+    trMain.append(thTime, thPatient, thInfectious, thSite, thRT1, thRT2);
     thead.append(trLoc, trMain);
     table.append(thead, body);
 
