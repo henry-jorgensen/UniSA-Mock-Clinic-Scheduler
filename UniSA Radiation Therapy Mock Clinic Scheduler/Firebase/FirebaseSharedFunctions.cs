@@ -8,6 +8,7 @@ using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models;
 //using Google.Rpc;
 //using System.Linq;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json.Linq;
 //using Newtonsoft.Json.Linq;
 //using System;
 
@@ -207,7 +208,6 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             return null;
         }
 
-        //TODO OPTIMISE
         public async Task<Boolean> VerifyCoordinatorCode(string? code)
         {
             if(code == null) return false;
@@ -232,11 +232,6 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
         /// <returns>A string representing the ID(name) of the new document</returns>
         public async Task<string?> CreateNewClinicAsync(HttpContext context, string className, ScheduleModel scheduleModel)
         {
-            //TODO somewhere create the appointment data inside this function
-
-
-
-
             string? token = VerifyVerificationToken(context);
 
             //Insert this into cloud firestore database
@@ -246,7 +241,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
                 //Store the new schedule as a document
                 DocumentReference docRef = db.Collection("Schedules").Document(scheduleModel.ScheduleCode);
-                batch.Set(docRef, scheduleModel);               
+                batch.Set(docRef, scheduleModel);
 
                 //Update the course coordinators account with the new schedule code
                 DocumentReference ccRef = db.Collection("Users").Document(token).Collection("Classes").Document(className);
@@ -261,22 +256,77 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                 Query colRef = db.CollectionGroup("Students").WhereArrayContains("ClassCode", tempModel.ClassCode);
                 QuerySnapshot allClassesQuerySnapshot = await colRef.GetSnapshotAsync();
 
+                //Keep track of the firebase ID associated with each student username as to create appointments with
+                Dictionary<string, string> firebaseEntries = new Dictionary<string, string>();
+
                 //For each student update the schedule code list
                 foreach (DocumentSnapshot documentSnapshot in allClassesQuerySnapshot.Documents)
                 {
                     var currentStudent = documentSnapshot.ConvertTo<StudentModel>();
-                    DocumentReference studentRef = db.Collection("Students").Document(currentStudent.Username);
+                    DocumentReference studentRef = db.Collection("Students").Document(currentStudent.Username); //TODO change to documentSnapshot.id when finished testing
                     batch.Update(studentRef, "ScheduleCode", FieldValue.ArrayUnion(scheduleModel.ScheduleCode));
+
+                    if (currentStudent.Username != null)
+                    {
+                        firebaseEntries.Add(currentStudent.Username, documentSnapshot.Id);
+                    }
                 }
-                    
+
                 //Write all database changes in one go
                 await batch.CommitAsync();
+
+                //Create new appointments
+                bool success = await createAssociatedAppointments(scheduleModel);
+
+                if (!success) return null;
 
                 //Return the model as a response
                 return JsonConvert.SerializeObject(scheduleModel);
             }
 
             return null;
+        }
+
+        public async Task<bool> createAssociatedAppointments(ScheduleModel scheduleModel)
+        {
+            //Create new appointments
+            CollectionReference appointmentRef = db.Collection("Appointments");
+            if (scheduleModel.Schedule == null) return false;
+
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+            JObject? scheduleArray = (JObject)JsonConvert.DeserializeObject(scheduleModel.Schedule);
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+
+            if (scheduleArray == null) return false;
+
+            //Loop through each location in the array
+            foreach (var schedule in scheduleArray)
+            {
+                if (schedule.Value == null) continue;
+
+                //Loop through each appointment in a schedule
+                foreach (var appointment in schedule.Value)
+                {
+#pragma warning disable CS8604 // Possible null reference argument.
+                    Dictionary<string, object> data = new Dictionary<string, object>
+                        {
+                            { "Date", scheduleModel.Date },
+                            { "Time", appointment.Value<string>("Time") },
+                            { "Patient", appointment.Value<string>("Patient") },
+                            { "Infectious", appointment.Value<string>("Infectious") },
+                            { "RadiationTherapist1", appointment.Value<string>("RT1") },
+                            { "RadiationTherapist2", appointment.Value<string>("RT2") },
+                            { "Room", schedule.Key },
+                            { "Site", appointment.Value<string>("Site") }
+                        };
+#pragma warning restore CS8604 // Possible null reference argument.
+
+                    //Create firebase appointment entry
+                    await appointmentRef.AddAsync(data);
+                }
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -415,6 +465,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                     {
                         //Create a new student account
                         //UNCOMMENT FOR AUTOMATIC STUDENT ACCOUNT CREATION
+                        //BEWARE THIS WILL CREATE AN ACCOUNT FOR EVERYY SINGLE ENTRY IF UNCOMMENTED
                         //string? Id = await RegisterNewStudentAccount(studentObject.Username);
 
                         //USE THIS FOR TESTING AT THE MOMENT
@@ -511,29 +562,19 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             return new string(chars);
         }
 
-        //TEMP USE OF FUNCTION FOR DEMO
-        public async Task<UserModel?> GetUserModelAsync(string UserToken)
+        public async Task<Dictionary<string, Array>?> GetStudentsAsync()
         {
             CollectionReference usersRef = db.Collection("Users");
             QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
 
+            Dictionary<string, Array> students = new Dictionary<string, Array>();
+
             foreach (DocumentSnapshot document in snapshot.Documents)
             {
-                if (document.Id == UserToken)
-                {
-                    Console.WriteLine("User: {0}", document.Id);
-                    Dictionary<string, object> documentDictionary = document.ToDictionary();
-                    string? FirstName = documentDictionary["FirstName"].ToString();
-                    string? LastName = documentDictionary["LastName"].ToString();
-                    string? CCCode = documentDictionary["CCCode"].ToString();
-
-                    if (FirstName == null || LastName == null || CCCode == null) return null;
-
-                    return new UserModel(UserToken, FirstName, LastName, CCCode);
-                }
+                students[document.Id] = new string[] { document.GetValue<string>("FirstName"), document.GetValue<string>("LastName") };
             }
 
-            return null;
+            return students;
         }
 
         public async Task<List<AppointmentModel>?> CollectAllAppointmentsAsync(HttpContext context)
@@ -542,6 +583,10 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
             if (token != null)
             {
+                //Get the student information
+                Dictionary<string, Array>? studentInformation = await GetStudentsAsync();
+                if (studentInformation == null) return null;
+
                 Query allAppointmentsQuery = db.Collection("Appointments")
                                                 .OrderByDescending("Date");
                 QuerySnapshot allAppointmentsQuerySnapshot = await allAppointmentsQuery.GetSnapshotAsync();
@@ -553,19 +598,18 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
                     if (currentAppointment.Patient == null || currentAppointment.RadiationTherapist1 == null || currentAppointment.RadiationTherapist2 == null) return null;
 
-                    currentAppointment.Date = currentAppointment.Date.AddHours(9.5);
-
-                    UserModel? userPatient = await GetUserModelAsync(currentAppointment.Patient);
+                    //currentAppointment.Date = currentAppointment.Date.AddHours(9.5);
+                    Array userPatient = studentInformation[currentAppointment.Patient];
                     if (userPatient == null) return null;
-                    currentAppointment.Patient = userPatient.FirstName + " " + userPatient.LastName;
+                    currentAppointment.Patient = userPatient.GetValue(0) + " " + userPatient.GetValue(1);
 
-                    UserModel? userRT1 = await GetUserModelAsync(currentAppointment.RadiationTherapist1);
+                    Array userRT1 = studentInformation[currentAppointment.RadiationTherapist1];
                     if (userRT1 == null) return null;
-                    currentAppointment.RadiationTherapist1 = userRT1.FirstName + " " + userRT1.LastName;
+                    currentAppointment.RadiationTherapist1 = userRT1.GetValue(0) + " " + userRT1.GetValue(1);
 
-                    UserModel? userRT2 = await GetUserModelAsync(currentAppointment.RadiationTherapist2);
+                    Array userRT2 = studentInformation[currentAppointment.RadiationTherapist2];
                     if (userRT2 == null) return null;
-                    currentAppointment.RadiationTherapist2 = userRT2.FirstName + " " + userRT2.LastName;
+                    currentAppointment.RadiationTherapist1 = userRT2.GetValue(0) + " " + userRT2.GetValue(1);
 
                     appointments.Add(currentAppointment);
                 }
@@ -583,6 +627,10 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
             if (token != null)
             {
+                //Get the student information
+                Dictionary<string, Array>? studentInformation = await GetStudentsAsync();
+                if (studentInformation == null) return null;
+
                 Query allAppointmentsQuery = db.Collection("Appointments")
                                                .OrderByDescending("Date");
                 QuerySnapshot allAppointmentsQuerySnapshot = await allAppointmentsQuery.GetSnapshotAsync();
@@ -591,22 +639,25 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                 foreach (DocumentSnapshot documentSnapshot in allAppointmentsQuerySnapshot.Documents)
                 {
                     AppointmentModel currentAppointment = documentSnapshot.ConvertTo<AppointmentModel>();
-                    currentAppointment.Date = currentAppointment.Date.AddHours(9.5);
+
+                    //currentAppointment.Date = currentAppointment.Date.AddHours(9.5);
+
                     if (currentAppointment.Patient == token || currentAppointment.RadiationTherapist1 == token || currentAppointment.RadiationTherapist2 == token)
                     {
                         if (currentAppointment.Patient == null || currentAppointment.RadiationTherapist1 == null || currentAppointment.RadiationTherapist2 == null) return null;
 
-                        UserModel? userPatient = await GetUserModelAsync(currentAppointment.Patient);
+                        //currentAppointment.Date = currentAppointment.Date.AddHours(9.5);
+                        Array userPatient = studentInformation[currentAppointment.Patient];
                         if (userPatient == null) return null;
-                        currentAppointment.Patient = userPatient.FirstName + " " + userPatient.LastName;
+                        currentAppointment.Patient = userPatient.GetValue(0) + " " + userPatient.GetValue(1);
 
-                        UserModel? userRT1 = await GetUserModelAsync(currentAppointment.RadiationTherapist1);
+                        Array userRT1 = studentInformation[currentAppointment.RadiationTherapist1];
                         if (userRT1 == null) return null;
-                        currentAppointment.RadiationTherapist1 = userRT1.FirstName + " " + userRT1.LastName;
+                        currentAppointment.RadiationTherapist1 = userRT1.GetValue(0) + " " + userRT1.GetValue(1);
 
-                        UserModel? userRT2 = await GetUserModelAsync(currentAppointment.RadiationTherapist2);
+                        Array userRT2 = studentInformation[currentAppointment.RadiationTherapist2];
                         if (userRT2 == null) return null;
-                        currentAppointment.RadiationTherapist2 = userRT2.FirstName + " " + userRT2.LastName;
+                        currentAppointment.RadiationTherapist1 = userRT2.GetValue(0) + " " + userRT2.GetValue(1);
 
                         appointments.Add(currentAppointment);
                     }
