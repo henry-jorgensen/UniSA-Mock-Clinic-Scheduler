@@ -237,67 +237,81 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             //Insert this into cloud firestore database
             if (token != null)
             {
-                //WriteBatch batch = db.StartBatch();
+                WriteBatch batch = db.StartBatch();
 
-                ////Store the new schedule as a document
-                //DocumentReference docRef = db.Collection("Schedules").Document(scheduleModel.ScheduleCode);
-                //batch.Set(docRef, scheduleModel);               
+                //Store the new schedule as a document
+                DocumentReference docRef = db.Collection("Schedules").Document(scheduleModel.ScheduleCode);
+                batch.Set(docRef, scheduleModel);
 
-                ////Update the course coordinators account with the new schedule code
-                //DocumentReference ccRef = db.Collection("Users").Document(token).Collection("Classes").Document(className);
-                //batch.Update(ccRef, "ScheduleCode", FieldValue.ArrayUnion(scheduleModel.ScheduleCode));
+                //Update the course coordinators account with the new schedule code
+                DocumentReference ccRef = db.Collection("Users").Document(token).Collection("Classes").Document(className);
+                batch.Update(ccRef, "ScheduleCode", FieldValue.ArrayUnion(scheduleModel.ScheduleCode));
 
-                ////Get the class reference so that we can get all the associated students
-                //DocumentSnapshot snapshot = await ccRef.GetSnapshotAsync();
-                //ClassModel tempModel = snapshot.ConvertTo<ClassModel>();
+                //Get the class reference so that we can get all the associated students
+                DocumentSnapshot snapshot = await ccRef.GetSnapshotAsync();
+                ClassModel tempModel = snapshot.ConvertTo<ClassModel>();
 
-                ////Update all related students with the new schedule code
-                ////Retrieve the list of students that have the class code
-                //Query colRef = db.CollectionGroup("Students").WhereArrayContains("ClassCode", tempModel.ClassCode);
-                //QuerySnapshot allClassesQuerySnapshot = await colRef.GetSnapshotAsync();
+                //Update all related students with the new schedule code
+                //Retrieve the list of students that have the class code
+                Query colRef = db.CollectionGroup("Students").WhereArrayContains("ClassCode", tempModel.ClassCode);
+                QuerySnapshot allClassesQuerySnapshot = await colRef.GetSnapshotAsync();
 
-                ////Keep track of the firebase ID associated with each student username as to create appointments with
-                //Dictionary<string, string> firebaseEntries = new Dictionary<string, string>();
+                //Keep track of the firebase ID associated with each student username as to create appointments with
+                Dictionary<string, string> firebaseEntries = new Dictionary<string, string>();
 
-                ////For each student update the schedule code list
-                //foreach (DocumentSnapshot documentSnapshot in allClassesQuerySnapshot.Documents)
-                //{
-                //    var currentStudent = documentSnapshot.ConvertTo<StudentModel>();
-                //    DocumentReference studentRef = db.Collection("Students").Document(currentStudent.Username); //TODO change to documentSnapshot.id when finished testing
-                //    batch.Update(studentRef, "ScheduleCode", FieldValue.ArrayUnion(scheduleModel.ScheduleCode));
+                //For each student update the schedule code list
+                foreach (DocumentSnapshot documentSnapshot in allClassesQuerySnapshot.Documents)
+                {
+                    var currentStudent = documentSnapshot.ConvertTo<StudentModel>();
+                    DocumentReference studentRef = db.Collection("Students").Document(currentStudent.Username); //TODO change to documentSnapshot.id when finished testing
+                    batch.Update(studentRef, "ScheduleCode", FieldValue.ArrayUnion(scheduleModel.ScheduleCode));
 
-                //    if (currentStudent.Username != null)
-                //    {
-                //        firebaseEntries.Add(currentStudent.Username, documentSnapshot.Id);
-                //    }
-                //}
-                    
-                ////Write all database changes in one go
-                //await batch.CommitAsync();
+                    if (currentStudent.Username != null)
+                    {
+                        firebaseEntries.Add(currentStudent.Username, documentSnapshot.Id);
+                    }
+                }
 
+                //Write all database changes in one go
+                await batch.CommitAsync();
 
+                //Create new appointments
+                bool success = await createAssociatedAppointments(scheduleModel);
 
-                CollectionReference appointmentRef = db.Collection("Appointments");
-                if (scheduleModel.Schedule == null) return null;
+                if (!success) return null;
+
+                //Return the model as a response
+                return JsonConvert.SerializeObject(scheduleModel);
+            }
+
+            return null;
+        }
+
+        public async Task<bool> createAssociatedAppointments(ScheduleModel scheduleModel)
+        {
+            //Create new appointments
+            CollectionReference appointmentRef = db.Collection("Appointments");
+            if (scheduleModel.Schedule == null) return false;
 
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-                JObject? scheduleArray = (JObject)JsonConvert.DeserializeObject(scheduleModel.Schedule);
+            JObject? scheduleArray = (JObject)JsonConvert.DeserializeObject(scheduleModel.Schedule);
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
 
-                if (scheduleArray == null) return null;
+            if (scheduleArray == null) return false;
 
-                //Loop through each location in the array
-                foreach (var schedule in scheduleArray)
+            //Loop through each location in the array
+            foreach (var schedule in scheduleArray)
+            {
+                if (schedule.Value == null) continue;
+
+                //Loop through each appointment in a schedule
+                foreach (var appointment in schedule.Value)
                 {
-                    if (schedule.Value == null) continue;
+                    Console.WriteLine("LOOPING");
+                    Console.WriteLine(appointment);
 
-                    //Loop through each appointment in a schedule
-                    foreach (var appointment in schedule.Value)
-                    {
-                        Console.WriteLine("LOOPING");
-                        Console.WriteLine(appointment);
-
-                        Dictionary<string, object> data = new Dictionary<string, object>
+#pragma warning disable CS8604 // Possible null reference argument.
+                    Dictionary<string, object> data = new Dictionary<string, object>
                         {
                             { "Date", scheduleModel.Date },
                             { "Time", appointment.Value<string>("Time") },
@@ -308,17 +322,14 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                             { "Room", schedule.Key },
                             { "Site", appointment.Value<string>("Site") }
                         };
+#pragma warning restore CS8604 // Possible null reference argument.
 
-                        //Create firebase appointment entry
-                        await appointmentRef.AddAsync(data);
-                    }
+                    //Create firebase appointment entry
+                    await appointmentRef.AddAsync(data);
                 }
-
-                //Return the model as a response
-                return JsonConvert.SerializeObject(scheduleModel);
             }
 
-            return null;
+            return true;
         }
 
         /// <summary>
