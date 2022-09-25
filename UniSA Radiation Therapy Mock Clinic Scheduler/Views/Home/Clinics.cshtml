@@ -15,31 +15,17 @@
                 @foreach (var appointment in appointments)
                 {
                     <div class="card w-100">
-                            <div class="card-body">
-                                <h5 class="card-title">@appointment.Date || @appointment.Room<a asp-controller="Home" asp-action="Treatment" class="stretched-link"></a></h5>
-                                <p class="card-text"><strong>Patient:</strong> @appointment.Patient</p>
-                                <p class="card-text"><strong>Radiation Therapist 1:</strong> @appointment.RadiationTherapist1</p>
-                                <p class="card-text"><strong>Radiation Therapist 2:</strong> @appointment.RadiationTherapist2</p>
-                                <p class="card-text"><strong>Site:</strong> @appointment.Site</p>
-                            </div>
+                        <div class="card-body">
+                            <h5 class="card-title">@appointment.Date || @appointment.Room<a asp-controller="Home" asp-action="Treatment" class="stretched-link"></a></h5>
+                            <p class="card-text"><strong>Time: </strong>@appointment.Time</p>
+                            <p class="card-text"><strong>Patient:</strong> @appointment.Patient</p>
+                            <p class="card-text"><strong>Radiation Therapist 1:</strong> @appointment.RadiationTherapist1</p>
+                            <p class="card-text"><strong>Radiation Therapist 2:</strong> @appointment.RadiationTherapist2</p>
+                            <p class="card-text"><strong>Site:</strong> @appointment.Site</p>
                         </div>
-                        <br />
+                    </div>
+                    <br />
                 }
-
-                @*@{
-                    for (int i = 1; i <= 7; i++)
-                    {
-                        <div class="card w-100">
-                            <div class="card-body">
-                                <h5 class="card-title">Scheduled Clinic #@i<a href="#" class="stretched-link"></a></h5>
-                                <p class="card-text">@i/08/2022 - UniSA City East Campus - Building GH2</p>
-                            </div>
-                        </div>
-                        <br />
-                    }
-                }*@
-
-
             </div>
         </div>
     </main>

@@ -32,15 +32,13 @@
                         @foreach(var appointment in appointments)
                         {
                             <tr>
-                                <th scope="col">@appointment.Date.ToLongDateString()</th>
+                                <th scope="col">@appointment.Date  @appointment.Time</th>
                                 <th>@appointment.Patient</th>
                                 <th>@appointment.RadiationTherapist1</th>
                                 <th>@appointment.RadiationTherapist2</th>
                                 <th>@appointment.Room</th>
                                 <th>@appointment.Site</th>
-                            </tr>
-                            
-
+                            </tr>                           
                         }
                         </tbody>
                     </table>

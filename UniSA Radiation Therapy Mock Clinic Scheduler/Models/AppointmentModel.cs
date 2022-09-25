@@ -9,21 +9,29 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models
     {
         private AppointmentModel() 
         {}
-        public AppointmentModel(DateTime date, string room, string patient, string radiationTherapist1, string radiationTherapist2, string site)
+        public AppointmentModel(string date, string time, string room, string patient, string infectious, string radiationTherapist1, string radiationTherapist2, string site)
         {
             Date = date;
+            Time = time;
             Room = room;
             Patient = patient;
+            Infectious = infectious;
             RadiationTherapist1 = radiationTherapist1;
             RadiationTherapist2 = radiationTherapist2;
             Site = site;
         }
 
         [FirestoreProperty]
-        public DateTime Date { get; set; }
+        public string? Date { get; set; }
+
+        [FirestoreProperty]
+        public string? Time { get; set; }
 
         [FirestoreProperty]
         public string? Patient { get; set; }
+
+        [FirestoreProperty]
+        public string? Infectious { get; set; }
 
         [FirestoreProperty]
         public string? Room { get; set; }
