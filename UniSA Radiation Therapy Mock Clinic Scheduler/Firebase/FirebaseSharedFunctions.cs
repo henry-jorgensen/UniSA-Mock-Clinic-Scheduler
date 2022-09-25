@@ -230,8 +230,13 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
         /// <param name="token">A string representing the current user signed in</param>
         /// <param name="classModel">An object contained all the required information for the new entry</param>
         /// <returns>A string representing the ID(name) of the new document</returns>
-        public async Task<string?> CreateNewScheduleAsync(HttpContext context, string className, ScheduleModel scheduleModel)
+        public async Task<string?> CreateNewClinicAsync(HttpContext context, string className, ScheduleModel scheduleModel)
         {
+            //TODO somewhere create the appointment data inside this function
+
+
+
+
             string? token = VerifyVerificationToken(context);
 
             //Insert this into cloud firestore database
@@ -484,7 +489,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                 {
                     Console.WriteLine("Unknown Firebase Error has occurred");
                 }
-                else
+                else if (firebaseEx.error != null)
                 {
                     Console.WriteLine(firebaseEx.error.message);
                 }

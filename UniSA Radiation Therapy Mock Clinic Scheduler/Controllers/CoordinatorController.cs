@@ -95,7 +95,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateASchedule(string className, string name, string date, string startTime, string appointmentDuration, string locations, string schedule)
+        public async Task<IActionResult> SaveAClinic(string className, string name, string date, string startTime, string appointmentDuration, string locations, string schedule)
         {
             ScheduleModel scheduleModel = new ScheduleModel(name, date, startTime, appointmentDuration, locations, schedule);
 
@@ -104,7 +104,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
                 return Forbid();
             }
 
-            string? success = await firebase.CreateNewScheduleAsync(HttpContext, className, scheduleModel);
+            string? success = await firebase.CreateNewClinicAsync(HttpContext, className, scheduleModel);
 
             if (success != null)
             {

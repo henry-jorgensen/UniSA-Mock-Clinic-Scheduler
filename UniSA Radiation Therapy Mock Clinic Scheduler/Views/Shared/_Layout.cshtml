@@ -20,8 +20,8 @@
     <link rel="stylesheet" type="text/css"
           href="https://lo.unisa.edu.au/theme/styles.php/unisa/1658874300_1658874377/all" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.styles.css"
-          asp-append-version="true" />
+    @*<link rel="stylesheet" href="~/UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.styles.css"
+          asp-append-version="true" />*@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <script src="https://kit.fontawesome.com/5f4f200a02.js" crossorigin="anonymous"></script>
@@ -107,7 +107,7 @@
                                 <div class="list-group-item @((string?) ViewData["Title"] == "Clinics" ? "active" : "")">
                                     <div class="list-group-item-inner-container">
                                         <a class="list-group-item-action list-indent-1" asp-controller="Home" asp-action="Clinics">
-                                            <span class="nav-item-text">My Clinics</span>
+                                            <span class="nav-item-text">@(coordinator ? "My Clinics" : "My Appointments")</span>
                                         </a>
                                     </div>
                                 </div>
@@ -116,7 +116,7 @@
                                 <div class="list-group-item @((string?) ViewData["Title"] == "Past Clinics" ? "active" : "")">
                                     <div class="list-group-item-inner-container">
                                         <a class="list-group-item-action list-indent-1" asp-controller="Home" asp-action="History">
-                                            <span class="nav-item-text">Past Clinics</span>
+                                            <span class="nav-item-text">@(coordinator ? "Past Clinics" : "Past Appointments")</span>
                                         </a>
                                     </div>
                                 </div>

@@ -6,10 +6,10 @@
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.13.5/xlsx.full.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.13.5/jszip.js"></script>
 <script src="~/lib/jquery/dist/jquery.js"></script>
-<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
-<script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
-
-<script src="~/js/createSchedule.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+<script src="~/js/moment.min.js"></script>
+<script src="~/js/createClinic.js"></script>
 
 <div class="container">
     <main role="main" class="pb-3">
@@ -18,7 +18,7 @@
                 @*Organised in 'tabs' so that the user can move through the process one at a time*@
                 <div class="card formContainer">
                     <h5 class="card-header">
-                        Create A Schedule
+                        Create A Clinic
                     </h5>
 
                     @*LOADING A SAVED CLASS*@
@@ -71,7 +71,7 @@
                     <div class="tab card-body">
                         <h5 class="card-title">Generate a Schedule</h5>
                         
-                        <form id="createAScheduleForm">
+                        <form id="createAClinicForm">
                             <div class="form-row">
                                 <div class="col-md-6 mb-3">
                                     <label for="scheduleNameInput">Schedule name</label>
@@ -112,27 +112,36 @@
 
                     @*PREVIEW A SCHEDULE*@
                     <div class="tab card-body">
-                        <h5 class="card-title">Preview Schedule</h5>
-                        <table class="table table-sm">
-                            <thead>
-                                <tr class="text-center">
-                                    <th class="text-center" colspan="5">Clinic Schedule <span>DATE</span></th>
-                                </tr>
-                                <tr class="text-center">
-                                    <th class="text-center" colspan="5">Location 1</th>
-                                </tr>
-                                <tr>
-                                    <th scope="col">Time</th>
-                                    <th scope="col">Patient</th>
-                                    <th scope="col">Site</th>
-                                    <th scope="col">RT1</th>
-                                    <th scope="col">RT2</th>
-                                </tr>
-                            </thead>
-                            <tbody id="scheduleList0">
+                        <h5 class="card-title">Preview Clinic</h5>
+                        <form id="saveAClinicForm">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr class="text-center">
+                                        <th class="text-center" colspan="12">Clinic Schedule <span id="clinicDate">DATE</span></th>
+                                    </tr>
+                                    @*<tr class="text-center">
+                                        <th class="text-center" colspan="12" id="initialLocation">Location 1</th>
+                                    </tr>
+                                    <tr class="text-center">
+                                        <th scope="col">Time</th>
+                                        <th scope="col">Patient</th>
+                                        <th scope="col">Infectious</th>
+                                        <th scope="col">Site</th>
+                                        <th scope="col">RT1</th>
+                                        <th scope="col">RT2</th>
+                                    </tr>*@
+                                </thead>
+                                @*<tbody class="text-center" id="scheduleList0">
 
-                            </tbody>
-                        </table>
+                                </tbody>*@
+                            </table>
+
+                            <div id="scheduleHolder">
+
+                            </div>
+
+                            <button class="btn button" type="submit" id="saveBtn">Save</button>
+                        </form>
                     </div>
 
                     @* PREVIOUS BUTTON *@
