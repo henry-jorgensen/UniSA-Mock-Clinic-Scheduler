@@ -76,12 +76,14 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         /// A basic treatment page that relates to the appointment that has been selected
         /// </summary>
         /// <returns>A redirect action dependent on whether a user is logged in</returns>
-        public IActionResult Treatment()
-        {
+        public IActionResult Treatment(string date, string time, string room, string patient, string infectious, string rt1, string rt2, string site, string ID)
+        {                                    
             if (firebase.VerifyLoggedInSession(HttpContext).Result)
             {
-                return View();
+                AppointmentModel appointment = new AppointmentModel(date, time, room, patient, infectious, rt1, rt2, site, ID);
+                ViewBag.Appointment = appointment;
 
+                return View();
             }
             
             return RedirectToAction("Login", "Account");

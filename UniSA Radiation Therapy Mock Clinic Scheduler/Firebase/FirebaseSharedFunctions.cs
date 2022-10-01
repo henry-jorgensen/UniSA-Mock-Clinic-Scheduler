@@ -609,7 +609,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
                     Array userRT2 = studentInformation[currentAppointment.RadiationTherapist2];
                     if (userRT2 == null) return null;
-                    currentAppointment.RadiationTherapist1 = userRT2.GetValue(0) + " " + userRT2.GetValue(1);
+                    currentAppointment.RadiationTherapist2 = userRT2.GetValue(0) + " " + userRT2.GetValue(1);
 
                     appointments.Add(currentAppointment);
                 }
@@ -639,14 +639,13 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                 foreach (DocumentSnapshot documentSnapshot in allAppointmentsQuerySnapshot.Documents)
                 {
                     AppointmentModel currentAppointment = documentSnapshot.ConvertTo<AppointmentModel>();
-
-                    //currentAppointment.Date = currentAppointment.Date.AddHours(9.5);
+                    Console.WriteLine(documentSnapshot.Id);
+                    currentAppointment.AppointmentID = documentSnapshot.Id;
 
                     if (currentAppointment.Patient == token || currentAppointment.RadiationTherapist1 == token || currentAppointment.RadiationTherapist2 == token)
                     {
                         if (currentAppointment.Patient == null || currentAppointment.RadiationTherapist1 == null || currentAppointment.RadiationTherapist2 == null) return null;
 
-                        //currentAppointment.Date = currentAppointment.Date.AddHours(9.5);
                         Array userPatient = studentInformation[currentAppointment.Patient];
                         if (userPatient == null) return null;
                         currentAppointment.Patient = userPatient.GetValue(0) + " " + userPatient.GetValue(1);
@@ -657,7 +656,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
                         Array userRT2 = studentInformation[currentAppointment.RadiationTherapist2];
                         if (userRT2 == null) return null;
-                        currentAppointment.RadiationTherapist1 = userRT2.GetValue(0) + " " + userRT2.GetValue(1);
+                        currentAppointment.RadiationTherapist2 = userRT2.GetValue(0) + " " + userRT2.GetValue(1);
 
                         appointments.Add(currentAppointment);
                     }

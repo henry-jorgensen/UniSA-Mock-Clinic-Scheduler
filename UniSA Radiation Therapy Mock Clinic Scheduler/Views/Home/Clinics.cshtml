@@ -16,12 +16,26 @@
                 {
                     <div class="card w-100">
                         <div class="card-body">
-                            <h5 class="card-title">@appointment.Date || @appointment.Room<a asp-controller="Home" asp-action="Treatment" class="stretched-link"></a></h5>
+                            <h5 class="card-title">@appointment.Date || @appointment.Room </h5>
                             <p class="card-text"><strong>Time: </strong>@appointment.Time</p>
                             <p class="card-text"><strong>Patient:</strong> @appointment.Patient</p>
                             <p class="card-text"><strong>Radiation Therapist 1:</strong> @appointment.RadiationTherapist1</p>
                             <p class="card-text"><strong>Radiation Therapist 2:</strong> @appointment.RadiationTherapist2</p>
                             <p class="card-text"><strong>Site:</strong> @appointment.Site</p>
+                            @Html.ActionLink("Treatment", "Treatment", "Home", 
+                                new { 
+                                    date = @appointment.Date,
+                                    time = @appointment.Time,
+                                    room = @appointment.Room,
+                                    patient = @appointment.Patient,
+                                    infectious = @appointment.Infectious,
+                                    rt1 = @appointment.RadiationTherapist1,
+                                    rt2 = @appointment.RadiationTherapist2,
+                                    site = @appointment.Site,
+                                    ID = @appointment.AppointmentID
+                                }
+                                , null
+                            )
                         </div>
                     </div>
                     <br />

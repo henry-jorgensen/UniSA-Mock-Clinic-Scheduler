@@ -1,6 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Treatment";
     ViewData["Controller"] = "Home";
+    AppointmentModel appointment = ViewBag.Appointment;
 }
 
 <div class="col">
@@ -10,8 +11,24 @@
                 <div class="text-center">
                     <h2>Treatment Page</h2>
                 </div>
+                   
+                <div class="card w-100">
+                    <div class="card-body">
+                        <a asp-controller="Home" asp-action="Clinics" class="stretched-link">Back</a>
+                        <h5 class="card-title">@appointment.Date || @appointment.Room</h5>
+                        <p class="card-text"><strong>Time: </strong>@appointment.Time</p>
+                        <p class="card-text"><strong>Patient:</strong> @appointment.Patient</p>
+                        <p class="card-text"><strong>Radiation Therapist 1:</strong> @appointment.RadiationTherapist1</p>
+                        <p class="card-text"><strong>Radiation Therapist 2:</strong> @appointment.RadiationTherapist2</p>
+                        <p class="card-text"><strong>Site:</strong> @appointment.Site</p>
+                        <p class="card-text"><strong>Appointment ID:</strong> @appointment.AppointmentID</p>
 
-                
+                        @*Load in the PDF of allow the upload of one*@
+                        <p class="card-text">
+                            <input class="form-control input-upload" id="upload" type=file name="files[]">
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
