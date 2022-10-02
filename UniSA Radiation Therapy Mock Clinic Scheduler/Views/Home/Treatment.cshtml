@@ -4,6 +4,10 @@
     AppointmentModel appointment = ViewBag.Appointment;
 }
 
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script src="~/js/classes/AJAXManager.js"></script>
+<script src="~/js/treatment.js"></script>
+
 <div class="col">
     <div role="main" class="pb-lg-5">
         <div class="row d-flex justify-content-center">
@@ -14,19 +18,29 @@
                    
                 <div class="card w-100">
                     <div class="card-body">
-                        <a asp-controller="Home" asp-action="Clinics" class="stretched-link">Back</a>
+                        @*<a asp-controller="Home" asp-action="Clinics" class="stretched-link">Back</a>*@
                         <h5 class="card-title">@appointment.Date || @appointment.Room</h5>
                         <p class="card-text"><strong>Time: </strong>@appointment.Time</p>
                         <p class="card-text"><strong>Patient:</strong> @appointment.Patient</p>
                         <p class="card-text"><strong>Radiation Therapist 1:</strong> @appointment.RadiationTherapist1</p>
                         <p class="card-text"><strong>Radiation Therapist 2:</strong> @appointment.RadiationTherapist2</p>
                         <p class="card-text"><strong>Site:</strong> @appointment.Site</p>
-                        <p class="card-text"><strong>Appointment ID:</strong> @appointment.AppointmentID</p>
+                        <p class="hidden" id="appointmentID">@appointment.AppointmentID</p>
 
                         @*Load in the PDF of allow the upload of one*@
-                        <p class="card-text">
-                            <input class="form-control input-upload" id="upload" type=file name="files[]">
-                        </p>
+                        <div class="hidden" id="displayDocument">
+                            <iframe class="pdfPreview" id="treatmentPDF"></iframe>
+
+                            <a id="downloadLink" target="_blank" href="#" download="Treatment">Download</a>
+                            <button id="deleteDocument" class="btn button">Delete</button>
+                        </div>
+
+                        <div id="noDocument">
+                            <p><strong>Treatment Document:</strong> Only PDF's can be uploaded</p>
+                            <p class="card-text">
+                                <input class="form-control input-upload" id="fileUpload" type=file accept="application/pdf" name="file">
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -89,6 +89,46 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             return RedirectToAction("Login", "Account");
         }
 
+        [HttpPost]
+        public async Task<IActionResult> UploadPDF(FileModel file)
+        {
+            if (!ModelState.IsValid) return BadRequest();
+
+            if (firebase.VerifyLoggedInSession(HttpContext).Result == false) return Forbid();
+
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+            string success = await firebase.UploadPDF(file);
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+
+            if (success != null) return Ok(success);
+
+            return BadRequest();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> RetrievePDF(FileModel file)
+        {
+            if (firebase.VerifyLoggedInSession(HttpContext).Result == false) return Forbid();
+
+            string link = await firebase.RetrievePDF(file);
+
+            if (link != null) return Ok(link);
+
+            return BadRequest();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeletePDF(FileModel file)
+        {
+            if (firebase.VerifyLoggedInSession(HttpContext).Result == false) return Forbid();
+
+            bool success = await firebase.DeletePDF(file);
+
+            if (success) return Ok();
+
+            return BadRequest();
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
