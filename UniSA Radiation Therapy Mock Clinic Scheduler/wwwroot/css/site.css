@@ -289,6 +289,7 @@ hr {
     background-color: #04AA6D;
 }
 
+
 /* Treatment Page styles
 -------------------------------------------------- */
 .pdfPreview {
@@ -298,4 +299,36 @@ hr {
 
 .hidden {
     display: none;
+}
+
+
+/* All Classes display styles
+-------------------------------------------------- */
+.classButton {
+    outline: none;
+    background: #0052a0;
+    border: 0;
+    border-radius: 4px;
+    width: 90px;
+    color: white;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: 700;
+    line-height: inherit;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: 0.3s ease;
+    height: 32px;
+}
+
+.classButton:hover {
+    color: white;
+    background: #0052a0;
+    filter: brightness(85%);
+}
+
+.classButton:active {
+    color: white;
+    background: #0052a0;
+    filter: brightness(70%);
 }
