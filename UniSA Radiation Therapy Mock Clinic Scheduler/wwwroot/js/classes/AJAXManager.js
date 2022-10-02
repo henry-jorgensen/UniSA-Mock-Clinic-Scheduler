@@ -169,4 +169,61 @@
             return 1; //2 to skip over the load class form
         }
     };
+
+    /**
+     * Upload a PDF to firebase.
+     */
+    uploadPDF = async (formData) => {
+        return await $.ajax({
+            type: 'POST',
+            url: `/${this.controller}/UploadPDF`,
+            data: formData,
+            processData: false,  // tell jQuery not to process the data
+            contentType: false,  // tell jQuery not to set contentType
+            success: function (result) {
+                //console.log(result);
+            },
+            failure: function (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    /**
+     * Retireve a PDF link from firebase.
+     */
+    retrievePDF = async (documentID) => {
+        return await $.ajax({
+            type: 'GET',
+            url: `/${this.controller}/RetrievePDF`,
+            data: {
+                ID: documentID
+            },
+            success: function (result) {
+                //console.log(result);
+            },
+            failure: function (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    /**
+     * Delete a PDF link from firebase.
+     */
+    deletePDF = async (documentID) => {
+        return await $.ajax({
+            type: 'POST',
+            url: `/${this.controller}/DeletePDF`,
+            data: {
+                ID: documentID
+            },
+            success: function (result) {
+                console.log(result);
+            },
+            failure: function (error) {
+                console.log(error);
+            }
+        });
+    }
 }

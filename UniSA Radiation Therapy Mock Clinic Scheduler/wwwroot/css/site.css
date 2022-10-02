@@ -289,5 +289,13 @@ hr {
     background-color: #04AA6D;
 }
 
-/*
+/* Treatment Page styles
 -------------------------------------------------- */
+.pdfPreview {
+    width: 100%;
+    height: 750px;
+}
+
+.hidden {
+    display: none;
+}

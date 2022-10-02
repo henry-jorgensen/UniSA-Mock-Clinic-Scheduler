@@ -1,4 +1,4 @@
-﻿//Create necessary classes
+﻿//Create necessary classes - provided through loading the class scripts on the CreateClinic.html
 const ajaxManager = new AJAXManager("Coordinator");
 const tableManager = new TableManager();
 const scheduleManager = new ScheduleManager();

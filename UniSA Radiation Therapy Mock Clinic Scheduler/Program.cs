@@ -28,4 +28,6 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+app.MapGet("/Treatment/{name:alpha}", (string name) => $"Hello {name}!");
+
 app.Run();

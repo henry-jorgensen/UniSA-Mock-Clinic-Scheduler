@@ -9,6 +9,7 @@ using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models;
 //using System.Linq;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
+using Firebase.Storage;
 //using Newtonsoft.Json.Linq;
 //using System;
 
@@ -18,6 +19,8 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
     {
         FirestoreDb db;
         FirebaseAuthProvider auth;
+        FirebaseStorage storage;
+
         public FirebaseEncryptor encryptor;
 
         public FirestoreDb DB()
@@ -30,11 +33,17 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             return auth;
         }
 
+        public FirebaseStorage Storage()
+        {
+            return storage;
+        }
+
         public FirebaseSharedFunctions(HttpContext context)
         {
             //TODO hide this in the future with ENV
             db = new FirestoreDbBuilder { ProjectId = "unisa-rt-mock-clinic", JsonCredentials = "{ 'type': 'service_account',   'project_id': 'unisa-rt-mock-clinic',   'private_key_id': '6aa0d9f7dc80f52392dd906a85d0f4f462432f52',   'private_key': '-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDP+Pn9NZkcvnxs\n7sTgbHBZJqlqK/wv5qVSdyQeUZuC4Dp1uFffRcGS2OSrq+v0CMgRxaBtF5ox4oca\nrk5+B0AqtDpuWLoKVOlAbzEjbdZgcV2WZccfxb1VqMMeNJRFF1g3O+idQIAzI0ax\nDH+RQoPaco6pc8LjfTG5NAfcyZQcSoYGyUgFVaMfmbay7DQwyvIsyY9uZ52ZPYWG\n3N2KZI69uKYVPKflgqOtzZuedAtDG2MMnyHe8Majjt/MtGFLKeI/hE+TpYvpn5c6\ncV33BpFyN7D1LP2pVCP83rtmCswWbZPfZL+Fpjnc/QANqzVVJb3SLIBWOmeEkuIi\n8dw60uaNAgMBAAECggEAAd04dD9Q9bibYYRSjXGkbj8ZCN65ihdVd/A9iaOvn2C8\nzcGV5wIhGjAq5qRrYe2CDIqO0NPcxESSc3J363iqH31vB8bJeVTBbL2EfsKsGx7Z\nth5858iRIxEeOsli0lKAl/eKlyTb82dOdN0dr29VU1An/hMxFJP5hvM8OcNSLxvD\nC8a+uiSWl0OBGnDNBulkmffZsdjiphPVooY/khLGpTxUN8ec7HZEhhlGvaPvvBPW\n6ywKxtjssblc22CkIkexVsnFqtf1ZkUSAKggnmv8aKImzKkkG+8PQcPiJNAp6FC9\nZ9bdXwrFDtrPU+V3gFCS4Z7yogU1fcaTM9wI0tjPoQKBgQD+poIAr4BYmVIaO86S\nSFifnurNfYOsTBEa8cn//i8W125LyV93Ee4ThCV4zgP9sT7HblnxT6U+mB+Hmkz7\nNeIfbYfL3RR+R7GFqkbYs8P5GPUP8FSsTMzyLvdMHF1TQz4G0Qbn+r1AgwXZcVdL\nuvNyE8MYKft2xAz8uCSKwL0ahQKBgQDREyOvKOKE0JadMLrE1wCaapUamHmLZiAO\nJsYzQjz/186FwKKyQyLAZSAbGdkzLK2U8ZSosoQZnrokeDxfmXoZniKqcFbuFIJi\ngyFhpfp6mK4GPhyD+bzsIoT3WX9Xwtrmv2OfudalY1hd6fNaapYomyYqTdoWUA88\nvxdLe/zOaQKBgQCaD2B9S7ApafC7AE3UQEKlpz5EvdfIiGic1YUxA7W3avRGk3jX\nD5jqY7tL38+YTwA9JWzyyg2d1ejVYCuMm6fG/bv3QTRhxbwHsuGTvwYkEM5KK0r+\nxqQDLRjeChcIBZlkBFfaRt7yRZJnX+PBZEReUshoORXyX1/AESPCciK2BQKBgD64\nCyBkl29YU5ZcI+sgxGGOT6Rm0S9sN3mHUDXYTQxC5QViwGvRj/8/Vt5KZsnfQUNJ\nJVtmEhLNdvGx0Aqts98zfRq8EJfjNynuRHlSnU1ht/LPdyZwKKh9wn2hL35YSeqm\nx3AHA8khgETMBeC90MXlpRFTwXSoF6oVeRt/2lrhAoGBAL8IsbiE9hKv7MUK1xR3\nrW194MfKocnFuAi+GdbhJjw6jG88/3l3nnVE+unz8ORP5Kj6m9XwISWrU9/H0KJ7\n/lJ8pafeBWsc8i+B+x2/vwZNjxGVzwpWzBLnHwjgsZ3qT1w2h3I7boAnn3Ezouwv\n5w2vKJXCIjteoyLxZ83Zao3w\n-----END PRIVATE KEY-----\n',   'client_email': 'firebase-adminsdk-vjevh@unisa-rt-mock-clinic.iam.gserviceaccount.com',   'client_id': '103711456653250716580',   'auth_uri': 'https://accounts.google.com/o/oauth2/auth',   'token_uri': 'https://oauth2.googleapis.com/token',   'auth_provider_x509_cert_url': 'https://www.googleapis.com/oauth2/v1/certs',   'client_x509_cert_url': 'https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-vjevh%40unisa-rt-mock-clinic.iam.gserviceaccount.com' }"}.Build();
             auth = new FirebaseAuthProvider(new FirebaseConfig("AIzaSyByVk8XwhbQGoeeqkcxr5vRJWhOjep5Ulc"));
+            storage = new FirebaseStorage("unisa-rt-mock-clinic.appspot.com");
             encryptor = new FirebaseEncryptor("b14ca5898a4e4133bbce2ea2315a1916");
         }
 
@@ -609,7 +618,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
                     Array userRT2 = studentInformation[currentAppointment.RadiationTherapist2];
                     if (userRT2 == null) return null;
-                    currentAppointment.RadiationTherapist1 = userRT2.GetValue(0) + " " + userRT2.GetValue(1);
+                    currentAppointment.RadiationTherapist2 = userRT2.GetValue(0) + " " + userRT2.GetValue(1);
 
                     appointments.Add(currentAppointment);
                 }
@@ -639,14 +648,12 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                 foreach (DocumentSnapshot documentSnapshot in allAppointmentsQuerySnapshot.Documents)
                 {
                     AppointmentModel currentAppointment = documentSnapshot.ConvertTo<AppointmentModel>();
-
-                    //currentAppointment.Date = currentAppointment.Date.AddHours(9.5);
+                    currentAppointment.AppointmentID = documentSnapshot.Id;
 
                     if (currentAppointment.Patient == token || currentAppointment.RadiationTherapist1 == token || currentAppointment.RadiationTherapist2 == token)
                     {
                         if (currentAppointment.Patient == null || currentAppointment.RadiationTherapist1 == null || currentAppointment.RadiationTherapist2 == null) return null;
 
-                        //currentAppointment.Date = currentAppointment.Date.AddHours(9.5);
                         Array userPatient = studentInformation[currentAppointment.Patient];
                         if (userPatient == null) return null;
                         currentAppointment.Patient = userPatient.GetValue(0) + " " + userPatient.GetValue(1);
@@ -657,7 +664,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
                         Array userRT2 = studentInformation[currentAppointment.RadiationTherapist2];
                         if (userRT2 == null) return null;
-                        currentAppointment.RadiationTherapist1 = userRT2.GetValue(0) + " " + userRT2.GetValue(1);
+                        currentAppointment.RadiationTherapist2 = userRT2.GetValue(0) + " " + userRT2.GetValue(1);
 
                         appointments.Add(currentAppointment);
                     }
@@ -738,6 +745,60 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             {
                 Debug.WriteLine(e);
             }           
+        }
+
+        /// <summary>
+        /// Upload a file to the connected Firebase Cloud Storage.
+        /// </summary>
+        /// <param name="treatmentID">The Firebase key of the appointment that the document is associated with</param>
+        /// <param name="stream">A file stream representing the document to be uploaded</param>
+        /// <returns>A string representing the URL of the uploaded PDF for viewing purposes</returns>
+        public async Task<string?> UploadPDF(FileModel file)
+        {
+            if(file.Document == null)
+            {
+                return null;
+            }
+
+            //LOOK INTO THIS LATER FOR AUTHENTICATION
+            //FirebaseStorage storage = new FirebaseStorage("unisa-rt-mock-clinic.appspot.com",
+            //    new FirebaseStorageOptions
+            //    {
+            //        AuthTokenAsyncFactory = () => Task.FromResult(a.FirebaseToken),
+            //        ThrowOnCancel = true,
+            //    }
+            //);
+
+
+            //Child is the name - can also add folders i.e testing/test.pdf
+            await Storage().Child(file.ID).PutAsync(file.Document.OpenReadStream());
+
+            string link = await Storage().Child(file.ID).GetDownloadUrlAsync();
+
+            return link;
+        }
+
+        /// <summary>
+        /// Retrieve the URL of this document so that a user can view it within a webpage.
+        /// </summary>
+        /// <param name="treatmentID">The Firebase key of the appointment that the document is associated with</param>
+        /// <returns>A string of the URL pointing towards this document</returns>
+        public async Task<string> RetrievePDF(FileModel file)
+        {
+            string link = await Storage().Child(file.ID).GetDownloadUrlAsync();
+
+            return link;
+        }
+
+        /// <summary>
+        /// Delete a pdf document from the Firebase Cloud Storage
+        /// </summary>
+        /// <param name="treatmentID">The Firebase key of the appointment that the document is associated with</param>
+        public async Task<bool> DeletePDF(FileModel file)
+        {
+            await Storage().Child(file.ID).DeleteAsync();
+
+            return true;
         }
     }
 }
