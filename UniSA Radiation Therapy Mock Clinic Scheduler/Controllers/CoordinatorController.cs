@@ -55,10 +55,13 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             }
         }
 
-        public IActionResult Classes()
+        public async Task<IActionResult> Classes()
         {
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result)
             {
+                //TODO GET ALL CLASSES AND STUDENTS
+                Dictionary<string, ClassModel>? classes = await firebase.GetAllClassesAndStudents(HttpContext);
+                ViewBag.Classes = classes;
                 return View();
             }
 

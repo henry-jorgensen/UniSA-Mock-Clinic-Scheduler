@@ -326,7 +326,8 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                             { "RadiationTherapist1", appointment.Value<string>("RT1") },
                             { "RadiationTherapist2", appointment.Value<string>("RT2") },
                             { "Room", schedule.Key },
-                            { "Site", appointment.Value<string>("Site") }
+                            { "Site", appointment.Value<string>("Site") },
+                            { "ScheduleCode", scheduleModel.ScheduleCode }
                         };
 #pragma warning restore CS8604 // Possible null reference argument.
 
@@ -411,18 +412,20 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                 //Retrieve the list of students that have the class code
                 Query colRef = db.CollectionGroup("Students").WhereArrayContains("ClassCode", classDetails.ClassCode);
                 QuerySnapshot allClassesQuerySnapshot = await colRef.GetSnapshotAsync();
-                List<string> students = new List<string>();
+                List<StudentModel> students = new List<StudentModel>();
 
                 foreach (DocumentSnapshot documentSnapshot in allClassesQuerySnapshot.Documents)
                 {
                     var currentStudent = documentSnapshot.ConvertTo<StudentModel>();
 
                     Console.WriteLine(currentStudent.ToString());
-                    students.Add(JsonConvert.SerializeObject(currentStudent));
+                    //students.Add(JsonConvert.SerializeObject(currentStudent));
+                    students.Add(currentStudent);
                 }
 
                 //Join the students with a unique character as to easily separate them in javascript
-                classDetails.Students = string.Join("|", students.ToArray());
+                //classDetails.Students = string.Join("|", students.ToArray());
+                classDetails.Students = students;
 
                 return classDetails;
             }
@@ -571,6 +574,65 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             return new string(chars);
         }
 
+        /// <summary>
+        /// Collect all the classes associated with a particular course coordinator and populate each
+        /// ClassModel with the connected students.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns>A list of ClassModels with Students arrays integrated.</returns>
+        public async Task<Dictionary<string, ClassModel>?> GetAllClassesAndStudents(HttpContext context)
+        {
+            string? token = VerifyVerificationToken(context);
+
+            if (token == null) return null;
+
+            //Collect all the classes associated with a course coordinator
+            Query allClassesQuery = db.Collection("Users").Document(token).Collection("Classes");
+            QuerySnapshot allClassesQuerySnapshot = await allClassesQuery.GetSnapshotAsync();
+
+            Dictionary<string, ClassModel> classes = new Dictionary<string, ClassModel>();
+            Dictionary<string, List<StudentModel>> codeGroup = new Dictionary<string, List<StudentModel>>();
+
+            foreach (DocumentSnapshot documentSnapshot in allClassesQuerySnapshot.Documents)
+            {
+                var currentClass = documentSnapshot.ConvertTo<ClassModel>();
+                if (currentClass.ClassCode != null)
+                {
+                    classes[currentClass.ClassCode] = currentClass;
+                    //Initiate empty lists for the students
+                    codeGroup[currentClass.ClassCode] = new List<StudentModel>();
+                }
+            }
+
+            //Collect all the students
+            CollectionReference usersRef = db.Collection("Students");
+            QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
+
+            //Cycle through students and add them to the code groupings
+            foreach (DocumentSnapshot document in snapshot.Documents)
+            {
+                var currentStudent = document.ConvertTo<StudentModel>();
+
+                //Look at each class code
+                foreach (string code in document.GetValue<List<string>>("ClassCode"))
+                {
+                    if(code == null) continue;
+                    //codeGroup[code].Add(JsonConvert.SerializeObject(currentStudent));
+                    codeGroup[code].Add(currentStudent);
+                }
+            }
+
+            //Cycle through the classes and add the student lists to them
+            foreach (KeyValuePair<string, ClassModel> entry in classes)
+            {
+                //entry.Value.Students = string.Join("|", codeGroup[entry.Key].ToArray());
+                entry.Value.Students = codeGroup[entry.Key];
+            }
+
+            return classes;
+        }
+
+        //TODO this collects course coordinators as well, add check to see if CCCode is null for just students later on.
         public async Task<Dictionary<string, Array>?> GetStudentsAsync()
         {
             CollectionReference usersRef = db.Collection("Users");
@@ -761,6 +823,8 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             }
 
             //LOOK INTO THIS LATER FOR AUTHENTICATION
+            //Add allow read, write: if request.auth != null; to firebase cloud storage rules
+
             //FirebaseStorage storage = new FirebaseStorage("unisa-rt-mock-clinic.appspot.com",
             //    new FirebaseStorageOptions
             //    {
