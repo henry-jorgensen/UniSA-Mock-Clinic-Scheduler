@@ -9,7 +9,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models
     {
         private AppointmentModel() 
         {}
-        public AppointmentModel(string date, string time, string room, string patient, string infectious, string radiationTherapist1, string radiationTherapist2, string site, string? ID)
+        public AppointmentModel(string date, string time, string room, string patient, string infectious, string radiationTherapist1, string radiationTherapist2, string site, string? ID=null, string? scheduleCode=null)
         {
             Date = date;
             Time = time;
@@ -20,6 +20,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models
             RadiationTherapist2 = radiationTherapist2;
             Site = site;
             AppointmentID = ID;
+            ScheduleCode = scheduleCode;
         }
 
         [FirestoreProperty]
@@ -49,9 +50,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models
         [FirestoreProperty]
         public string? AppointmentID { get; set; }
 
-        //public string toParameters()
-        //{
-        //    return $"date={Date}&room";
-        //}
+        [FirestoreProperty]
+        public string? ScheduleCode { get; set; }
     }
 }

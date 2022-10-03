@@ -2,8 +2,14 @@
 @{
     ViewData["Title"] = "Clinics";
     ViewData["Controller"] = "Coordinator";
-    List<AppointmentModel> appointments = ViewBag.Appointments;
+    Dictionary<string, Dictionary<ScheduleModel, List<AppointmentModel>>> classes = ViewBag.Classes;
 }
+
+@*TODO Move these later*@
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
 
 <div class="col">
     <div role="main" class="pb-lg-5">
@@ -13,36 +19,102 @@
                     <h2>Upcoming Clinics</h2>
                 </div>
 
-                @if(appointments != null)
+                @*Organise by class then under each class have the clinics*@
+                @if(classes != null)
                 {
-                    <table class="table table-hover table-striped">
-                        <thead>
-                            <tr>
-                                <th scope="col">Date and Time</th>
-                                <th scope="col">Patient</th>
-                                <th scope="col">Radiation Therapist 1</th>
-                                <th scope="col">Radiation Therapist 2</th>
-                                <th scope="col">Room</th>
-                                <th scope="col">Site</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                    @*Loop through each class in the supplied dictionary*@
+                    @foreach(var singleClass in classes)
+                    {
+                        <div class="card w-100">
+                            <div class="card-header">
+                                <h3>@singleClass.Key</h3>
+                            </div>
 
-                        
-                        @foreach(var appointment in appointments)
-                        {
-                            <tr>
-                                <th scope="col">@appointment.Date  @appointment.Time</th>
-                                <th>@appointment.Patient</th>
-                                <th>@appointment.RadiationTherapist1</th>
-                                <th>@appointment.RadiationTherapist2</th>
-                                <th>@appointment.Room</th>
-                                <th>@appointment.Site</th>
-                            </tr>                           
-                        }
-                        </tbody>
-                    </table>
+                            <div class="accordion" id="@singleClass.Key">
+                                @*If there are no entries yet display something*@
+                                @if (@singleClass.Value.Count == 0)
+                                {
+                                    <div class="card w-100">
+                                        <div class="card-header">
+                                            <h5 class="mb-0 float-left">
+                                                No Schedules Yet
+                                            </h5>
+                                        </div>
+                                    </div>
+                                }
 
+                                @*Loop through each schedule in the supplied dictionary*@
+                                @foreach (KeyValuePair<ScheduleModel, List<AppointmentModel>> schedule in singleClass.Value)
+                                {
+                                    @*Schedule details here*@
+                                    <div class="card w-100">
+
+                                        @*Header*@
+                                        <div class="card-header">
+                                            <h2 class="mb-0 float-left">
+                                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#@schedule.Key.ScheduleCode" aria-expanded="true" aria-controls="@schedule.Key.ScheduleCode">
+                                                    @schedule.Key.Name
+                                                </button>
+                                            </h2>
+
+                                            <div class="float-right">
+                                                <button class="classButton">
+                                                     @Html.ActionLink("Edit", "CreateClinic", "Coordinator", 
+                                                        new { 
+                                                            name = @schedule.Key.Name,
+                                                            date = @schedule.Key.Date,
+                                                            code = @schedule.Key.ScheduleCode,
+                                                            startTime = @schedule.Key.StartTime,
+                                                            duration = @schedule.Key.AppointmentDuration,
+                                                            locations = @schedule.Key.Locations
+                                                        }, 
+                                                     new { @class="anchorClassEdit" })
+                                                </button>
+
+                                                @*TODO add on function in JS file: ADD WARNING!!!*@
+                                                <button class="classButton">
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </div>
+
+
+                                        <div id="@schedule.Key.ScheduleCode" class="collapse" aria-labelledby="@schedule.Key.ScheduleCode" data-parent="#@singleClass.Key">
+                                            <div class="card-body">
+                                                <table class="table table-hover table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th scope="col">Date and Time</th>
+                                                            <th scope="col">Patient</th>
+                                                            <th scope="col">Radiation Therapist 1</th>
+                                                            <th scope="col">Radiation Therapist 2</th>
+                                                            <th scope="col">Room</th>
+                                                            <th scope="col">Site</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @*Loop through each appointment in the supplied dictionary*@
+                                                        @foreach (var appointment in schedule.Value)
+                                                        {
+                                                            <tr>
+                                                                <th scope="col">@appointment.Date  @appointment.Time</th>
+                                                                <th>@appointment.Patient</th>
+                                                                <th>@appointment.RadiationTherapist1</th>
+                                                                <th>@appointment.RadiationTherapist2</th>
+                                                                <th>@appointment.Room</th>
+                                                                <th>@appointment.Site</th>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <br />
+                    }
                 }
             </div>
         </div>

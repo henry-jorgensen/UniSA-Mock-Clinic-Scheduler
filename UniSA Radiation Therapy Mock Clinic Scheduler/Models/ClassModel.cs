@@ -38,6 +38,6 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models
         [FirestoreProperty]
         public List<string>? ScheduleCode { get; set; }
 
-        public string? Students { get; set; }
+        public List<StudentModel>? Students { get; set; }
     }
 }
