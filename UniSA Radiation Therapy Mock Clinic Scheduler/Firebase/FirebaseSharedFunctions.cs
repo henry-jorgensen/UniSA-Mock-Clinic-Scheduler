@@ -620,9 +620,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                 await clearBatch.CommitAsync();
             }
 
-
-
-
+            //ADD OR UPDATE THE STUDENTS FROM THE STUDENTLIST
             Dictionary<string, string> existingStudents = new Dictionary<string, string>();
 
             //Collect the student list as to detect if a student already exists
@@ -819,6 +817,91 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             }
 
             return students;
+        }
+
+        /// <summary>
+        /// Collect all classes associated with a particular course coordinator and append the different schedules and their 
+        /// appointment models.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public async Task<Dictionary<string, Dictionary<ScheduleModel, List<AppointmentModel>>>?> CollectClassSchedules(HttpContext context) {
+            string? token = VerifyVerificationToken(context);
+
+            if (token == null) return null;
+
+            Dictionary<string, Dictionary<ScheduleModel, List<AppointmentModel>>> classCollection = new Dictionary<string, Dictionary<ScheduleModel, List<AppointmentModel>>>();
+
+            //Get all classes
+            //Collect all the classes associated with a course coordinator
+            Query allClassesQuery = db.Collection("Users").Document(token).Collection("Classes");
+            QuerySnapshot allClassesQuerySnapshot = await allClassesQuery.GetSnapshotAsync();
+
+            //Get all associated schedules
+            Query allSchedulesQuery = db.Collection("Schedules");
+            QuerySnapshot allSchedulesQuerySnapshot = await allSchedulesQuery.GetSnapshotAsync();
+
+            foreach (DocumentSnapshot documentSnapshot in allClassesQuerySnapshot.Documents)
+            {
+                var currentClass = documentSnapshot.ConvertTo<ClassModel>();
+                if (currentClass.Name == null) continue;
+
+                classCollection[currentClass.Name] = new Dictionary<ScheduleModel, List<AppointmentModel>>();
+
+                if (currentClass.ScheduleCode == null) continue;
+
+                foreach (string scheduleCode in currentClass.ScheduleCode)
+                {
+
+                    //Turn the json into Appointment models and append to the proper location
+                    foreach (DocumentSnapshot scheduleDocumentSnapshot in allSchedulesQuerySnapshot.Documents)
+                    {
+                        var currentSchedule = scheduleDocumentSnapshot.ConvertTo<ScheduleModel>();
+                        if (scheduleCode != currentSchedule.ScheduleCode) continue;
+
+                        classCollection[currentClass.Name][currentSchedule] = new List<AppointmentModel>();
+
+                        if (currentSchedule.Schedule == null) continue;
+
+                        //Add an appointment for each JSON entry
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+                        JObject? scheduleArray = (JObject)JsonConvert.DeserializeObject(currentSchedule.Schedule);
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+
+                        if (scheduleArray == null) continue;
+
+                        //Loop through each location in the array
+                        foreach (var schedule in scheduleArray)
+                        {
+                            if (schedule.Value == null) continue;
+
+                            //Loop through each appointment in a schedule
+                            foreach (var appointment in schedule.Value)
+                            {
+#pragma warning disable CS8604 // Possible null reference argument.
+                                AppointmentModel appointmentModel = new AppointmentModel(
+                                    currentSchedule.Date,
+                                    appointment.Value<string>("Time"),
+                                    schedule.Key,
+                                    appointment.Value<string>("Patient"),
+                                    appointment.Value<string>("Infectious"),
+                                    appointment.Value<string>("RT1"),
+                                    appointment.Value<string>("RT2"),
+                                    appointment.Value<string>("Site")
+                                );
+#pragma warning restore CS8604 // Possible null reference argument.
+
+                                appointmentModel.ScheduleCode = currentSchedule.ScheduleCode;
+
+                                //Add to the overall classes collection
+                                classCollection[currentClass.Name][currentSchedule].Add(appointmentModel);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return classCollection;
         }
 
         public async Task<List<AppointmentModel>?> CollectAllAppointmentsAsync(HttpContext context)

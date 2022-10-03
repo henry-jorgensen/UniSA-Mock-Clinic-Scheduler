@@ -74,8 +74,12 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         {
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == true)
             {
-                List<AppointmentModel>? appointments = await firebase.CollectAllAppointmentsAsync(HttpContext);
-                ViewBag.Appointments = appointments;
+                Dictionary<string, Dictionary<ScheduleModel, List<AppointmentModel>>>? classes = await firebase.CollectClassSchedules(HttpContext);
+                if (classes != null)
+                {
+                    ViewBag.Classes = classes;
+                }
+
                 return View();
             }
             else

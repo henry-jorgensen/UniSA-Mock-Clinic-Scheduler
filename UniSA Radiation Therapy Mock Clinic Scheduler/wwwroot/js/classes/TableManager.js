@@ -58,22 +58,22 @@
      * table.
      */
     classAdd = (classObject, isPreview) => {
-        let split = classObject.students.split("|");
+        let studentArray = classObject.students;
 
-        if (split[0] == "") {
+        if (studentArray[0] == "") {
             return;
         }
 
-        split.forEach(student => {
-            let jStudent = JSON.parse(student);
+        studentArray.forEach(student => {
+            //let jStudent = JSON.parse(student);
             let row = this.createRow(
-                jStudent.FirstName,
-                jStudent.LastName,
-                jStudent.StudentId,
-                jStudent.Username,
+                student.firstName,
+                student.lastName,
+                student.studentId,
+                student.username,
                 isPreview
             );
-
+        
             this.list.append(row);
         });
     }
