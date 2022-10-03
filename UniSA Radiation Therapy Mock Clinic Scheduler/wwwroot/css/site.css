@@ -332,3 +332,19 @@ hr {
     background: #0052a0;
     filter: brightness(70%);
 }
+
+.anchorClassEdit {
+    color: white;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: 700;
+    line-height: inherit;
+    text-transform: uppercase;
+    text-decoration: none;
+}
+
+.anchorClassEdit:hover {
+    color: white;
+    filter: brightness(85%);
+    text-decoration: none;
+}

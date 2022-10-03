@@ -336,7 +336,13 @@ class FormWizard {
     }   
 }
 
-$( document ).ready(function() {
+$(document).ready(async function () {
+    //Detect if there are any URL queries to load - this means the users is coming from the 
+    //View Clinics page to edit a class
+    const params = new Proxy(new URLSearchParams(window.location.search), {
+        get: (searchParams, prop) => searchParams.get(prop),
+    });
+
     //Create necessary classes
     const tableManager = new TableManager(
         $("#list"),
@@ -347,7 +353,21 @@ $( document ).ready(function() {
     );
 
     const ajaxManager = new AJAXManager("Coordinator");
-    const formWizard = new FormWizard(0); 
+    const formWizard = params.name == null ? new FormWizard(0) : new FormWizard(3);
+
+    if (params.name != null) {
+        ajaxManager.selectedClassCode = params.code;
+
+        response = await ajaxManager.loadAClass(
+            params.name
+        );
+
+        //Clear the table from any previous entries
+        tableManager.clearTable(tableManager.list);
+
+        //The current class
+        tableManager.classAdd(response);
+    }
 
     formWizard.showInitialTab(); // Display the first tab
 

@@ -87,6 +87,29 @@
     };
 
     /**
+     * Perform a GET call to the parent controller, the objective is to retrieve details about
+     * a previously saved class. A successful call will increment the form wizard to the
+     * appropriate form.
+     */
+    deleteAClass = async (classNameValue, classCodeValue) => {
+        return $.ajax({
+            type: 'POST',
+            url: `/${this.controller}/DeleteAClass`,
+            data: {
+                className: classNameValue,
+                classCode: classCodeValue
+            },
+            success: function (result) {
+                return result
+            },
+            failure: function (error) {
+                console.log(error);
+                return 0;
+            }
+        });
+    };
+
+    /**
      * After a class list has been either manually entered or automatically loaded perform a
      * POST call to the parent controller. The information passed is an array of student objects
      * that reflects what was in the table.

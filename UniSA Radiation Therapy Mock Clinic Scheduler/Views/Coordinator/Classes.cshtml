@@ -35,8 +35,15 @@
 
                                     <div class="float-right">
                                         <button class="classButton">
-                                            Edit
+                                             @Html.ActionLink("Edit", "CreateClass", "Coordinator", 
+                                                new { 
+                                                    name = @singleClass.Value.Name,
+                                                    code = @singleClass.Value.ClassCode
+                                                }, 
+                                             new { @class="anchorClassEdit" })
                                         </button>
+
+                                        @*TODO add on function in JS file: ADD WARNING!!!*@
                                         <button class="classButton">
                                             Delete
                                         </button>

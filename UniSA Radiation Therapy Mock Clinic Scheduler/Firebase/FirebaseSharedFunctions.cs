@@ -296,6 +296,12 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             return null;
         }
 
+        /// <summary>
+        /// Create appointment entries from a given schedule model, the schedule holds the time table as a json but this
+        /// allows invidiual appointments to be loaded by a student or course coordinator.
+        /// </summary>
+        /// <param name="scheduleModel"></param>
+        /// <returns>A bool representing if the function was successful</returns>
         public async Task<bool> createAssociatedAppointments(ScheduleModel scheduleModel)
         {
             //Create new appointments
@@ -340,6 +346,57 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
         }
 
         /// <summary>
+        /// Delete a particular schedule and any associated appointments while removing the schedule code from
+        /// any students.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="scheduleCode"></param>
+        /// <returns></returns>
+        public async Task<bool> DeleteScheduleAsync(HttpContext context, string scheduleCode)
+        {
+            string? token = VerifyVerificationToken(context);
+
+            if (token != null) return false;
+
+            //Start a large batch write.
+            WriteBatch batch = db.StartBatch();
+
+            //Collect any assoicated appointments
+            Query appointmentRef = db.CollectionGroup("Appointments").WhereArrayContains("ScheduleCode", scheduleCode);
+            QuerySnapshot allAppointmentQuerySnapshot = await appointmentRef.GetSnapshotAsync();
+
+            //Remove each appointment
+            foreach (DocumentSnapshot documentSnapshot in allAppointmentQuerySnapshot.Documents)
+            {
+                batch.Delete(documentSnapshot.Reference);
+            }
+
+            //Update all related students by removing the schedule code
+            Query studentScheduleRef = db.CollectionGroup("Students").WhereArrayContains("ScheduleCode", scheduleCode);
+            QuerySnapshot allStudentScheduleQuerySnapshot = await studentScheduleRef.GetSnapshotAsync();
+
+            //For each student update the schedule code list
+            foreach (DocumentSnapshot documentSnapshot in allStudentScheduleQuerySnapshot.Documents)
+            {
+                var currentStudent = documentSnapshot.ConvertTo<StudentModel>();
+                DocumentReference studentRef = db.Collection("Students").Document(currentStudent.Username); //TODO change to documentSnapshot.id when finished testing
+                batch.Update(studentRef, "ScheduleCode", FieldValue.ArrayRemove(scheduleCode));
+            }
+
+            //Write all database changes in one go
+            await batch.CommitAsync();
+
+            //Remove the schedule from the list
+            DocumentReference scheduleRef = db.Collection("Schedules").Document(scheduleCode);
+
+            //Delete the class reference
+            WriteResult success = await scheduleRef.DeleteAsync();
+
+            //Return if the write was successful
+            return success.Equals(true);
+        }
+
+        /// <summary>
         /// Create a new class document with the provided name as the document id under the current users in firebase. 
         /// If there is no Classes it will create a new collection.
         /// </summary>
@@ -359,6 +416,82 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Delete a saved class list, this removes the entry from Firebase and removes the ClassCode from any assoicated 
+        /// student entry, deletes any assoicated schedules and appointments.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="className"></param>
+        /// <returns>A bool representing if the action was completed successfully</returns>
+        public async Task<bool> DeleteClassAsync(HttpContext context, string className, string classCode)
+        {
+            string? token = VerifyVerificationToken(context);
+
+            if (token != null) return false;
+
+            //Get a reference to the class
+            DocumentReference classRef = db.Collection("Users").Document(token).Collection("Classes").Document(className);
+            DocumentSnapshot snapshot = await classRef.GetSnapshotAsync();
+            var classDetails = snapshot.ConvertTo<ClassModel>();
+
+            //Start a large batch write.
+            WriteBatch batch = db.StartBatch();
+
+            //Check if there are any schedules created
+            if (classDetails.ScheduleCode != null)
+            {
+                foreach (string scheduleCode in classDetails.ScheduleCode)
+                {
+                    //Collect any assoicated appointments
+                    Query appointmentRef = db.CollectionGroup("Appointments").WhereArrayContains("ScheduleCode", scheduleCode);
+                    QuerySnapshot allAppointmentQuerySnapshot = await appointmentRef.GetSnapshotAsync();
+
+                    //Remove each appointment
+                    foreach (DocumentSnapshot documentSnapshot in allAppointmentQuerySnapshot.Documents)
+                    {
+                        batch.Delete(documentSnapshot.Reference);
+                    }
+
+                    //Update all related students by removing the schedule code
+                    Query studentScheduleRef = db.CollectionGroup("Students").WhereArrayContains("ScheduleCode", scheduleCode);
+                    QuerySnapshot allStudentScheduleQuerySnapshot = await studentScheduleRef.GetSnapshotAsync();
+
+                    //For each student update the schedule code list
+                    foreach (DocumentSnapshot documentSnapshot in allStudentScheduleQuerySnapshot.Documents)
+                    {
+                        var currentStudent = documentSnapshot.ConvertTo<StudentModel>();
+                        DocumentReference studentRef = db.Collection("Students").Document(currentStudent.Username); //TODO change to documentSnapshot.id when finished testing
+                        batch.Update(studentRef, "ScheduleCode", FieldValue.ArrayRemove(scheduleCode));
+                    }
+
+                    //Remove the schedule from firebase
+                    DocumentReference scheduleRef = db.Collection("Schedules").Document(scheduleCode);
+                    batch.Delete(scheduleRef);
+                }
+            }
+
+            //Update all related studentsby removing the class code
+            Query colRef = db.CollectionGroup("Students").WhereArrayContains("ClassCode", classCode);
+            QuerySnapshot allStudentQuerySnapshot = await colRef.GetSnapshotAsync();
+
+            //For each student update the class code list
+            foreach (DocumentSnapshot documentSnapshot in allStudentQuerySnapshot.Documents)
+            {
+                var currentStudent = documentSnapshot.ConvertTo<StudentModel>();
+                DocumentReference studentRef = db.Collection("Students").Document(currentStudent.Username); //TODO change to documentSnapshot.id when finished testing
+                batch.Update(studentRef, "ClassCode", FieldValue.ArrayRemove(classCode));
+            }
+
+            //Write all database changes in one go
+            await batch.CommitAsync();
+
+            //Delete the class reference
+            WriteResult success = await classRef.DeleteAsync();
+            
+            //Return if the write was successful
+            return success.Equals(true);
         }
 
         /// <summary>
@@ -445,62 +578,102 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
         {
             string? token = VerifyVerificationToken(context);
 
-            if (token != null)
+            if (token == null) return false;
+
+            List<string> students = new List<string>();
+
+            foreach (string student in studentList)
             {
-                Dictionary<string, string> existingStudents = new Dictionary<string, string>();
-
-                //Collect the student list as to detect if a student already exists
-                CollectionReference colRef = db.Collection("Students");
-                QuerySnapshot snapshot = await colRef.GetSnapshotAsync();
-
-                foreach (DocumentSnapshot documentSnapshot in snapshot.Documents)
-                {
-                    StudentModel student = documentSnapshot.ConvertTo<StudentModel>();
-                    if (student.Username != null)
-                    {
-                        existingStudents.Add(student.Username, documentSnapshot.Id);
-                    }
-                }
-
-                WriteBatch batch = db.StartBatch();
-
-                foreach (string student in studentList)
-                {
-                    //Need to check if student exists and add the new code or create a new student entry
-                    var studentObject = JsonConvert.DeserializeObject<StudentModel>(student);
-
-                    if (studentObject == null) return false;
-                    if (studentObject.Username == null) return false;
-
-                    //If the key is not present create a new account and entry
-                    if (!existingStudents.ContainsKey(studentObject.Username))
-                    {
-                        //Create a new student account
-                        //UNCOMMENT FOR AUTOMATIC STUDENT ACCOUNT CREATION
-                        //BEWARE THIS WILL CREATE AN ACCOUNT FOR EVERYY SINGLE ENTRY IF UNCOMMENTED
-                        //string? Id = await RegisterNewStudentAccount(studentObject.Username);
-
-                        //USE THIS FOR TESTING AT THE MOMENT
-                        string? Id = studentObject.Username;
-
-                        if (Id == null) return false;
-                        //Notify the user that an account has not been created
-
-                        //Create a new student entry
-                        CreateNewStudentEntry(Id, studentObject, classCode, ref batch);
-                    } else
-                    {
-                        string id = existingStudents[studentObject.Username];
-                        ModifyCurrentStudentEntry(id, studentObject, classCode, ref batch);
-                    }
-                }
-
-                await batch.CommitAsync();
-
-                return true;
+                //Need to check if student exists and add the new code or create a new student entry
+                var studentObject = JsonConvert.DeserializeObject<StudentModel>(student);
+                if (studentObject == null) continue;
+                if (studentObject.Username == null) continue;
+                students.Add(studentObject.Username);
             }
 
-            return false;
+            //DETECT IF A STUDENT HAS BEEN REMOVED
+            //Update all related students by removing the class code (incase they have been removed from the class
+            Query existingStudentRef = db.CollectionGroup("Students").WhereArrayContains("ClassCode", classCode);
+            QuerySnapshot allStudentQuerySnapshot = await existingStudentRef.GetSnapshotAsync();
+
+            if(allStudentQuerySnapshot.Documents.Count != 0) {
+                Console.WriteLine("HERE");
+
+                WriteBatch clearBatch = db.StartBatch();
+                //For each student update the class code list
+                foreach (DocumentSnapshot documentSnapshot in allStudentQuerySnapshot.Documents)
+                {
+                    var currentStudent = documentSnapshot.ConvertTo<StudentModel>();
+                    Console.WriteLine(currentStudent.Username);
+
+                    //If the student is in the new student list don't do anything
+                    if (currentStudent.Username == null) continue;
+                    if (students.Contains(currentStudent.Username)) continue;
+
+                    Console.WriteLine(currentStudent.Username);
+
+                    //If the student is not in the new list then they have been removed from the class
+                    DocumentReference studentRef = db.Collection("Students").Document(currentStudent.Username); //TODO change to documentSnapshot.id when finished testing
+                    clearBatch.Update(studentRef, "ClassCode", FieldValue.ArrayRemove(classCode));
+                }
+
+                await clearBatch.CommitAsync();
+            }
+
+
+
+
+            Dictionary<string, string> existingStudents = new Dictionary<string, string>();
+
+            //Collect the student list as to detect if a student already exists
+            CollectionReference colRef = db.Collection("Students");
+            QuerySnapshot snapshot = await colRef.GetSnapshotAsync();
+
+            foreach (DocumentSnapshot documentSnapshot in snapshot.Documents)
+            {
+                StudentModel student = documentSnapshot.ConvertTo<StudentModel>();
+                if (student.Username != null)
+                {
+                    existingStudents.Add(student.Username, documentSnapshot.Id);
+                }
+            }
+
+            WriteBatch batch = db.StartBatch();
+
+            foreach (string student in studentList)
+            {
+                //Need to check if student exists and add the new code or create a new student entry
+                var studentObject = JsonConvert.DeserializeObject<StudentModel>(student);
+
+                if (studentObject == null) return false;
+                if (studentObject.Username == null) return false;
+
+                //If the key is not present create a new account and entry
+                if (!existingStudents.ContainsKey(studentObject.Username))
+                {
+                    //Create a new student account
+                    //UNCOMMENT FOR AUTOMATIC STUDENT ACCOUNT CREATION
+                    //BEWARE THIS WILL CREATE AN ACCOUNT FOR EVERYY SINGLE ENTRY IF UNCOMMENTED
+                    //string? Id = await RegisterNewStudentAccount(studentObject.Username);
+
+                    //USE THIS FOR TESTING AT THE MOMENT
+                    string? Id = studentObject.Username;
+
+                    if (Id == null) return false;
+                    //Notify the user that an account has not been created
+
+                    //Create a new student entry
+                    CreateNewStudentEntry(Id, studentObject, classCode, ref batch);
+                } else
+                {
+                    string id = existingStudents[studentObject.Username];
+                    ModifyCurrentStudentEntry(id, studentObject, classCode, ref batch);
+                }
+            }
+
+            await batch.CommitAsync();
+
+            return true;
         }
 
         /// <summary>
