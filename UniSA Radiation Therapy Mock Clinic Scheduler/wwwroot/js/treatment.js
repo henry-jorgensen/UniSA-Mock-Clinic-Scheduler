@@ -34,7 +34,8 @@ function setupPreview(url) {
 	$("#downloadLink").attr("href", url);
 
 	//Show the display area and hide the upload section
-	$("#displayDocument").removeClass("hidden");
+	$("#documentButtons").removeClass("hidden");
+	$("#treatmentDocument").removeClass("hidden");
 	$("#noDocument").addClass("hidden");
 }
 
@@ -54,7 +55,9 @@ $(document).ready(async () => {
 		await ajaxManager.deletePDF(appointmentID);
 		console.log("deleted");
 
-		$("#displayDocument").addClass("hidden");
+		$("#treatmentDocument").addClass("hidden");
+		$("#documentButtons").addClass("hidden");
+
 		$("#noDocument").removeClass("hidden");
 	});
 
