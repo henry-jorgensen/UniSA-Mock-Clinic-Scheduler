@@ -109,10 +109,18 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             
         }
 
-        public IActionResult EditAppointmentPost(string time, string date, string patient, string rt1, string rt2, string infect, string room, string site)
+        [HttpPost]
+        public IActionResult EditAppointmentPost(string apptId, string time, string date, string patient, string rt1, string rt2, string infect, string room, string site)
         {
-            Debug.WriteLine(time + " ADN SONE MORE" + date + "LLL " + infect);
-            return RedirectToAction("EditAppointment");
+            if (firebase.VerifyLoggedInCoordinator(HttpContext).Result)
+            {
+                firebase.EditAppointmentAsync(apptId, time, date, patient, rt1, rt2, infect, room, site);
+                return RedirectToAction("EditAppointment", new { id = apptId });
+            } else
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            
         }
 
         [HttpPost]

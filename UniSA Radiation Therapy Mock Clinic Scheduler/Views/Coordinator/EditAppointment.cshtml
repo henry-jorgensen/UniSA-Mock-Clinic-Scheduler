@@ -20,14 +20,14 @@
                         <form asp-controller="Coordinator" asp-action="EditAppointmentPost" method="post">
                             @if (appointment != null)
                             {
-                                <input hidden name="apptId" />
+                                <input hidden name="apptId" value="@appointment.AppointmentID" />
                                 <div class="form-group">
                                     <label for="apptTime">Time</label>
-                                    <input id="apptTime" name="time" class="form-control" value="@appointment.Time" />
+                                    <input type="time" id="apptTime" name="time" class="form-control" value="@appointment.Time" />
                                 </div>
                                 <div class="form-group">
                                     <label for="apptDate">Date</label>
-                                    <input id="apptDate" name="date" class="form-control" value="@appointment.Date" />
+                                    <input type="date" id="apptDate" name="date" class="form-control" value="@appointment.Date" />
                                 </div>
                                 <div class="form-group">
                                     <label for="apptPatient">Patient</label>
