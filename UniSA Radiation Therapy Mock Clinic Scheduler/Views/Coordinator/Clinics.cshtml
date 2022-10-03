@@ -12,7 +12,7 @@
                 <div class="text-center">
                     <h2>Upcoming Clinics</h2>
                 </div>
-
+           
                 @if(appointments != null)
                 {
                     <table class="table table-hover table-striped">
@@ -32,12 +32,13 @@
                         @foreach(var appointment in appointments)
                         {
                             <tr>
-                                <th scope="col">@appointment.Date  @appointment.Time</th>
-                                <th>@appointment.Patient</th>
-                                <th>@appointment.RadiationTherapist1</th>
-                                <th>@appointment.RadiationTherapist2</th>
-                                <th>@appointment.Room</th>
-                                <th>@appointment.Site</th>
+                                <td scope="col"> @appointment.Date  @appointment.Time</td>
+                                <td>@appointment.Patient</td>
+                                <td>@appointment.RadiationTherapist1</td>
+                                <td>@appointment.RadiationTherapist2</td>
+                                <td>@appointment.Room</td>
+                                <td>@appointment.Site</td>
+                                <td><a href="/Coordinator/EditAppointment?id=@appointment.AppointmentID">Edit Appointment</a></td>
                             </tr>                           
                         }
                         </tbody>

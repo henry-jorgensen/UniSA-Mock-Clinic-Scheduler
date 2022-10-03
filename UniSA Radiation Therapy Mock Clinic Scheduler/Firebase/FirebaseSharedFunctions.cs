@@ -605,6 +605,8 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                 {
                     AppointmentModel currentAppointment = documentSnapshot.ConvertTo<AppointmentModel>();
 
+                    currentAppointment.AppointmentID = documentSnapshot.Id;
+
                     if (currentAppointment.Patient == null || currentAppointment.RadiationTherapist1 == null || currentAppointment.RadiationTherapist2 == null) return null;
 
                     //currentAppointment.Date = currentAppointment.Date.AddHours(9.5);
@@ -674,6 +676,29 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
             }
             return null;
+        }
+
+        public async Task<AppointmentModel?> GetSingleAppointmentAsync(string id)
+        {
+            try
+            {
+                DocumentReference docRef = db.Collection("Appointments").Document(id);
+                DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+
+                if (snapshot.Exists)
+                {
+                    AppointmentModel appointment = snapshot.ConvertTo<AppointmentModel>();
+                    appointment.AppointmentID = id;
+                    return appointment;
+                }
+
+                return null;
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+                return null;
+            }
         }
 
         public async void DataRequest(string type, HttpContext context)
