@@ -50,7 +50,9 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models
         [FirestoreProperty]
         public string? AppointmentID { get; set; }
 
-        [FirestoreProperty]
-        public string? ScheduleCode { get; set; }
+        //public string toParameters()
+        //{
+        //    return $"date={Date}&room";
+        //}
     }
 }

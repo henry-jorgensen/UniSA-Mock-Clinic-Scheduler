@@ -923,6 +923,8 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                 {
                     AppointmentModel currentAppointment = documentSnapshot.ConvertTo<AppointmentModel>();
 
+                    currentAppointment.AppointmentID = documentSnapshot.Id;
+
                     if (currentAppointment.Patient == null || currentAppointment.RadiationTherapist1 == null || currentAppointment.RadiationTherapist2 == null) return null;
 
                     //currentAppointment.Date = currentAppointment.Date.AddHours(9.5);
@@ -992,6 +994,54 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
             }
             return null;
+        }
+
+        public async Task<AppointmentModel?> GetSingleAppointmentAsync(string id)
+        {
+            try
+            {
+                DocumentReference docRef = db.Collection("Appointments").Document(id);
+                DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+
+                Dictionary<string, Array>? studentInformation = await GetStudentsAsync();
+                if (studentInformation == null) return null;
+
+                if (snapshot.Exists)
+                {
+
+                    AppointmentModel appointment = snapshot.ConvertTo<AppointmentModel>();
+                    if (appointment.Patient == null || appointment.RadiationTherapist1 == null || appointment.RadiationTherapist2 == null) return null;
+                    appointment.AppointmentID = id;
+
+
+                    Array userPatient = studentInformation[appointment.Patient];
+                    appointment.PatientName = userPatient.GetValue(0) + " " + userPatient.GetValue(1);
+
+                    Array userRT1 = studentInformation[appointment.RadiationTherapist1];
+                    appointment.RadiationTherapist1Name = userRT1.GetValue(0) + " " + userRT1.GetValue(1);
+
+                    Array userRT2 = studentInformation[appointment.RadiationTherapist2];
+                    appointment.RadiationTherapist2Name = userRT2.GetValue(0) + " " + userRT2.GetValue(1);
+
+                    return appointment;
+                }
+
+                return null;
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+                return null;
+            }
+        }
+
+        public async void EditAppointmentAsync(string id, string time, string date, string patient, string rt1, string rt2, string infect, string room, string site)
+        {
+
+            DocumentReference docRef = db.Collection("Appointments").Document(id);
+            AppointmentModel appt = new(date, time, room, patient, infect, rt1, rt2, site);
+            await docRef.SetAsync(appt);
+
         }
 
         public async void DataRequest(string type, HttpContext context)
