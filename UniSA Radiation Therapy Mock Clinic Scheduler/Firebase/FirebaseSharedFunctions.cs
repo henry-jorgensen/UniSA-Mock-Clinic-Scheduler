@@ -685,10 +685,26 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                 DocumentReference docRef = db.Collection("Appointments").Document(id);
                 DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
 
+                Dictionary<string, Array>? studentInformation = await GetStudentsAsync();
+                if (studentInformation == null) return null;
+
                 if (snapshot.Exists)
                 {
+
                     AppointmentModel appointment = snapshot.ConvertTo<AppointmentModel>();
+                    if (appointment.Patient == null || appointment.RadiationTherapist1 == null || appointment.RadiationTherapist2 == null) return null;
                     appointment.AppointmentID = id;
+
+
+                    Array userPatient = studentInformation[appointment.Patient];
+                    appointment.PatientName = userPatient.GetValue(0) + " " + userPatient.GetValue(1);
+
+                    Array userRT1 = studentInformation[appointment.RadiationTherapist1];
+                    appointment.RadiationTherapist1Name = userRT1.GetValue(0) + " " + userRT1.GetValue(1);
+
+                    Array userRT2 = studentInformation[appointment.RadiationTherapist2];
+                    appointment.RadiationTherapist2Name = userRT2.GetValue(0) + " " + userRT2.GetValue(1);
+
                     return appointment;
                 }
 

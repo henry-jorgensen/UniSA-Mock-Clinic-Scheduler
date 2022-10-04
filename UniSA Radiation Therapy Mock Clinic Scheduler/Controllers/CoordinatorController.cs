@@ -100,6 +100,11 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             {
                 AppointmentModel? appointment = await firebase.GetSingleAppointmentAsync(id);
                 ViewBag.Appointment = appointment;
+
+                Dictionary<string, Array>? studentInformation = await firebase.GetStudentsAsync();
+                Dictionary<string, string> studentList = new Dictionary<string, string>();
+                
+                ViewBag.StudentList = studentList;
                 return View();
             }
             else

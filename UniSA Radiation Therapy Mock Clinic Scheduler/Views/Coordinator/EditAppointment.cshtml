@@ -2,8 +2,10 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
-
+    ViewData["Title"] = "Edit Appointment";
+    ViewData["Controller"] = "Coordinator";
     AppointmentModel appointment = ViewBag.Appointment;
+
 }
 
 <div class="container">
@@ -31,15 +33,30 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="apptPatient">Patient</label>
-                                    <input id="apptPatient" name="patient" class="form-control" value="@appointment.Patient" />
+                                    @*<input id="apptPatient" name="patient" class="form-control" value="@appointment.Patient" />*@
+                                    <select class="form-select" id="apptPatient" name="patient">
+                                        <option selected value="@appointment.Patient">@appointment.PatientName</option>
+                                        <option value="@appointment.RadiationTherapist1">@appointment.RadiationTherapist1Name</option>
+                                        <option value="@appointment.RadiationTherapist2">@appointment.RadiationTherapist2Name</option>
+                                    </select>
                                 </div>
                                 <div class="form-group">
                                     <label for="apptRT1">Radiation Therapist 1</label>
-                                    <input id="apptRT1" name="rt1" class="form-control" value="@appointment.RadiationTherapist1" />
+                                    @*<input id="apptRT1" name="rt1" class="form-control" value="@appointment.RadiationTherapist1" />*@
+                                    <select class="form-select" id="apptRT1" name="rt1">
+                                        <option value="@appointment.Patient">@appointment.PatientName</option>
+                                        <option selected value="@appointment.RadiationTherapist1">@appointment.RadiationTherapist1Name</option>
+                                        <option value="@appointment.RadiationTherapist2">@appointment.RadiationTherapist2Name</option>
+                                    </select>
                                 </div>
                                 <div class="form-group">
                                     <label for="apptRT2">Radiation Therapist 2</label>
-                                    <input id="apptRT2" name="rt2" class="form-control" value="@appointment.RadiationTherapist2" />
+                                    @*<input id="apptRT2" name="rt2" class="form-control" value="@appointment.RadiationTherapist2" />*@
+                                    <select class="form-select" id="apptRT2" name="rt2">
+                                        <option value="@appointment.Patient">@appointment.PatientName</option>
+                                        <option value="@appointment.RadiationTherapist1">@appointment.RadiationTherapist1Name</option>
+                                        <option selected value="@appointment.RadiationTherapist2">@appointment.RadiationTherapist2Name</option>
+                                    </select>
                                 </div>
                                 <div class="form-group">
                                     <label for="apptInfect">Infectious</label>

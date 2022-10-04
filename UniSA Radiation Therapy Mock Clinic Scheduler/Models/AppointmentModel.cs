@@ -53,6 +53,12 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models
         [FirestoreProperty]
         public string? AppointmentID { get; set; }
 
+        public string? PatientName { get; set; }
+
+        public string? RadiationTherapist1Name { get; set; }
+
+        public string? RadiationTherapist2Name { get; set; }
+
         //public string toParameters()
         //{
         //    return $"date={Date}&room";
