@@ -337,6 +337,21 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
             if (scheduleArray == null) return false;
 
+            //Get all the students
+            Dictionary<string, string> students = new Dictionary<string, string>();
+            //Collect the student list as to detect if a student already exists
+            CollectionReference colRef = db.Collection("Students");
+            QuerySnapshot snapshot = await colRef.GetSnapshotAsync();
+
+            foreach (DocumentSnapshot documentSnapshot in snapshot.Documents)
+            {
+                StudentModel student = documentSnapshot.ConvertTo<StudentModel>();
+                if (student.Username != null)
+                {
+                    students.Add(student.Username, documentSnapshot.Id);
+                }
+            }
+
             //Loop through each location in the array
             foreach (var schedule in scheduleArray)
             {
@@ -350,10 +365,10 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                         {
                             { "Date", scheduleModel.Date },
                             { "Time", appointment.Value<string>("Time") },
-                            { "Patient", appointment.Value<string>("Patient") },
+                            { "Patient", students[appointment.Value<string>("Patient")] },
                             { "Infectious", appointment.Value<string>("Infectious") },
-                            { "RadiationTherapist1", appointment.Value<string>("RT1") },
-                            { "RadiationTherapist2", appointment.Value<string>("RT2") },
+                            { "RadiationTherapist1", students[appointment.Value<string>("RT1")] },
+                            { "RadiationTherapist2", students[appointment.Value<string>("RT2")] },
                             { "Room", schedule.Key },
                             { "Site", appointment.Value<string>("Site") },
                             { "ScheduleCode", scheduleModel.ScheduleCode }
