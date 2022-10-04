@@ -911,8 +911,9 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                 foreach (string code in document.GetValue<List<string>>("ClassCode"))
                 {
                     if(code == null) continue;
-                    //codeGroup[code].Add(JsonConvert.SerializeObject(currentStudent));
-                    codeGroup[code].Add(currentStudent);
+                    if (codeGroup.ContainsKey(code)) {
+                        codeGroup[code].Add(currentStudent);
+                    }
                 }
             }
 
