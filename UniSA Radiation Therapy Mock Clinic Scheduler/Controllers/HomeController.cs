@@ -50,7 +50,13 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         //Must be logged into a valid account to see
         public async Task<IActionResult> Clinics()
         {            
-            if (firebase.VerifyLoggedInSession(HttpContext).Result)
+            if (firebase.VerifyLoggedInCoordinator(HttpContext).Result)
+            {
+                List<AppointmentModel>? appointments = await firebase.CollectAllAppointmentsAsync(HttpContext);
+                ViewBag.Appointments = appointments;
+                return View();
+            }
+            else if (firebase.VerifyLoggedInSession(HttpContext).Result)
             {
                 List<AppointmentModel>? appointments = await firebase.CollectStudentsAppointmentsAsync(HttpContext);
                 ViewBag.Appointments = appointments;
