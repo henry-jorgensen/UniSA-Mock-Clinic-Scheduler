@@ -105,7 +105,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 
                     if (courseSnapshot.Exists)
                     {
-                        firebase.SetVerificationToken(HttpContext, token);
+                        firebase.SetVerificationToken(HttpContext, token, accountModel.RememberLogin);
                         return RedirectToAction("Redirect", "Home");
                     }
 
@@ -115,7 +115,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 
                     if (studentSnapshot.Exists)
                     {
-                        firebase.SetVerificationToken(HttpContext, token);
+                        firebase.SetVerificationToken(HttpContext, token, accountModel.RememberLogin);
                         return RedirectToAction("Redirect", "Home");
                     }
                 }
