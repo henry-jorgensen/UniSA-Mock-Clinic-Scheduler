@@ -70,6 +70,19 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             }
         }
 
+        public IActionResult EditClinic()
+        {
+            if (firebase.VerifyLoggedInCoordinator(HttpContext).Result)
+            {
+                ViewBag.CurrentUser = firebase.GenerateUserModel(HttpContext).Result;
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("Login", "Account");
+            }
+        }
+
         public async Task<IActionResult> Clinics()
         {
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == true)
@@ -119,7 +132,25 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             {
                 return RedirectToAction("Login", "Account");
             }
-            
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> LoadASchedule(string scheduleId)
+        {
+            if (firebase.VerifyLoggedInSession(HttpContext).Result == false)
+            {
+                return Forbid();
+            }
+
+            ScheduleModel? response = await firebase.CollectASchedule(HttpContext, scheduleId);
+
+            if (response != null)
+            {
+                Console.WriteLine(response.ToString());
+                return Ok(response);
+            }
+
+            return BadRequest();
         }
 
         [HttpPost]
@@ -226,11 +257,11 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SaveAClassList(string classCode, string[] studentList)
+        public async Task<IActionResult> SaveAClassList(string className, string classCode, string[] studentList)
         {
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == false) return Forbid();
 
-            bool success = await firebase.SaveAClassListAsync(HttpContext, classCode, studentList);
+            bool success = await firebase.SaveAClassListAsync(HttpContext, className, classCode, studentList);
 
             if (success) return Ok(success);
 

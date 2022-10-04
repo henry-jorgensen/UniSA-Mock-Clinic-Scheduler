@@ -16,14 +16,7 @@ $(document).ready(function () {
 
     //Prefill the inputs if editing a schedule
     if (params.name != null) {
-        $("#scheduleNameInput").val(params.name);
-        $("#scheduleDateInput").val(params.date);
-        $("#scheduleStartTimeInput").val(params.startTime);
-        $("#scheduleDurationInput").val(params.duration);
-        $("#locationInput").val(params.locations);
-
-        //TODO LOAD THE EXISTING SCHEDULE IN HERE
-
+        loadScheduleForEdit(params);
     } else {
         preloadClasses();
     }
@@ -116,6 +109,29 @@ $(document).ready(function () {
         }
     }
 });
+
+async function loadScheduleForEdit(params) {
+    $("#scheduleNameInput").val(params.name);
+    $("#scheduleDateInput").val(params.date);
+    $("#scheduleStartTimeInput").val(params.startTime);
+    $("#scheduleDurationInput").val(params.duration);
+    $("#locationInput").val(params.locations);
+
+    //TODO LOAD THE EXISTING SCHEDULE IN HERE
+    let clinicJSON = await ajaxManager.loadASchedule(params.code);
+
+    console.log(clinicJSON);
+
+    let data = JSON.parse(clinicJSON.schedule);
+    console.log(data);
+
+    //Generate a preview
+    tableManager.generateScheduleEditor(
+        $("#scheduleHolder"),
+        params.date,
+        data
+    );
+}
 
 //Preload classes as the drop down options when the page loads
 async function preloadClasses() {

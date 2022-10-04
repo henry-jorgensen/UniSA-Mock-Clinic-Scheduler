@@ -272,7 +272,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                 foreach (DocumentSnapshot documentSnapshot in allClassesQuerySnapshot.Documents)
                 {
                     var currentStudent = documentSnapshot.ConvertTo<StudentModel>();
-                    DocumentReference studentRef = db.Collection("Students").Document(currentStudent.Username); //TODO change to documentSnapshot.id when finished testing
+                    DocumentReference studentRef = db.Collection("Students").Document(documentSnapshot.Id); //TODO change to documentSnapshot.Id when finished testing
                     batch.Update(studentRef, "ScheduleCode", FieldValue.ArrayUnion(scheduleModel.ScheduleCode));
 
                     if (currentStudent.Username != null)
@@ -294,6 +294,29 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Load a particular schedule for viewing or editing.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="scheduleCode">A Firebase ID that points to the required schedule.</param>
+        /// <returns>A ScheduleModel class populated with the found schedule on firebase.</returns>
+        public async Task<ScheduleModel?> CollectASchedule(HttpContext context, string scheduleCode)
+        {
+            string? token = VerifyVerificationToken(context);
+
+            if (token == null) return null;
+
+            //Collect the class details
+            DocumentReference docRef = db.Collection("Schedules").Document(scheduleCode);
+            DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+
+            if (!snapshot.Exists) return null;
+
+            Console.WriteLine(snapshot.ToString());
+
+            return snapshot.ConvertTo<ScheduleModel>();
         }
 
         /// <summary>
@@ -378,8 +401,8 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             //For each student update the schedule code list
             foreach (DocumentSnapshot documentSnapshot in allStudentScheduleQuerySnapshot.Documents)
             {
-                var currentStudent = documentSnapshot.ConvertTo<StudentModel>();
-                DocumentReference studentRef = db.Collection("Students").Document(currentStudent.Username); //TODO change to documentSnapshot.id when finished testing
+                //var currentStudent = documentSnapshot.ConvertTo<StudentModel>();
+                DocumentReference studentRef = db.Collection("Students").Document(documentSnapshot.Id); //TODO change to documentSnapshot.id when finished testing
                 batch.Update(studentRef, "ScheduleCode", FieldValue.ArrayRemove(scheduleCode));
             }
 
@@ -461,8 +484,8 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                     //For each student update the schedule code list
                     foreach (DocumentSnapshot documentSnapshot in allStudentScheduleQuerySnapshot.Documents)
                     {
-                        var currentStudent = documentSnapshot.ConvertTo<StudentModel>();
-                        DocumentReference studentRef = db.Collection("Students").Document(currentStudent.Username); //TODO change to documentSnapshot.id when finished testing
+                        //var currentStudent = documentSnapshot.ConvertTo<StudentModel>();
+                        DocumentReference studentRef = db.Collection("Students").Document(documentSnapshot.Id); //TODO change to documentSnapshot.id when finished testing
                         batch.Update(studentRef, "ScheduleCode", FieldValue.ArrayRemove(scheduleCode));
                     }
 
@@ -479,8 +502,8 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             //For each student update the class code list
             foreach (DocumentSnapshot documentSnapshot in allStudentQuerySnapshot.Documents)
             {
-                var currentStudent = documentSnapshot.ConvertTo<StudentModel>();
-                DocumentReference studentRef = db.Collection("Students").Document(currentStudent.Username); //TODO change to documentSnapshot.id when finished testing
+                //var currentStudent = documentSnapshot.ConvertTo<StudentModel>();
+                DocumentReference studentRef = db.Collection("Students").Document(documentSnapshot.Id); //TODO change to documentSnapshot.id when finished testing
                 batch.Update(studentRef, "ClassCode", FieldValue.ArrayRemove(classCode));
             }
 
@@ -574,12 +597,13 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
         /// <param name="studentList">A string of student values, each value separated by a ':' and each student
         ///                             separated by a ','
         /// <returns>A boolean representing if the operation was a success</returns>
-        public async Task<bool> SaveAClassListAsync(HttpContext context, string classCode, string[] studentList)
+        public async Task<bool> SaveAClassListAsync(HttpContext context, string className, string classCode, string[] studentList)
         {
             string? token = VerifyVerificationToken(context);
 
             if (token == null) return false;
 
+            List<StudentModel> studentsRemoved = new List<StudentModel>();
             List<string> students = new List<string>();
 
             foreach (string student in studentList)
@@ -597,8 +621,6 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             QuerySnapshot allStudentQuerySnapshot = await existingStudentRef.GetSnapshotAsync();
 
             if(allStudentQuerySnapshot.Documents.Count != 0) {
-                Console.WriteLine("HERE");
-
                 WriteBatch clearBatch = db.StartBatch();
                 //For each student update the class code list
                 foreach (DocumentSnapshot documentSnapshot in allStudentQuerySnapshot.Documents)
@@ -613,11 +635,91 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                     Console.WriteLine(currentStudent.Username);
 
                     //If the student is not in the new list then they have been removed from the class
-                    DocumentReference studentRef = db.Collection("Students").Document(currentStudent.Username); //TODO change to documentSnapshot.id when finished testing
+                    DocumentReference studentRef = db.Collection("Students").Document(documentSnapshot.Id); //TODO change to documentSnapshot.id when finished testing
                     clearBatch.Update(studentRef, "ClassCode", FieldValue.ArrayRemove(classCode));
+
+                    //Track that the student has been removed
+                    currentStudent.Token = documentSnapshot.Id;
+                    studentsRemoved.Add(currentStudent);
                 }
 
                 await clearBatch.CommitAsync();
+            }
+
+            //Change any schedules and appointments this Student was in
+            if (studentsRemoved.Count > 0)
+            {
+                //Collect the class details
+                DocumentReference classRef = db.Collection("Users").Document(token).Collection("Classes").Document(className);
+                DocumentSnapshot classSnapshot = await classRef.GetSnapshotAsync();
+
+                //Get the schedules for the class
+                var currentClass = classSnapshot.ConvertTo<ClassModel>();
+
+                WriteBatch appointmentBatch = db.StartBatch();
+
+                if (currentClass.ScheduleCode != null)
+                {
+                    if (currentClass.ScheduleCode.Count > 0)
+                    {
+                        //Get each schedule reference
+                        foreach (string scheduleCode in currentClass.ScheduleCode)
+                        {
+                            DocumentReference scheduleRef = db.Collection("Schedules").Document(scheduleCode);
+                            DocumentSnapshot scheduleSnapshot = await scheduleRef.GetSnapshotAsync();
+
+                            var currenctSchedule = scheduleSnapshot.ConvertTo<ScheduleModel>();
+
+                            if(currenctSchedule.Schedule == null) continue;
+
+                            //Edit the schedules JSON value here
+                            var schedule = currenctSchedule.Schedule;
+
+                            foreach (StudentModel student in studentsRemoved)
+                            {
+                                if (student.Username == null) continue;
+                                currenctSchedule.Schedule = Regex.Replace(schedule, student.Username, "TBA");
+                            }
+
+                            appointmentBatch.Set(scheduleRef, currenctSchedule);
+                        }
+
+                        //TODO THIS IS UNTESTED
+                        //Edit each Appointment here.
+                        CollectionReference appointmentRef = db.Collection("Appointments");
+                        QuerySnapshot appointmentSnapshot = await appointmentRef.GetSnapshotAsync();
+
+                        foreach (DocumentSnapshot documentSnapshot in appointmentSnapshot.Documents)
+                        {
+                            AppointmentModel appointment = documentSnapshot.ConvertTo<AppointmentModel>();
+
+                            foreach (StudentModel student in studentsRemoved)
+                            {
+                                if(student.Username == null) continue;
+
+                                if(appointment.RadiationTherapist1 == student.Token)
+                                {
+                                    appointment.RadiationTherapist1 = "TBA";
+                                }
+
+                                if (appointment.RadiationTherapist2 == student.Token)
+                                {
+                                    appointment.RadiationTherapist2 = "TBA";
+                                }
+
+                                if (appointment.Patient == student.Token)
+                                {
+                                    appointment.Patient = "TBA";
+                                }
+                            }
+
+                            appointmentBatch.Set(documentSnapshot.Reference, appointment);
+                        }
+                    }
+
+                    //Commit all changes
+                    await appointmentBatch.CommitAsync();
+                }
             }
 
             //ADD OR UPDATE THE STUDENTS FROM THE STUDENTLIST
@@ -652,10 +754,10 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                     //Create a new student account
                     //UNCOMMENT FOR AUTOMATIC STUDENT ACCOUNT CREATION
                     //BEWARE THIS WILL CREATE AN ACCOUNT FOR EVERYY SINGLE ENTRY IF UNCOMMENTED
-                    //string? Id = await RegisterNewStudentAccount(studentObject.Username);
+                    string? Id = await RegisterNewStudentAccount(studentObject.Username);
 
                     //USE THIS FOR TESTING AT THE MOMENT
-                    string? Id = studentObject.Username;
+                    //string? Id = studentObject.Username;
 
                     if (Id == null) return false;
                     //Notify the user that an account has not been created
@@ -689,6 +791,14 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             batch.Set(docRef, student);
         }
 
+        /// <summary>
+        /// Update the ClassCode array on an existing student with the supplied classClode. Enter this edit into the batch
+        /// as to limit the amount of overall calls to Firebase.
+        /// </summary>
+        /// <param name="firebaseId">A string of the ID of the Student record on Firebase pointing to the correct document.</param>
+        /// <param name="student"></param>
+        /// <param name="classCode">A string representing the class that the student is being linked to.</param>
+        /// <param name="batch"></param>
         private void ModifyCurrentStudentEntry(string firebaseId, StudentModel student, string classCode, ref WriteBatch batch)
         {
             if(student.ClassCode == null) return;
@@ -698,12 +808,20 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             batch.Update(docRef, "ClassCode", FieldValue.ArrayUnion(classCode));
         }
 
+        /// <summary>
+        /// Register a new user through Firebase Authentication using the supplied username. The email will soley be unisa's
+        /// email domain @mymail.unisa.edu.au. Once a user is create a password reset is performed so that the user will get
+        /// the email to login.
+        /// </summary>
+        /// <param name="userName">A string represeting a Unisa username</param>
+        /// <returns></returns>
         private async Task<string?> RegisterNewStudentAccount(string userName)
         {
             //TODO this only works for unisa students at the moment
-            //string email = userName + "@mymail.unisa.edu.au";
+            string email = userName + "@mymail.unisa.edu.au";
 
-            string email = userName + "@gmail.com";
+            //TODO FIND A BETTER WAY TO REGISTER EMAIL ADDRESSES
+            //string email = userName + "@gmail.com";
 
             try
             {
@@ -711,7 +829,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                 FirebaseAuthLink firebaseAuth = await Auth().CreateUserWithEmailAndPasswordAsync(email, CreateRandomPassword(12));
 
                 //Send an email for the student to reset their password
-                ResetPassword(email);
+                //ResetPassword(email); //UNCOMMENT FOR END OF PROJECT/PRODUCTION
 
                 //Return the LocalId for to create the student details entry
                 return firebaseAuth.User.LocalId;
@@ -732,6 +850,11 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             }
         }
 
+        /// <summary>
+        /// Create a random temporary password for an automatically generated account.
+        /// </summary>
+        /// <param name="CodeLength">An int for how long a password should be.</param>
+        /// <returns>A random string of characters representing the password.</returns>
         private string CreateRandomPassword(int CodeLength)
         {
             string _allowedChars = "0123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZ!@#$%^&*()[]{}";

@@ -198,6 +198,26 @@
         }
     }
 
+    generateScheduleEditor = (holder, date, data) => {
+        //Set the date
+        $("#clinicDate").text(date);
+
+        //Remove any old tables, generate new tables and append to the html page
+        for (let child in data) {
+            console.log(data[child]);
+
+            let location = child.trim();
+
+            if ($(`#${location}`)) {
+                $(`#table${location}`).remove()
+            }
+
+            let table = this.generateTable(location);
+            holder.append(table);
+            this.scheduleAdd(data[child], $(`#${location}`));
+        }
+    }
+
     /**
      * Generate a table to hold a schedule in, there may be one or many depending on the number 
      * of locations. Use the location as the id of where to add students

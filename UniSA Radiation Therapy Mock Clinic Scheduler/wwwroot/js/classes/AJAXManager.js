@@ -140,8 +140,8 @@
             type: 'POST',
             url: `/${this.controller}/SaveAClassList`,
             data: {
-                classCode: this.selectedClassCode,
                 className: this.selectedClass,
+                classCode: this.selectedClassCode,
                 studentList: studentArray
             },
             success: function (result) {
@@ -191,6 +191,30 @@
             console.log(scheduleObject);
             return 1; //2 to skip over the load class form
         }
+    };
+
+    /**
+     * Perform a GET call to the parent controller, the objective is to retrieve details about
+     * a previously saved class. A successful call will increment the form wizard to the
+     * appropriate form.
+     */
+    loadASchedule = async (scheduleValue) => {
+        return $.ajax({
+            type: 'GET',
+            url: `/${this.controller}/LoadASchedule`,
+            data: {
+                scheduleId: scheduleValue
+            },
+            success: function (result) {
+                //Populate the list with the results
+                console.log(result);
+                return result
+            },
+            failure: function (error) {
+                console.log(error);
+                return 0;
+            }
+        });
     };
 
     /**

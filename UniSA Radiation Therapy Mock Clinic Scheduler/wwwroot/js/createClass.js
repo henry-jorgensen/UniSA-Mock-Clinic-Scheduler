@@ -28,7 +28,7 @@ $(document).ready(async function () {
         tableManager.clearTable(tableManager.list);
 
         //The current class
-        tableManager.classAdd(response);
+        tableManager.classAdd(response, true);
     }
 
     formWizard.showInitialTab(); // Display the first tab
