@@ -945,7 +945,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
         //TODO this collects course coordinators as well, add check to see if CCCode is null for just students later on.
         public async Task<Dictionary<string, Array>?> GetStudentsAsync()
         {
-            CollectionReference usersRef = db.Collection("Users");
+            CollectionReference usersRef = db.Collection("Students");
             QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
 
             Dictionary<string, Array> students = new Dictionary<string, Array>();
