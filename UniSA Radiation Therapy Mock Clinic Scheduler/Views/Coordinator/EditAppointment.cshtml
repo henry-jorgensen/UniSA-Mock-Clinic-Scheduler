@@ -17,12 +17,12 @@
                 </div>
 
                 <div class="card">
-                    
                     <div class="card-body">
                         <form asp-controller="Coordinator" asp-action="EditAppointmentPost" method="post">
                             @if (appointment != null)
                             {
                                 <input hidden name="apptId" value="@appointment.AppointmentID" />
+                                <input hidden name="schedulecode" value="@appointment.ScheduleCode" />
                                 <div class="form-group">
                                     <label for="apptTime">Time</label>
                                     <input type="time" id="apptTime" name="time" class="form-control" value="@appointment.Time" />

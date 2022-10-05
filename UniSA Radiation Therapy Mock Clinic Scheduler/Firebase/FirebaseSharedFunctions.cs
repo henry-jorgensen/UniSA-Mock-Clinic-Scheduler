@@ -1174,11 +1174,11 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             }
         }
 
-        public async void EditAppointmentAsync(string id, string time, string date, string patient, string rt1, string rt2, string infect, string room, string site)
+        public async void EditAppointmentAsync(string id, string schedulecode, string time, string date, string patient, string rt1, string rt2, string infect, string room, string site)
         {
 
             DocumentReference docRef = db.Collection("Appointments").Document(id);
-            AppointmentModel appt = new(date, time, room, patient, infect, rt1, rt2, site);
+            AppointmentModel appt = new(date, time, room, patient, infect, rt1, rt2, site, null, schedulecode);
             await docRef.SetAsync(appt);
 
         }
