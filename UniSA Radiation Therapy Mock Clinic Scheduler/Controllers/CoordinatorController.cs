@@ -122,11 +122,11 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         }
 
         [HttpPost]
-        public IActionResult EditAppointmentPost(string apptId, string schedulecode, string time, string date, string patient, string rt1, string rt2, string infect, string room, string site)
+        public IActionResult EditAppointmentPost(string apptId, string schedulecode, string time, string date, string patient, string rt1, string rt2, string infect, string room, string site, string act)
         {
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result)
             {
-                firebase.EditAppointmentAsync(apptId, schedulecode, time, date, patient, rt1, rt2, infect, room, site);
+                firebase.EditAppointmentAsync(apptId, schedulecode, time, date, patient, rt1, rt2, infect, room, site, act);
                 return RedirectToAction("Clinics");
             } else
             {
@@ -169,6 +169,39 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             {
                 return Ok(success);
             }
+
+            return BadRequest();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditAClinic(string code, string name, string date, string startTime, string appointmentDuration, string locations, string schedule)
+        {
+            //Create a new schedule model but with the supplied code.
+            ScheduleModel scheduleModel = new ScheduleModel(name, date, startTime, appointmentDuration, locations, schedule, code);
+
+            if (firebase.VerifyLoggedInSession(HttpContext).Result == false)
+            {
+                return Forbid();
+            }
+
+            ScheduleModel? success = await firebase.EditClinicAsync(HttpContext, scheduleModel);
+
+            if (success != null)
+            {
+                return Ok(success);
+            }
+
+            return BadRequest();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteASchedule(string scheduleCode)
+        {
+            if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == false) return Forbid();
+
+            string? success = await firebase.DeleteScheduleAsync(HttpContext, scheduleCode);
+
+            if (success != null) return Ok(success);
 
             return BadRequest();
         }
@@ -245,13 +278,13 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> DeleteAClass(string className, string classCode)
+        public async Task<IActionResult> DeleteAClass(string className)
         {
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == false) return Forbid();
 
-            bool success = await firebase.DeleteClassAsync(HttpContext, className, classCode);
+            string? success = await firebase.DeleteClassAsync(HttpContext, className);
 
-            if (success) return Ok(success);
+            if (success != null) return Ok(success);
 
             return BadRequest();
         }

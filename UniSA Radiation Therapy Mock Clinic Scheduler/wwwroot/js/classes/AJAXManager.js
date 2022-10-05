@@ -87,24 +87,21 @@
     };
 
     /**
-     * Perform a GET call to the parent controller, the objective is to retrieve details about
-     * a previously saved class. A successful call will increment the form wizard to the
-     * appropriate form.
+     * 
      */
-    deleteAClass = async (classNameValue, classCodeValue) => {
-        return $.ajax({
+    deleteAClass = async (classNameValue) => {
+        return await $.ajax({
             type: 'POST',
             url: `/${this.controller}/DeleteAClass`,
             data: {
-                className: classNameValue,
-                classCode: classCodeValue
+                className: classNameValue
             },
             success: function (result) {
                 return result
             },
             failure: function (error) {
                 console.log(error);
-                return 0;
+                return false;
             }
         });
     };
@@ -194,6 +191,40 @@
     };
 
     /**
+     * Update a saved clinic with new inputs.
+     * @param {any} scheduleCode
+     * @param {any} scheduleNameValue
+     * @param {any} dateValue
+     * @param {any} startTimeValue
+     * @param {any} appointmentDurationValue
+     * @param {any} locationsValue
+     * @param {any} scheduleValue
+    */
+    editAClinic = async (scheduleCode, scheduleNameValue, dateValue, startTimeValue, appointmentDurationValue, locationsValue, scheduleValue) => {
+        return await $.ajax({
+            type: 'POST',
+            url: `/${this.controller}/EditAClinic`,
+            data: {
+                code: scheduleCode,
+                name: scheduleNameValue,
+                date: dateValue,
+                startTime: startTimeValue,
+                appointmentDuration: appointmentDurationValue,
+                locations: locationsValue,
+                schedule: scheduleValue
+            },
+            success: function (result) {
+                console.log(result); //Keep as log for now for testing
+                return result;
+            },
+            failure: function (result) {
+                console.log(result);
+                return 0;
+            }
+        });
+    }
+
+    /**
      * Perform a GET call to the parent controller, the objective is to retrieve details about
      * a previously saved class. A successful call will increment the form wizard to the
      * appropriate form.
@@ -208,6 +239,26 @@
             success: function (result) {
                 //Populate the list with the results
                 console.log(result);
+                return result
+            },
+            failure: function (error) {
+                console.log(error);
+                return 0;
+            }
+        });
+    };
+
+    /**
+     * 
+     */
+    deleteASchedule = async (scheduleCodeValue) => {
+        return $.ajax({
+            type: 'POST',
+            url: `/${this.controller}/DeleteASchedule`,
+            data: {
+                scheduleCode: scheduleCodeValue
+            },
+            success: function (result) {
                 return result
             },
             failure: function (error) {

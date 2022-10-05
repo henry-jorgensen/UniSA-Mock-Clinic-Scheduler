@@ -17,8 +17,10 @@
 						<th>Date</th>
 						<th>Location</th>
 						<th>Patient</th>
+						@*<th>Infectious</th>*@
 						<th>Radiation Therapists</th>
 						<th>Site</th>
+						<th>Complication</th>
 						<th>Treatment</th>
 					</tr>
 				</thead>
@@ -40,6 +42,10 @@
 								<h6 class="mb-0">@appointment.Patient</h6>
 							</td>
 
+							@*<td>
+								<h6 class="mb-0">@appointment.Infectious</h6>
+							</td>*@
+
 							<td>
 								<p class="mb-0">@appointment.RadiationTherapist1</p>
 								<p class="mb-0">@appointment.RadiationTherapist2</p>
@@ -47,6 +53,10 @@
 
 							<td>
 								<h6 class="mb-0">@appointment.Site</h6>
+							</td>	
+
+							<td>
+								<h6 class="mb-0">@appointment.Complication</h6>
 							</td>	
 
 							<td>
@@ -60,6 +70,7 @@
 									rt1 = @appointment.RadiationTherapist1,
 									rt2 = @appointment.RadiationTherapist2,
 									site = @appointment.Site,
+									act = @appointment.Complication,
 									ID = @appointment.AppointmentID
 								},
 								new { @class="btn button" }

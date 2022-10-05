@@ -4,22 +4,12 @@ const tableManager = new TableManager();
 const scheduleManager = new ScheduleManager();
 
 $(document).ready(function () {
-    //Detect if there are any URL queries to load - this means the users is coming from the 
-    //View Clinics page to edit a class
-    const params = new Proxy(new URLSearchParams(window.location.search), {
-        get: (searchParams, prop) => searchParams.get(prop),
-    });
-
-    const formWizard = params.name == null ? new FormWizard(0) : new FormWizard(1);
+    const formWizard = new FormWizard(0);
 
     tableManager.list = $("#previewList");
 
     //Prefill the inputs if editing a schedule
-    if (params.name != null) {
-        loadScheduleForEdit(params);
-    } else {
-        preloadClasses();
-    }
+    preloadClasses();
 
     formWizard.showInitialTab(); // Display the first tab
 
@@ -109,29 +99,6 @@ $(document).ready(function () {
         }
     }
 });
-
-async function loadScheduleForEdit(params) {
-    $("#scheduleNameInput").val(params.name);
-    $("#scheduleDateInput").val(params.date);
-    $("#scheduleStartTimeInput").val(params.startTime);
-    $("#scheduleDurationInput").val(params.duration);
-    $("#locationInput").val(params.locations);
-
-    //TODO LOAD THE EXISTING SCHEDULE IN HERE
-    let clinicJSON = await ajaxManager.loadASchedule(params.code);
-
-    console.log(clinicJSON);
-
-    let data = JSON.parse(clinicJSON.schedule);
-    console.log(data);
-
-    //Generate a preview
-    tableManager.generateScheduleEditor(
-        $("#scheduleHolder"),
-        params.date,
-        data
-    );
-}
 
 //Preload classes as the drop down options when the page loads
 async function preloadClasses() {

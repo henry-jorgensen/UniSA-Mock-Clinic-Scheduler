@@ -42,8 +42,8 @@
         object.forEach(row => {
             let nameSplit = row["Student Name"].split(",");
             let newRow = this.createRow(
-                nameSplit[0],
                 nameSplit[1].trim(),
+                nameSplit[0],
                 row["Student ID"],
                 row["Student Username"],
                 true
@@ -146,12 +146,13 @@
         let tdSite = $('<td>', { text: site, contenteditable: "true" });
         let tdRT1 = $('<td>', { text: RT1, contenteditable: "true" });
         let tdRT2 = $('<td>', { text: RT2, contenteditable: "true" });
+        let tdComplication = $('<td>', { text: "TBA", contenteditable: "true" });
 
         let tdInfectious = $('<td>', { class: "text-center" });
         let checkbox = $('<input>', { type: "checkbox" });
         tdInfectious.append(checkbox);
 
-        tr.append(tdTime, tdPatient, tdInfectious, tdSite, tdRT1, tdRT2);
+        tr.append(tdTime, tdPatient, tdInfectious, tdSite, tdRT1, tdRT2, tdComplication);
 
         return tr;
     }
@@ -276,13 +277,19 @@
         });
         thRT2.text("RT2");
 
+        //What the patient has to act out
+        var thComplication = $("<th>").attr({
+            scope: "col"
+        });
+        thComplication.text("Complication");
+
         //Main body area
         var body = $("<tbody>").attr({
             id: location
         });
         body.addClass("text-center");
 
-        trMain.append(thTime, thPatient, thInfectious, thSite, thRT1, thRT2);
+        trMain.append(thTime, thPatient, thInfectious, thSite, thRT1, thRT2, thComplication);
         thead.append(trLoc, trMain);
         table.append(thead, body);
 

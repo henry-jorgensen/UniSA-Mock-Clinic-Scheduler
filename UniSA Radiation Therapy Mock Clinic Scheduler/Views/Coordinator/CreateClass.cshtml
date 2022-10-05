@@ -212,8 +212,12 @@
                                         </table>
                                     </div>
                                 </div>
-
-                                <button style="float:right;" class="button btn" type="button">Finish</button>
+                                
+                                @*Move to the classes preview area*@
+                                <button style="float:right;" class="button btn" type="button">
+                                    @Url.Action("Classes", "Coordinator")
+                                    Finish
+                                </button>
                             </div>
                         </form>
                     </div>

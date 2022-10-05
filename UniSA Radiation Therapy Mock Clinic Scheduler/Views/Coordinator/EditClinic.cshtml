@@ -44,25 +44,20 @@
                             <div class="form-row">
                                 <div class="form-group col-md-6 mb-3">
                                     <label for="scheduleStartTimeInput" class="form-label">Clinic Start Time</label>
-                                    <input type="text" class="form-control input" id="scheduleStartTimeInput" placeholder="9:40" required>
+                                    <input disabled type="text" class="form-control input" id="scheduleStartTimeInput" placeholder="9:40" required>
                                 </div>
 
                                 <div class="form-group col-md-6 mb-3">
                                     <label for="scheduleDurationInput" class="form-label">Appointment Duration</label>
-                                    <input type="text" class="form-control input" id="scheduleDurationInput" placeholder="20 minutes" required>
+                                    <input disabled type="text" class="form-control input" id="scheduleDurationInput" placeholder="20 minutes" required>
                                 </div>
                             </div>
 
                             <div class="form-row">
                                 <div class="col-md mb-5">
                                     <label for="locationInput">Locations</label>
-                                    <input type="text" class="form-control input" id="locationInput" placeholder="BJ1-49, BJ1-50" required>
+                                    <input disabled type="text" class="form-control input" id="locationInput" placeholder="BJ1-49, BJ1-50" required>
                                 </div>
-                            </div>
-
-                            <div class="text-right">
-                                @*Go to the preview class section*@
-                                <button id="generateNew" class="btn button" type="button">Generate New Schedule</button>
                             </div>
 
                             <table class="table table-sm table-hover">
@@ -80,6 +75,7 @@
                                         <th scope="col">Site</th>
                                         <th scope="col">RT1</th>
                                         <th scope="col">RT2</th>
+                                        <th scope="col">Complication</th>
                                     </tr>*@
                                 </thead>
                                 @*<tbody class="text-center" id="scheduleList0">
