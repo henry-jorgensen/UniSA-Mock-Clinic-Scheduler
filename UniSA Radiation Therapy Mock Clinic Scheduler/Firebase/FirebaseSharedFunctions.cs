@@ -425,7 +425,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
         /// <param name="context"></param>
         /// <param name="scheduleCode"></param>
         /// <returns></returns>
-        public async Task<string?> DeleteScheduleAsync(HttpContext context, string scheduleCode)
+        public async Task<string?> DeleteScheduleAsync(HttpContext context, string scheduleCode, string className)
         {
             string? token = VerifyVerificationToken(context);
 
@@ -433,6 +433,15 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
             //Start a large batch write.
             WriteBatch batch = db.StartBatch();
+
+            //TODO REMOVE SCHEDULE CODE FROM CC Classes
+            DocumentReference classRef = db.Collection("Users").Document(token).Collection("Classes").Document(className);
+            DocumentSnapshot snapshot = await classRef.GetSnapshotAsync();
+            var classDetails = snapshot.ConvertTo<ClassModel>();
+
+            if (classDetails.ScheduleCode == null) return null;
+            classDetails.ScheduleCode.Remove(scheduleCode);
+            batch.Set(classRef, classDetails);
 
             //Collect any assoicated appointments
             Query appointmentRef = db.CollectionGroup("Appointments").WhereEqualTo("ScheduleCode", scheduleCode);
@@ -455,10 +464,6 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                 DocumentReference studentRef = db.Collection("Students").Document(documentSnapshot.Id); //TODO change to documentSnapshot.id when finished testing
                 batch.Update(studentRef, "ScheduleCode", FieldValue.ArrayRemove(scheduleCode));
             }
-
-            //Remove the schedule code from the associated class
-            DocumentReference classRef = db.Collection("Users").Document(token);
-            batch.Update(classRef, "ScheduleCode", FieldValue.ArrayRemove(scheduleCode));
 
             //Write all database changes in one go
             await batch.CommitAsync();
@@ -495,6 +500,29 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             return null;
         }
 
+        public async Task<string?> EditClassAsync(HttpContext context, string oldName, ClassModel classModel)
+        {
+            string? token = VerifyVerificationToken(context);
+
+            if (token == null) return null;
+
+            //Get a reference to the class
+            DocumentReference oldClassRef = db.Collection("Users").Document(token).Collection("Classes").Document(oldName);
+            DocumentSnapshot snapshot = await oldClassRef.GetSnapshotAsync();
+            var classDetails = snapshot.ConvertTo<ClassModel>();
+            await oldClassRef.DeleteAsync();
+
+            //This allows any schedule codes to be transfered over to the new model details
+            classDetails.Name = classModel.Name;
+            classDetails.StudyPeriod = classModel.StudyPeriod;
+            classDetails.Semester = classModel.Semester;
+            classDetails.ClassCode = classModel.ClassCode;
+
+            DocumentReference classRef = db.Collection("Users").Document(token).Collection("Classes").Document(classModel.Name);
+            await classRef.SetAsync(classDetails);
+
+            return "Success";
+        }
         /// <summary>
         /// Delete a saved class list, this removes the entry from Firebase and removes the ClassCode from any assoicated 
         /// student entry, deletes any assoicated schedules and appointments.

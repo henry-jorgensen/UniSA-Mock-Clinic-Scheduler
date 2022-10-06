@@ -43,6 +43,34 @@
     };
 
     /**
+     * Edit the values of an existing class in firebase.
+     */
+    editAClass = async (oldNameValue, classNameValue, studyPeriodValue, semesterValue, yearValue, classCodeValue) => {
+        this.selectedClass = classNameValue;
+
+        return await $.ajax({
+            type: 'POST',
+            url: `/${this.controller}/EditAClass`,
+            data: {
+                oldName: oldNameValue,
+                name: classNameValue,
+                studyPeriod: studyPeriodValue,
+                semester: semesterValue,
+                year: yearValue,
+                code: classCodeValue
+            },
+            success: function (result) {
+                console.log(result); //Keep as log for now for testing
+                return result;
+            },
+            failure: function (result) {
+                console.log(result);
+                return null;
+            }
+        });
+    };
+
+    /**
      * Load all the classes associated with the current user.
      */
     loadAllClasses = async () => {
@@ -159,7 +187,7 @@
      */
     saveAClinic = async (classNameValue, scheduleNameValue, dateValue, startTimeValue, appointmentDurationValue, locationsValue, scheduleValue) => {
 
-        let response = await $.ajax({
+        return await $.ajax({
             type: 'POST',
             url: `/${this.controller}/SaveAClinic`,
             data: {
@@ -172,22 +200,14 @@
                 schedule: scheduleValue
             },
             success: function (result) {
-                console.log(result); //Keep as log for now for testing
-                return result;
+                console.log(result);
+                return true;
             },
             failure: function (result) {
                 console.log(result);
-                return 0;
+                return null;
             }
         });
-
-        if (response == 0) {
-            return 0;
-        } else {
-            let scheduleObject = JSON.parse(response);
-            console.log(scheduleObject);
-            return 1; //2 to skip over the load class form
-        }
     };
 
     /**
@@ -249,14 +269,16 @@
     };
 
     /**
-     * 
+     * Delete a selected schedule, this removes any associated appointments and student 
+     * links within their save models.
      */
-    deleteASchedule = async (scheduleCodeValue) => {
+    deleteASchedule = async (scheduleCodeValue, classNameValue) => {
         return $.ajax({
             type: 'POST',
             url: `/${this.controller}/DeleteASchedule`,
             data: {
-                scheduleCode: scheduleCodeValue
+                scheduleCode: scheduleCodeValue,
+                className: classNameValue
             },
             success: function (result) {
                 return result

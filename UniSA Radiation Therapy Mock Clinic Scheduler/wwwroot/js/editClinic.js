@@ -27,6 +27,8 @@ $(document).ready(function () {
         e.preventDefault();
         let response;
 
+        $("#loader").css("display", "block");
+
         try {
             switch (e.currentTarget.id) {
                 case "editAClinicForm":
@@ -60,6 +62,9 @@ $(document).ready(function () {
         catch (error) {
             console.log(error);
         }
+
+        $("#loader").css("display", "none");
+        window.location.replace("/Coordinator/Classes");
     });
 });
 

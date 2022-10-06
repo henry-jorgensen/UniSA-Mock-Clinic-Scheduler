@@ -37,9 +37,12 @@
 
                                     <div class="float-right">
                                         <button class="classButton">
-                                             @Html.ActionLink("Edit", "CreateClass", "Coordinator", 
+                                             @Html.ActionLink("Edit", "EditClass", "Coordinator", 
                                                 new { 
                                                     name = @singleClass.Value.Name,
+                                                    studyPeriod = @singleClass.Value.StudyPeriod,
+                                                    semester = @singleClass.Value.Semester,
+                                                    year = @singleClass.Value.Year,
                                                     code = @singleClass.Value.ClassCode
                                                 }, 
                                              new { @class="anchorClassEdit" })

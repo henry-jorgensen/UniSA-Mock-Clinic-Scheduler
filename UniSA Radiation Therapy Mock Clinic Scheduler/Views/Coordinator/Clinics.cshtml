@@ -73,7 +73,7 @@
                                                 </button>
 
                                                 @*TODO add on function in JS file: ADD WARNING!!!*@
-                                                <button onclick=deleteClass(this) value="@schedule.Key.ScheduleCode" class="classButton">
+                                                <button onclick=deleteClass(this) value="@schedule.Key.ScheduleCode:@singleClass.Key" class="classButton">
                                                     Delete
                                                 </button>
                                             </div>
@@ -130,7 +130,9 @@
     const ajaxManager = new AJAXManager("Coordinator");
 
     async function deleteClass(e) {
-        let success = await ajaxManager.deleteASchedule(e.value);
+        let values = e.value.split(":");
+
+        let success = await ajaxManager.deleteASchedule(values[0], values[1]);
 
         //Remove the class container instead of reloading, slightly better for the user
         if(success !== null) {

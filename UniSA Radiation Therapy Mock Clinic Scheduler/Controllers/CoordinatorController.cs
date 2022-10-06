@@ -101,6 +101,19 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             }
         }
 
+        public IActionResult EditClass()
+        {
+            if (firebase.VerifyLoggedInCoordinator(HttpContext).Result)
+            {
+                ViewBag.CurrentUser = firebase.GenerateUserModel(HttpContext).Result;
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("Login", "Account");
+            }
+        }
+
         public async Task<IActionResult> EditAppointment(string id)
         {
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result)
@@ -195,11 +208,11 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> DeleteASchedule(string scheduleCode)
+        public async Task<IActionResult> DeleteASchedule(string scheduleCode, string className)
         {
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == false) return Forbid();
 
-            string? success = await firebase.DeleteScheduleAsync(HttpContext, scheduleCode);
+            string? success = await firebase.DeleteScheduleAsync(HttpContext, scheduleCode, className);
 
             if (success != null) return Ok(success);
 
@@ -244,6 +257,21 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             ClassModel classModel = new ClassModel(name, studyPeriod, semester, year);
 
             string? success = await firebase.CreateNewClassAsync(HttpContext, classModel);
+
+            if (success != null) return Ok(success);
+
+            return BadRequest();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditAClass(string oldName, string name, string studyPeriod, string semester, string year, string code)
+        {
+            if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == false) return Forbid();
+
+            ClassModel classModel = new ClassModel(name, studyPeriod, semester, year);
+            classModel.ClassCode = code; //override the auto-generated one
+
+            string? success = await firebase.EditClassAsync(HttpContext, oldName, classModel);
 
             if (success != null) return Ok(success);
 

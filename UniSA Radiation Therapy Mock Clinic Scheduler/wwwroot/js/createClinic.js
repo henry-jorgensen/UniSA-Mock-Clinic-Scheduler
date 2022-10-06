@@ -30,6 +30,8 @@ $(document).ready(function () {
         e.preventDefault();
         let response;
 
+        $("#loader").css("display", "block");
+
         try {
             switch (e.currentTarget.id) {
                 case "createAClinicForm":
@@ -67,9 +69,10 @@ $(document).ready(function () {
                         JSON.stringify(schedule)
                     );
 
-                    if (response == null) {
-                        return;
-                    }
+                    console.log(response);
+                    console.log("Success");
+                    $("#loader").css("display", "none");
+                    window.location.replace("/Coordinator/Clinics");
 
                 default:
                     break;
@@ -78,6 +81,8 @@ $(document).ready(function () {
         catch (error) {
             console.log(error);
         }
+
+        $("#loader").css("display", "none");
     });
 
     //Handling form movement buttons
