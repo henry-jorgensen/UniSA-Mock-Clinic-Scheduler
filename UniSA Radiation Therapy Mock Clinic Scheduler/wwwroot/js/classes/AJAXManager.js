@@ -43,6 +43,34 @@
     };
 
     /**
+     * Edit the values of an existing class in firebase.
+     */
+    editAClass = async (oldNameValue, classNameValue, studyPeriodValue, semesterValue, yearValue, classCodeValue) => {
+        this.selectedClass = classNameValue;
+
+        return await $.ajax({
+            type: 'POST',
+            url: `/${this.controller}/EditAClass`,
+            data: {
+                oldName: oldNameValue,
+                name: classNameValue,
+                studyPeriod: studyPeriodValue,
+                semester: semesterValue,
+                year: yearValue,
+                code: classCodeValue
+            },
+            success: function (result) {
+                console.log(result); //Keep as log for now for testing
+                return result;
+            },
+            failure: function (result) {
+                console.log(result);
+                return null;
+            }
+        });
+    };
+
+    /**
      * Load all the classes associated with the current user.
      */
     loadAllClasses = async () => {
@@ -87,24 +115,21 @@
     };
 
     /**
-     * Perform a GET call to the parent controller, the objective is to retrieve details about
-     * a previously saved class. A successful call will increment the form wizard to the
-     * appropriate form.
+     * 
      */
-    deleteAClass = async (classNameValue, classCodeValue) => {
-        return $.ajax({
+    deleteAClass = async (classNameValue) => {
+        return await $.ajax({
             type: 'POST',
             url: `/${this.controller}/DeleteAClass`,
             data: {
-                className: classNameValue,
-                classCode: classCodeValue
+                className: classNameValue
             },
             success: function (result) {
                 return result
             },
             failure: function (error) {
                 console.log(error);
-                return 0;
+                return false;
             }
         });
     };
@@ -162,11 +187,45 @@
      */
     saveAClinic = async (classNameValue, scheduleNameValue, dateValue, startTimeValue, appointmentDurationValue, locationsValue, scheduleValue) => {
 
-        let response = await $.ajax({
+        return await $.ajax({
             type: 'POST',
             url: `/${this.controller}/SaveAClinic`,
             data: {
                 className: classNameValue,
+                name: scheduleNameValue,
+                date: dateValue,
+                startTime: startTimeValue,
+                appointmentDuration: appointmentDurationValue,
+                locations: locationsValue,
+                schedule: scheduleValue
+            },
+            success: function (result) {
+                console.log(result);
+                return true;
+            },
+            failure: function (result) {
+                console.log(result);
+                return null;
+            }
+        });
+    };
+
+    /**
+     * Update a saved clinic with new inputs.
+     * @param {any} scheduleCode
+     * @param {any} scheduleNameValue
+     * @param {any} dateValue
+     * @param {any} startTimeValue
+     * @param {any} appointmentDurationValue
+     * @param {any} locationsValue
+     * @param {any} scheduleValue
+    */
+    editAClinic = async (scheduleCode, scheduleNameValue, dateValue, startTimeValue, appointmentDurationValue, locationsValue, scheduleValue) => {
+        return await $.ajax({
+            type: 'POST',
+            url: `/${this.controller}/EditAClinic`,
+            data: {
+                code: scheduleCode,
                 name: scheduleNameValue,
                 date: dateValue,
                 startTime: startTimeValue,
@@ -183,15 +242,7 @@
                 return 0;
             }
         });
-
-        if (response == 0) {
-            return 0;
-        } else {
-            let scheduleObject = JSON.parse(response);
-            console.log(scheduleObject);
-            return 1; //2 to skip over the load class form
-        }
-    };
+    }
 
     /**
      * Perform a GET call to the parent controller, the objective is to retrieve details about
@@ -208,6 +259,28 @@
             success: function (result) {
                 //Populate the list with the results
                 console.log(result);
+                return result
+            },
+            failure: function (error) {
+                console.log(error);
+                return 0;
+            }
+        });
+    };
+
+    /**
+     * Delete a selected schedule, this removes any associated appointments and student 
+     * links within their save models.
+     */
+    deleteASchedule = async (scheduleCodeValue, classNameValue) => {
+        return $.ajax({
+            type: 'POST',
+            url: `/${this.controller}/DeleteASchedule`,
+            data: {
+                scheduleCode: scheduleCodeValue,
+                className: classNameValue
+            },
+            success: function (result) {
                 return result
             },
             failure: function (error) {

@@ -10,6 +10,8 @@
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
+<script src="~/js/classes/AJAXManager.js"></script>
+
 <div class="col">
     <div role="main" class="pb-lg-5">
         <div class="row d-flex justify-content-center">
@@ -35,16 +37,18 @@
 
                                     <div class="float-right">
                                         <button class="classButton">
-                                             @Html.ActionLink("Edit", "CreateClass", "Coordinator", 
+                                             @Html.ActionLink("Edit", "EditClass", "Coordinator", 
                                                 new { 
                                                     name = @singleClass.Value.Name,
+                                                    studyPeriod = @singleClass.Value.StudyPeriod,
+                                                    semester = @singleClass.Value.Semester,
+                                                    year = @singleClass.Value.Year,
                                                     code = @singleClass.Value.ClassCode
                                                 }, 
                                              new { @class="anchorClassEdit" })
                                         </button>
 
-                                        @*TODO add on function in JS file: ADD WARNING!!!*@
-                                        <button class="classButton">
+                                        <button onclick=deleteClass(this) value="@singleClass.Value.Name" class="classButton">
                                             Delete
                                         </button>
                                     </div>
@@ -94,3 +98,16 @@
         </div>
     </div>
 </div>
+
+<script>
+    const ajaxManager = new AJAXManager("Coordinator");
+
+    async function deleteClass(e) {
+        let success = await ajaxManager.deleteAClass(e.value);
+
+        //Remove the class container instead of reloading, slightly better for the user
+        if(success !== null) {
+            e.parentNode.parentNode.parentNode.remove();
+        } 
+    }
+</script>

@@ -17,8 +17,6 @@ $(document).ready(function () {
         loadScheduleForEdit(params);
     }
 
-    formWizard.showInitialTab(); // Display the first tab
-
     //On click listeners
     $("#generateNew").click(() => {
         console.log("Reshuffle list");
@@ -29,46 +27,33 @@ $(document).ready(function () {
         e.preventDefault();
         let response;
 
+        $("#loader").css("display", "block");
+
         try {
             switch (e.currentTarget.id) {
                 case "editAClinicForm":
-                    //let data = scheduleManager.generateSchedule();
+                    //Update the schedule with the new details
+                    //Assign the locations
+                    scheduleManager.locations = $("#locationInput").val().split(",");
 
-                    ////Schedules
-                    //console.log(data[0]);
-                    ////Locations
-                    //console.log(data[1]);
+                    //TODO CHANGE THE TIMES IF NECCESSARY SOMEWHERE HERE!
 
+                    //Collect the tables that have been generated
+                    let schedule = scheduleManager.generateScheduleJSON();
 
-                    //tableManager.generateSchedulePreview(
-                    //    $("#scheduleHolder"),
-                    //    $("#scheduleDateInput").val(),
-                    //    data[1],
-                    //    data[0]
-                    //);
+                    response = await ajaxManager.editAClinic(
+                        params.code,
+                        $("#scheduleNameInput").val(),
+                        $("#scheduleDateInput").val(),
+                        $("#scheduleStartTimeInput").val(),
+                        $("#scheduleDurationInput").val(),
+                        $("#locationInput").val(),
+                        JSON.stringify(schedule)
+                    );
 
-                    ////Populate the tables with the information
-                    //performStep(1);
-
-                    //break;
-
-                case "saveAClinicForm":
-                    ////Collect the tables that have been generated
-                    //let schedule = scheduleManager.generateScheduleJSON();
-
-                    //response = await ajaxManager.saveAClinic(
-                    //    tableManager.selectedClass,
-                    //    $("#scheduleNameInput").val(),
-                    //    $("#scheduleDateInput").val(),
-                    //    $("#scheduleStartTimeInput").val(),
-                    //    $("#scheduleDurationInput").val(),
-                    //    $("#locationInput").val(),
-                    //    JSON.stringify(schedule)
-                    //);
-
-                    //if (response == null) {
-                    //    return;
-                    //}
+                    if (response == null) {
+                        return;
+                    }
 
                 default:
                     break;
@@ -77,6 +62,9 @@ $(document).ready(function () {
         catch (error) {
             console.log(error);
         }
+
+        $("#loader").css("display", "none");
+        window.location.replace("/Coordinator/Classes");
     });
 });
 

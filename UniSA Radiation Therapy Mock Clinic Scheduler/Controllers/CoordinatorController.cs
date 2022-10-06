@@ -101,6 +101,19 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             }
         }
 
+        public IActionResult EditClass()
+        {
+            if (firebase.VerifyLoggedInCoordinator(HttpContext).Result)
+            {
+                ViewBag.CurrentUser = firebase.GenerateUserModel(HttpContext).Result;
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("Login", "Account");
+            }
+        }
+
         public async Task<IActionResult> EditAppointment(string id)
         {
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result)
@@ -122,11 +135,11 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         }
 
         [HttpPost]
-        public IActionResult EditAppointmentPost(string apptId, string schedulecode, string time, string date, string patient, string rt1, string rt2, string infect, string room, string site)
+        public IActionResult EditAppointmentPost(string apptId, string schedulecode, string time, string date, string patient, string rt1, string rt2, string infect, string room, string site, string act)
         {
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result)
             {
-                firebase.EditAppointmentAsync(apptId, schedulecode, time, date, patient, rt1, rt2, infect, room, site);
+                firebase.EditAppointmentAsync(apptId, schedulecode, time, date, patient, rt1, rt2, infect, room, site, act);
                 return RedirectToAction("Clinics");
             } else
             {
@@ -169,6 +182,39 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             {
                 return Ok(success);
             }
+
+            return BadRequest();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditAClinic(string code, string name, string date, string startTime, string appointmentDuration, string locations, string schedule)
+        {
+            //Create a new schedule model but with the supplied code.
+            ScheduleModel scheduleModel = new ScheduleModel(name, date, startTime, appointmentDuration, locations, schedule, code);
+
+            if (firebase.VerifyLoggedInSession(HttpContext).Result == false)
+            {
+                return Forbid();
+            }
+
+            ScheduleModel? success = await firebase.EditClinicAsync(HttpContext, scheduleModel);
+
+            if (success != null)
+            {
+                return Ok(success);
+            }
+
+            return BadRequest();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteASchedule(string scheduleCode, string className)
+        {
+            if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == false) return Forbid();
+
+            string? success = await firebase.DeleteScheduleAsync(HttpContext, scheduleCode, className);
+
+            if (success != null) return Ok(success);
 
             return BadRequest();
         }
@@ -217,6 +263,21 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             return BadRequest();
         }
 
+        [HttpPost]
+        public async Task<IActionResult> EditAClass(string oldName, string name, string studyPeriod, string semester, string year, string code)
+        {
+            if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == false) return Forbid();
+
+            ClassModel classModel = new ClassModel(name, studyPeriod, semester, year);
+            classModel.ClassCode = code; //override the auto-generated one
+
+            string? success = await firebase.EditClassAsync(HttpContext, oldName, classModel);
+
+            if (success != null) return Ok(success);
+
+            return BadRequest();
+        }
+
         [HttpGet]
         public async Task<IActionResult> LoadAllClasses()
         {
@@ -245,13 +306,13 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> DeleteAClass(string className, string classCode)
+        public async Task<IActionResult> DeleteAClass(string className)
         {
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == false) return Forbid();
 
-            bool success = await firebase.DeleteClassAsync(HttpContext, className, classCode);
+            string? success = await firebase.DeleteClassAsync(HttpContext, className);
 
-            if (success) return Ok(success);
+            if (success != null) return Ok(success);
 
             return BadRequest();
         }

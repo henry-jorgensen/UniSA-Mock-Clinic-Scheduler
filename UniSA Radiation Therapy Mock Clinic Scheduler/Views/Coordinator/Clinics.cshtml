@@ -10,6 +10,7 @@
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
+<script src="~/js/classes/AJAXManager.js"></script>
 
 <div class="col">
     <div role="main" class="pb-lg-5">
@@ -72,7 +73,7 @@
                                                 </button>
 
                                                 @*TODO add on function in JS file: ADD WARNING!!!*@
-                                                <button class="classButton">
+                                                <button onclick=deleteClass(this) value="@schedule.Key.ScheduleCode:@singleClass.Key" class="classButton">
                                                     Delete
                                                 </button>
                                             </div>
@@ -86,10 +87,12 @@
                                                         <tr>
                                                             <th scope="col">Date and Time</th>
                                                             <th scope="col">Patient</th>
+                                                            <th scope="col">Infectious</th>
                                                             <th scope="col">Radiation Therapist 1</th>
                                                             <th scope="col">Radiation Therapist 2</th>
                                                             <th scope="col">Room</th>
                                                             <th scope="col">Site</th>
+                                                            <th scope="col">Complication</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -99,10 +102,12 @@
                                                             <tr>
                                                                 <th scope="col">@appointment.Date  @appointment.Time</th>
                                                                 <th>@appointment.Patient</th>
+                                                                <th>@appointment.Infectious</th>
                                                                 <th>@appointment.RadiationTherapist1</th>
                                                                 <th>@appointment.RadiationTherapist2</th>
                                                                 <th>@appointment.Room</th>
                                                                 <th>@appointment.Site</th>
+                                                                <th>@appointment.Complication</th>
                                                             </tr>
                                                         }
                                                     </tbody>
@@ -120,3 +125,18 @@
         </div>
     </div>
 </div>
+
+<script>
+    const ajaxManager = new AJAXManager("Coordinator");
+
+    async function deleteClass(e) {
+        let values = e.value.split(":");
+
+        let success = await ajaxManager.deleteASchedule(values[0], values[1]);
+
+        //Remove the class container instead of reloading, slightly better for the user
+        if(success !== null) {
+            e.parentNode.parentNode.parentNode.remove();
+        } 
+    }
+</script>

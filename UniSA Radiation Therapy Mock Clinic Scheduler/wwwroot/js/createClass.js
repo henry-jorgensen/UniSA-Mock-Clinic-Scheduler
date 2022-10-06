@@ -71,6 +71,8 @@ $(document).ready(async function () {
         e.preventDefault();
         let response;
 
+        $("#loader").css("display", "block");
+
         try {
             switch (e.currentTarget.id) {
                 case "createAClassForm":
@@ -131,6 +133,8 @@ $(document).ready(async function () {
         catch (error) {
             console.log(error);
         }
+
+        $("#loader").css("display", "none");
     });
 
     performStep = (stepNum) => {

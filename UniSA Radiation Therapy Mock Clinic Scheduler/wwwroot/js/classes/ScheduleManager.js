@@ -1,7 +1,7 @@
 ﻿class ScheduleManager {
     constructor() {
         this.locations = null;
-        this.headers = ["Time", "Patient", "Infectious", "Site", "RT1", "RT2"];
+        this.headers = ["Time", "Patient", "Infectious", "Site", "RT1", "RT2", "Complication"];
     }
 
     /**
@@ -18,7 +18,7 @@
 
             jsonData[this.headers[0]] = this.calculateTimeDifference(startTime, x, duration);;
             jsonData[this.headers[1]] = cells[3].textContent; //cells[3].textContent is a students username
-            jsonData[this.headers[3]] = "Brain";
+            jsonData[this.headers[3]] = "TBA";
 
             arrayScheduleData.push(jsonData);
         };
@@ -147,6 +147,7 @@
                 rowData[this.headers[3]] = row[3].innerHTML;
                 rowData[this.headers[4]] = row[4].innerHTML;
                 rowData[this.headers[5]] = row[5].innerHTML;
+                rowData[this.headers[6]] = row[6].innerHTML;
 
                 rows.push(rowData)
             }

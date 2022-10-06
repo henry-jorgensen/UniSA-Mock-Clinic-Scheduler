@@ -9,7 +9,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models
         {
         }
 
-        public ScheduleModel(string Name, string Date, string StartTime, string AppointmentDuration, string Locations, string Schedule)
+        public ScheduleModel(string Name, string Date, string StartTime, string AppointmentDuration, string Locations, string Schedule, string? ScheduleCode = null)
         {
             this.Name = Name;
             this.Date = Date;
@@ -17,7 +17,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models
             this.AppointmentDuration = AppointmentDuration;
             this.Locations = Locations;
             this.Schedule = Schedule;
-            ScheduleCode = Guid.NewGuid().ToString(); //Generate a unique class code to link in students
+            this.ScheduleCode = ScheduleCode == null ? Guid.NewGuid().ToString() : ScheduleCode; //Generate a unique class code to link in students
         }
 
         [FirestoreProperty]
