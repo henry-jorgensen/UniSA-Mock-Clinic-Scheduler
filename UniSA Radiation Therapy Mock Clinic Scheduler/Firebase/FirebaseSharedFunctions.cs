@@ -1268,7 +1268,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
         {
 
             DocumentReference docRef = db.Collection("Appointments").Document(id);
-            AppointmentModel appt = new(date, time, room, patient, infect, rt1, rt2, site, complication, null, schedulecode);
+            AppointmentModel appt = new(date, time, room, patient, infect, rt1, rt2, site, complication, id, schedulecode);
             await docRef.SetAsync(appt);
 
         }
