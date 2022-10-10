@@ -1,7 +1,7 @@
 ﻿@{
-    ViewData["Title"] = "Clinics";
-    ViewData["Controller"] = "Home";
-    List<AppointmentModel> appointments = ViewBag.Appointments;
+    ViewData["Title"] = "Clinic Day";
+    ViewData["Controller"] = "Coordinator";
+	List<AppointmentModel> appointments = ViewBag.Appointments;
 }
 
 <link rel="stylesheet" type="text/css" href="/css/clinics.css">
@@ -20,7 +20,7 @@
 						<th>Infectious</th>
 						<th>Radiation Therapists</th>
 						<th>Site</th>
-						<th>Complication</th>
+						<th>Status</th>
 						<th>Treatment</th>
 					</tr>
 				</thead>
@@ -53,14 +53,14 @@
 
 							<td>
 								<h6 class="mb-0">@appointment.Site</h6>
-							</td>	
+							</td>
+							
+							<td>
+								<h6 class="mb-0">@appointment.Status</h6>
+							</td>
 
 							<td>
-								<h6 class="mb-0">@appointment.Complication</h6>
-							</td>	
-
-							<td>
-								@Html.ActionLink("Treatment", "Treatment", "Home",
+								@Html.ActionLink("Treatment", "Treatment", "Coordinator",
 								new {
 									date = @appointment.Date,
 									time = @appointment.Time,
@@ -70,7 +70,6 @@
 									rt1 = @appointment.RadiationTherapist1,
 									rt2 = @appointment.RadiationTherapist2,
 									site = @appointment.Site,
-									act = @appointment.Complication,
 									ID = @appointment.AppointmentID
 								},
 								new { @class="btn button" }

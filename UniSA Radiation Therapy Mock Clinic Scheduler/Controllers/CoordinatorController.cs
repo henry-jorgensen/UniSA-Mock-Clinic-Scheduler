@@ -2,11 +2,9 @@
 using System.Diagnostics;
 using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models;
 using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase;
-//using System.Runtime.Intrinsics.Arm;
-//using Microsoft.Extensions.Logging;
-
-////TESTING
-//using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Notification;
+using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Notification;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 {
@@ -55,6 +53,36 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             }
         }
 
+        public IActionResult ClinicDay()
+        {
+            if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == true)
+            {
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("Login", "Account");
+            }
+        }
+
+        public async Task<IActionResult> Clinics()
+        {
+            if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == true)
+            {
+                Dictionary<string, Dictionary<ScheduleModel, List<AppointmentModel>>>? classes = await firebase.CollectClassSchedules(HttpContext);
+                if (classes != null)
+                {
+                    ViewBag.Classes = classes;
+                }
+
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("Login", "Account");
+            }
+        }
+
         //Create clinics page
         //Must be logged into course coordinator account to see
         public IActionResult CreateClinic()
@@ -75,24 +103,6 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result)
             {
                 ViewBag.CurrentUser = firebase.GenerateUserModel(HttpContext).Result;
-                return View();
-            }
-            else
-            {
-                return RedirectToAction("Login", "Account");
-            }
-        }
-
-        public async Task<IActionResult> Clinics()
-        {
-            if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == true)
-            {
-                Dictionary<string, Dictionary<ScheduleModel, List<AppointmentModel>>>? classes = await firebase.CollectClassSchedules(HttpContext);
-                if (classes != null)
-                {
-                    ViewBag.Classes = classes;
-                }
-
                 return View();
             }
             else
@@ -329,6 +339,63 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             return BadRequest();
         }
 
+        //TODO FINISH THIS AREA OFF
+        //============================================
+        //EMAIL AREA
+        //============================================
+        [HttpPost]
+        public async Task<IActionResult> EmailAPatient(string date, string username, string name, string complication, string appointmentRef)
+        {
+            if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == false) return Forbid();
+
+            string email = username + "@mymail.unisa.edu.au";
+
+            var success = true;
+            //UNCOMMENT TO ENABLE EMAILS
+            //var success = await SendGridMessenger.SendEmail(date, name, complication, email);
+
+            //Update appointment emailed status
+            await firebase.UpdateEmailAppointmentAsync(appointmentRef, true);
+
+            if (success != null) return Ok(success);
+
+            return BadRequest();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EmailAllPatients(string patientList, string scheduleCode)
+        {
+            if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == false) return Forbid();
+
+            try
+            {
+                JObject? patientJSON = (JObject)JsonConvert.DeserializeObject(patientList);
+
+                foreach (var patient in patientJSON)
+                {
+                    string date = patient.Value.Value<string>("date");
+                    string username = patient.Value.Value<string>("username");
+                    string name = patient.Value.Value<string>("name");
+                    string complication = patient.Value.Value<string>("complication");
+                    string email = username + "@mymail.unisa.edu.au";
+
+                    //UNCOMMENT TO ENABLE EMAILS
+                    //await SendGridMessenger.SendEmail(date, name, complication, email);
+
+                    //Update appointment emailed status
+                    //await firebase.UpdateEmailAppointmentAsync(patient.Value.Value<string>("appointmentRef"), true);
+                }
+            } catch (Exception ex)
+            {
+                return BadRequest();
+            }
+
+            return Ok();
+        }
+
+        //============================================
+        //ERROR AREA
+        //============================================
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
