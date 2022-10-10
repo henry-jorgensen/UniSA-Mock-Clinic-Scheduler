@@ -72,7 +72,6 @@
                                                      new { @class="anchorClassEdit" })
                                                 </button>
 
-                                                @*TODO add on function in JS file: ADD WARNING!!!*@
                                                 <button onclick=deleteClass(this) value="@schedule.Key.ScheduleCode:@singleClass.Key" class="classButton">
                                                     Delete
                                                 </button>
@@ -93,25 +92,44 @@
                                                             <th scope="col">Room</th>
                                                             <th scope="col">Site</th>
                                                             <th scope="col">Complication</th>
+                                                            <th scope="col">Email</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                         @*Loop through each appointment in the supplied dictionary*@
                                                         @foreach (var appointment in schedule.Value)
                                                         {
-                                                            <tr>
+                                                            var temp = appointment.Patient.Split(':');
+                                                            
+                                                            <tr id="@appointment.Date" class="studentEntry">
                                                                 <th scope="col">@appointment.Date  @appointment.Time</th>
-                                                                <th>@appointment.Patient</th>
+                                                                <th id="@temp[1]">@temp[0]</th>
                                                                 <th>@appointment.Infectious</th>
                                                                 <th>@appointment.RadiationTherapist1</th>
                                                                 <th>@appointment.RadiationTherapist2</th>
                                                                 <th>@appointment.Room</th>
                                                                 <th>@appointment.Site</th>
                                                                 <th>@appointment.Complication</th>
+                                                                <th>
+                                                                    @if(@appointment.Emailed) {
+                                                                        <button onclick=alreadyEmailedPatient(this) value="@appointment.AppointmentRef" class="emailCompleteButton emailSingle">
+                                                                            Email
+                                                                        </button>
+                                                                    } else {
+                                                                        <button onclick=emailPatient(this) value="@appointment.AppointmentRef" class="emailButton emailSingle">
+                                                                            Email
+                                                                        </button>
+                                                                    }
+                                                                </th>
                                                             </tr>
                                                         }
                                                     </tbody>
                                                 </table>
+                                            </div>
+                                            <div class="card-footer text-right">
+                                                <button onclick=emailAllPatients(this) value="@schedule.Key.ScheduleCode" class="emailButton emailAll">
+                                                    Email All Patients
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -139,4 +157,68 @@
             e.parentNode.parentNode.parentNode.remove();
         } 
     }
+
+
+    //TODO pass in name, date & complications
+    //Send an email to just one patient
+    async function emailPatient(e) {
+        let details = e.parentNode.parentNode.children;
+
+        let date = e.parentNode.parentNode.id;
+        let username = details[1].id;
+        let name = details[1].innerHTML
+        let complication = details[7].innerHTML
+        let appointmentRef = e.value
+
+        let success = await ajaxManager.emailPatient(date, username, name, complication, appointmentRef);
+
+        //Change button to green
+        e.classList.remove("emailButton");
+        e.classList.add("emailCompleteButton");
+    }
+
+    //Send an email to all the patients detailing a complication to act out
+    async function emailAllPatients(e) {
+        let scheduleCode = e.value;
+        let patientList = {};
+
+        let students = document.getElementsByClassName("studentEntry");
+
+        for (let student of students) {
+            let newEntry = {
+                "date": student.children[0].innerHTML,
+                "username": student.children[0].id,
+                "name": student.children[1].innerHTML,
+                "complication": student.children[7].innerHTML,
+                "appointmentRef": student.children[8].children[0].value
+            }
+
+            patientList[student.children[1].innerHTML] = newEntry;
+        }
+
+        let success = await ajaxManager.emailAllPatients(JSON.stringify(patientList), scheduleCode);
+
+        //Change buttons to green
+        for (let student of students) {
+            let button = student.children[8].children[0];
+            button.classList.remove("emailButton");
+            button.classList.add("emailCompleteButton");
+        }
+    }
+
+    async function alreadyEmailedPatient(e) {
+        //Create popup to alert that the patient has already been emailed.
+        if (confirm("This user has already been emailed, would you like to re-send?") == true) {
+            let details = e.parentNode.parentNode.children;
+
+            let date = e.parentNode.parentNode.id;
+            let username = details[1].id;
+            let name = details[1].innerHTML;
+            let complication = details[7].innerHTML;
+            let appointmentRef = e.value;
+
+            let success = await ajaxManager.emailPatient(date, username, name, complication, appointmentRef);
+        }
+    }
+
 </script>

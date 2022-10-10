@@ -97,129 +97,142 @@
 
             <div id="nav-drawer-menu" class="flex-fill drawer-region collapse show">
                 <nav class="collapse multi-collapse nav-drawer show">
-                    @{
-                        if ((string?) ViewData["Controller"] == "Home")
+                @{
+                    if ((string?) ViewData["Controller"] == "Home")
+                    {
+                        //The user is currently logged in
+                        if (loggedIn)
                         {
-                            //The user is currently logged in
-                            if (loggedIn)
-                            {
-                                //List of clinics students are currently scheduled in
-                                    <div class="list-group-item @((string?) ViewData["Title"] == "Clinics" ? "active" : "")">
-                                        <div class="list-group-item-inner-container">
-                                            <a class="list-group-item-action list-indent-1" asp-controller="Home" asp-action="Clinics">
-                                                <span class="nav-item-text">@(coordinator ? "Upcoming Clinics" : "Appointments")</span>
-                                            </a>
-                                        </div>
-                                    </div>
-
-                                //List of historically scheduled clinics for students
-                                    <div class="list-group-item @((string?) ViewData["Title"] == "Past Clinics" ? "active" : "")">
-                                        <div class="list-group-item-inner-container">
-                                            <a class="list-group-item-action list-indent-1" asp-controller="Home" asp-action="History">
-                                                <span class="nav-item-text">@(coordinator ? "Past Clinics" : "Past Appointments")</span>
-                                            </a>
-                                        </div>
-                                    </div>
-
-                                    <div class="list-group-item @((string?) ViewData["Title"] == "Privacy Policy" ? "active" : "")">
-                                        <div class="list-group-item-inner-container">
-                                            <a class="list-group-item-action list-indent-1" asp-controller="Home" asp-action="PrivacyPolicy">
-                                                <span class="nav-item-text">Privacy Policy</span>
-                                            </a>
-                                        </div>
-                                    </div>
-                            }
-                        }
-
-                        //We are on the course coordinator section
-                        if ((string?) ViewData["Controller"] == "Coordinator")
-                        {
-                            //The user is a course coordinator
                             if (coordinator)
                             {
-                                //Course coordinator can create classes here
-                                    <div class="list-group-item @((string?) ViewData["Title"] == "Create Class" ? "active" : "")">
-                                        <div class="list-group-item-inner-container">
-                                            <a class="list-group-item-action list-indent-1" asp-controller="Coordinator" asp-action="CreateClass">
-                                                <span class="nav-item-text">Create Class</span>
-                                            </a>
-                                        </div>
+                                //List of clinics students are currently scheduled in
+                                <div class="list-group-item @((string?) ViewData["Title"] == "Clinic Day" ? "active" : "")">
+                                    <div class="list-group-item-inner-container">
+                                        <a class="list-group-item-action list-indent-1" asp-controller="Coordinator" asp-action="ClinicDay">
+                                            <span class="nav-item-text">Clinic Day</span>
+                                        </a>
                                     </div>
 
-                                    <div class="list-group-item @((string?) ViewData["Title"] == "Classes" && (string?) ViewData["Controller"] == "Coordinator" ? "active" : "")">
-                                        <div class="list-group-item-inner-container">
-                                            <a class="list-group-item-action list-indent-1" asp-controller="Coordinator" asp-action="Classes">
-                                                <span class="nav-item-text">View Classes</span>
-                                            </a>
-                                        </div>
-                                    </div>
-
-                                    <div class="list-group-item @((string?) ViewData["Title"] == "Create Clinic" ? "active" : "")">
-                                        <div class="list-group-item-inner-container">
-                                            <a class="list-group-item-action list-indent-1" asp-controller="Coordinator" asp-action="CreateClinic">
-                                                <span class="nav-item-text">Create Clinic</span>
-                                            </a>
-                                        </div>
-                                    </div>
-
-                                    <div class="list-group-item @((string?) ViewData["Title"] == "Clinics" && (string?) ViewData["Controller"] == "Coordinator" ? "active" : "")">
-                                        <div class="list-group-item-inner-container">
-                                            <a class="list-group-item-action list-indent-1" asp-controller="Coordinator" asp-action="Clinics">
-                                                <span class="nav-item-text">View Clinics</span>
-                                            </a>
-                                        </div>
-                                    </div>
+                                </div>
                             }
-                        }
+                            
+                            <div class="list-group-item @((string?) ViewData["Title"] == "Privacy Policy" ? "active" : "")">
+                                <div class="list-group-item-inner-container">
+                                    <a class="list-group-item-action list-indent-1" asp-controller="Home" asp-action="PrivacyPolicy">
+                                        <span class="nav-item-text">Privacy Policy</span>
+                                    </a>
+                                </div>
+                            </div>
 
-                        //We are on the accounts section
-                        if ((string?) ViewData["Controller"] == "Account")
-                        {
-                            //The user is currently logged in
-                            if (loggedIn)
-                            {
-                                //Account home page, view account details, etc...
-                                    <div class="list-group-item @((string?) ViewData["Title"] == "Account" ? "active" : "")">
-                                        <div class="list-group-item-inner-container">
-                                            <a class="list-group-item-action list-indent-1" asp-controller="Account" asp-action="Index">
-                                                <span class="nav-item-text">General</span>
-                                            </a>
-                                        </div>
-                                    </div>
+                            //List of clinics students are currently scheduled in
+                            <div class="list-group-item @((string?) ViewData["Title"] == "Clinics" ? "active" : "")">
+                                <div class="list-group-item-inner-container">
+                                    <a class="list-group-item-action list-indent-1" asp-controller="Home" asp-action="Clinics">
+                                        <span class="nav-item-text">@(coordinator ? "Upcoming Clinics" : "Appointments")</span>
+                                    </a>
+                                </div>
+                            </div>
 
-                                //Logout of account page
-                                    <div class="list-group-item @((string?) ViewData["Title"] == "Logout" ? "active" : "")">
-                                        <div class="list-group-item-inner-container">
-                                            <a class="list-group-item-action list-indent-1" asp-controller="Account" asp-action="Logout">
-                                                <span class="nav-item-text">Logout</span>
-                                            </a>
-                                        </div>
-                                    </div>
-                            }
-
-                            //The user is not logged in
-                            else
-                            {
-                                //Login to account page
-                                    <div class="list-group-item @((string?) ViewData["Title"] == "Login" ? "active" : "")">
-                                        <div class="list-group-item-inner-container">
-                                            <a class="list-group-item-action list-indent-1" asp-controller="Account" asp-action="Login">
-                                                <span class="nav-item-text">Login</span>
-                                            </a>
-                                        </div>
-                                    </div>
-
-                                //Create a new account page
-                                    <div class="list-group-item @((string?) ViewData["Title"] == "Register" ? "active" : "")">
-                                        <div class="list-group-item-inner-container">
-                                            <a class="list-group-item-action list-indent-1" asp-controller="Account" asp-action="Register">
-                                                <span class="nav-item-text">Register</span>
-                                            </a>
-                                        </div>
-                                    </div>
-                            }
+                            //List of historically scheduled clinics for students
+                            <div class="list-group-item @((string?) ViewData["Title"] == "Past Clinics" ? "active" : "")">
+                                <div class="list-group-item-inner-container">
+                                    <a class="list-group-item-action list-indent-1" asp-controller="Home" asp-action="History">
+                                        <span class="nav-item-text">@(coordinator ? "Past Clinics" : "Past Appointments")</span>
+                                    </a>
+                                </div>
+                            </div>
                         }
                     }
+
+                    //We are on the course coordinator section
+                    if ((string?) ViewData["Controller"] == "Coordinator")
+                    {
+                        //The user is a course coordinator
+                        if (coordinator)
+                        {
+                            //Course coordinator can create classes here
+                                <div class="list-group-item @((string?) ViewData["Title"] == "Create Class" ? "active" : "")">
+                                    <div class="list-group-item-inner-container">
+                                        <a class="list-group-item-action list-indent-1" asp-controller="Coordinator" asp-action="CreateClass">
+                                            <span class="nav-item-text">Create Class</span>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <div class="list-group-item @((string?) ViewData["Title"] == "Classes" && (string?) ViewData["Controller"] == "Coordinator" ? "active" : "")">
+                                    <div class="list-group-item-inner-container">
+                                        <a class="list-group-item-action list-indent-1" asp-controller="Coordinator" asp-action="Classes">
+                                            <span class="nav-item-text">View Classes</span>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <div class="list-group-item @((string?) ViewData["Title"] == "Create Clinic" ? "active" : "")">
+                                    <div class="list-group-item-inner-container">
+                                        <a class="list-group-item-action list-indent-1" asp-controller="Coordinator" asp-action="CreateClinic">
+                                            <span class="nav-item-text">Create Clinic</span>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <div class="list-group-item @((string?) ViewData["Title"] == "Clinics" && (string?) ViewData["Controller"] == "Coordinator" ? "active" : "")">
+                                    <div class="list-group-item-inner-container">
+                                        <a class="list-group-item-action list-indent-1" asp-controller="Coordinator" asp-action="Clinics">
+                                            <span class="nav-item-text">View Clinics</span>
+                                        </a>
+                                    </div>
+                                </div>
+                        }
+                    }
+
+                    //We are on the accounts section
+                    if ((string?) ViewData["Controller"] == "Account")
+                    {
+                        //The user is currently logged in
+                        if (loggedIn)
+                        {
+                            //Account home page, view account details, etc...
+                                <div class="list-group-item @((string?) ViewData["Title"] == "Account" ? "active" : "")">
+                                    <div class="list-group-item-inner-container">
+                                        <a class="list-group-item-action list-indent-1" asp-controller="Account" asp-action="Index">
+                                            <span class="nav-item-text">General</span>
+                                        </a>
+                                    </div>
+                                </div>
+
+                            //Logout of account page
+                                <div class="list-group-item @((string?) ViewData["Title"] == "Logout" ? "active" : "")">
+                                    <div class="list-group-item-inner-container">
+                                        <a class="list-group-item-action list-indent-1" asp-controller="Account" asp-action="Logout">
+                                            <span class="nav-item-text">Logout</span>
+                                        </a>
+                                    </div>
+                                </div>
+                        }
+
+                        //The user is not logged in
+                        else
+                        {
+                            //Login to account page
+                                <div class="list-group-item @((string?) ViewData["Title"] == "Login" ? "active" : "")">
+                                    <div class="list-group-item-inner-container">
+                                        <a class="list-group-item-action list-indent-1" asp-controller="Account" asp-action="Login">
+                                            <span class="nav-item-text">Login</span>
+                                        </a>
+                                    </div>
+                                </div>
+
+                            //Create a new account page
+                                <div class="list-group-item @((string?) ViewData["Title"] == "Register" ? "active" : "")">
+                                    <div class="list-group-item-inner-container">
+                                        <a class="list-group-item-action list-indent-1" asp-controller="Account" asp-action="Register">
+                                            <span class="nav-item-text">Register</span>
+                                        </a>
+                                    </div>
+                                </div>
+                        }
+                    }
+                }
                 </nav>
             </div>
         </div>

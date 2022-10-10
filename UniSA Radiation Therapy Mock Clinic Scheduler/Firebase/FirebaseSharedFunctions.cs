@@ -500,6 +500,9 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             return null;
         }
 
+        /// <summary>
+        /// Edit a current class with new details
+        /// </summary>
         public async Task<string?> EditClassAsync(HttpContext context, string oldName, ClassModel classModel)
         {
             string? token = VerifyVerificationToken(context);
@@ -523,6 +526,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
             return "Success";
         }
+        
         /// <summary>
         /// Delete a saved class list, this removes the entry from Firebase and removes the ClassCode from any assoicated 
         /// student entry, deletes any assoicated schedules and appointments.
@@ -1049,6 +1053,17 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             Query allSchedulesQuery = db.Collection("Schedules");
             QuerySnapshot allSchedulesQuerySnapshot = await allSchedulesQuery.GetSnapshotAsync();
 
+            //Get the students to translate the ID's into names
+            CollectionReference usersRef = db.Collection("Students");
+            QuerySnapshot snapshot = await usersRef.GetSnapshotAsync();
+
+            Dictionary<string, string> students = new Dictionary<string, string>();
+
+            foreach (DocumentSnapshot document in snapshot.Documents)
+            {
+                students[document.Id] = document.GetValue<string>("FirstName") + " " + document.GetValue<string>("LastName") + ":" + document.GetValue<string>("Username");
+            }
+
             foreach (DocumentSnapshot documentSnapshot in allClassesQuerySnapshot.Documents)
             {
                 var currentClass = documentSnapshot.ConvertTo<ClassModel>();
@@ -1071,46 +1086,57 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
                         if (currentSchedule.Schedule == null) continue;
 
-                        //Add an appointment for each JSON entry
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-                        JObject? scheduleArray = (JObject)JsonConvert.DeserializeObject(currentSchedule.Schedule);
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
 
-                        if (scheduleArray == null) continue;
 
-                        //Loop through each location in the array
-                        foreach (var schedule in scheduleArray)
+                        //Collect any assoicated appointments
+                        Query appointmentRef = db.CollectionGroup("Appointments").WhereEqualTo("ScheduleCode", currentSchedule.ScheduleCode);
+                        QuerySnapshot allAppointmentQuerySnapshot = await appointmentRef.GetSnapshotAsync();
+
+                        //Remove each appointment
+                        foreach (DocumentSnapshot appointmentSnapshot in allAppointmentQuerySnapshot.Documents)
                         {
-                            if (schedule.Value == null) continue;
+                            AppointmentModel appointmentModel = appointmentSnapshot.ConvertTo<AppointmentModel>();
 
-                            //Loop through each appointment in a schedule
-                            foreach (var appointment in schedule.Value)
-                            {
-#pragma warning disable CS8604 // Possible null reference argument.
-                                AppointmentModel appointmentModel = new AppointmentModel(
-                                    currentSchedule.Date,
-                                    appointment.Value<string>("Time"),
-                                    schedule.Key,
-                                    appointment.Value<string>("Patient"),
-                                    appointment.Value<string>("Infectious"),
-                                    appointment.Value<string>("RT1"),
-                                    appointment.Value<string>("RT2"),
-                                    appointment.Value<string>("Site"),
-                                    appointment.Value<string>("Complication")
-                                );
-#pragma warning restore CS8604 // Possible null reference argument.
+                            //var patient = students[appointmentModel.Patient].Split(":");
+                            var rt1 = students[appointmentModel.RadiationTherapist1].Split(":");
+                            var rt2 = students[appointmentModel.RadiationTherapist2].Split(":");
 
-                                appointmentModel.ScheduleCode = currentSchedule.ScheduleCode;
-
-                                //Add to the overall classes collection
-                                classCollection[currentClass.Name][currentSchedule].Add(appointmentModel);
-                            }
+                            
+                            appointmentModel.Patient = students[appointmentModel.Patient];
+                            appointmentModel.RadiationTherapist1 = rt1[0];
+                            appointmentModel.RadiationTherapist2 = rt2[0];
+                            appointmentModel.ScheduleCode = currentSchedule.ScheduleCode;
+                            appointmentModel.Emailed = appointmentSnapshot.GetValue<bool>("Emailed");
+                            appointmentModel.AppointmentRef = appointmentSnapshot.Id;
+                            classCollection[currentClass.Name][currentSchedule].Add(appointmentModel);
                         }
                     }
                 }
             }
 
             return classCollection;
+        }
+
+        //Update the emailed field on an appointment
+        public async Task<AppointmentModel?> UpdateEmailAppointmentAsync(string appointmentRef, bool emailed)
+        {
+            try
+            {
+                DocumentReference docRef = db.Collection("Appointments").Document(appointmentRef);
+                DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+
+                AppointmentModel appointment = snapshot.ConvertTo<AppointmentModel>();
+                appointment.Emailed = emailed;
+
+                await docRef.SetAsync(appointment);
+                
+                return appointment;
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+                return null;
+            }
         }
 
         /// <summary>
