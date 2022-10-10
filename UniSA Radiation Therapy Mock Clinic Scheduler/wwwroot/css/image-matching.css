@@ -1,0 +1,14 @@
+﻿.image-matching {
+    position: relative;
+    width: 100%;
+    height: 600px;
+    border: solid 1px red;
+    overflow: hidden;
+    background-image: url("https://els-jbs-prod-cdn.jbs.elsevierhealth.com/cms/attachment/3a670e84-8cfd-40bb-80ca-3db863b50cc8/gr1.jpg")
+}
+
+.draggable{
+    position: relative;
+    cursor: move;
+    opacity: 0.5;
+}

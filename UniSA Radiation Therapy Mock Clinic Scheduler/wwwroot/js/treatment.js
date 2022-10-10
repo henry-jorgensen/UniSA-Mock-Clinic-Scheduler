@@ -37,6 +37,8 @@ function setupPreview(url) {
 	$("#documentButtons").removeClass("hidden");
 	$("#treatmentDocument").removeClass("hidden");
 	$("#noDocument").addClass("hidden");
+
+	$("#hide-pdf").removeClass("hidden");
 }
 
 $(document).ready(async () => {
@@ -59,6 +61,8 @@ $(document).ready(async () => {
 		$("#documentButtons").addClass("hidden");
 
 		$("#noDocument").removeClass("hidden");
+
+		hidePdfButton.classList.add("hidden");
 	});
 
 	//TODO ADD LOADING SYMBOL WHILE WAITING
@@ -76,4 +80,16 @@ $(document).ready(async () => {
 	}
 
 	$("#fileUpload").change(handleFileSelect);
+
+	const pdfViewer = document.getElementById("treatmentDocument")
+	const hidePdfButton = document.getElementById("hide-pdf")
+	hidePdfButton.addEventListener('click', () => {
+		pdfViewer.classList.toggle("hidden");
+
+		if (pdfViewer.classList.contains("hidden")) {
+			hidePdfButton.innerHTML = "Show PDF"
+		} else {
+			hidePdfButton.innerHTML = "Hide PDF"
+		}
+	})
 });

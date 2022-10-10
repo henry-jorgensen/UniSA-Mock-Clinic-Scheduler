@@ -7,8 +7,10 @@
 <script src="~/lib/jquery/dist/jquery.js"></script>
 <script src="~/js/classes/AJAXManager.js"></script>
 <script src="~/js/treatment.js"></script>
+<script src="~/js/image-matching.js"></script>
 
 <link rel="stylesheet" type="text/css" href="/css/clinics.css">
+<link rel="stylesheet" type="text/css" href="/css/image-matching.css">
 
 <div class="container">
 	<main role="main" class="pb-3">
@@ -68,10 +70,17 @@
 					</tr>
 				</tbody>
 			</table>
-
+			<button class="btn btn-primary" id="hide-pdf">Hide PDF</button>
 			<div class="hidden" id="treatmentDocument">
 				<iframe class="pdfPreview" id="treatmentPDF"></iframe>
 			</div>
+			<div class="matching-container">
+				<button class="btn btn-primary" id="hide-matching">Hide Image Matching</button>
+				<div class="image-matching" id="image-matcher">
+					<img class="draggable" src="https://els-jbs-prod-cdn.jbs.elsevierhealth.com/cms/attachment/3a670e84-8cfd-40bb-80ca-3db863b50cc8/gr1.jpg" />
+				</div>
+			</div>
+			
 		</div>
 	</main>
 </div>
