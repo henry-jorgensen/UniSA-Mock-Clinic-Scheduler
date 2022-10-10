@@ -135,6 +135,11 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             return BadRequest();
         }
 
+        public IActionResult PrivacyPolicy()
+        {
+            return View();
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

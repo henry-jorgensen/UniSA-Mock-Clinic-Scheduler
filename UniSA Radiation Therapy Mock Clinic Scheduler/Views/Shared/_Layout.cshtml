@@ -112,8 +112,17 @@
                                             <span class="nav-item-text">Clinic Day</span>
                                         </a>
                                     </div>
+
                                 </div>
                             }
+                            
+                            <div class="list-group-item @((string?) ViewData["Title"] == "Privacy Policy" ? "active" : "")">
+                                <div class="list-group-item-inner-container">
+                                    <a class="list-group-item-action list-indent-1" asp-controller="Home" asp-action="PrivacyPolicy">
+                                        <span class="nav-item-text">Privacy Policy</span>
+                                    </a>
+                                </div>
+                            </div>
 
                             //List of clinics students are currently scheduled in
                             <div class="list-group-item @((string?) ViewData["Title"] == "Clinics" ? "active" : "")">
