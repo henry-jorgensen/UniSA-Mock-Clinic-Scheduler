@@ -364,6 +364,46 @@ hr {
     height: 32px;
 }
 
+.emailButton {
+    outline: none;
+    background: #0052a0;
+    border: 0;
+    border-radius: 4px;
+    color: white;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: 700;
+    line-height: inherit;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: 0.3s ease;
+    height: 32px;
+}
+
+.emailSingle {
+    width: 90px;
+}
+
+.emailAll {
+    width: 180px;
+}
+
+.emailCompleteButton {
+    outline: none;
+    background: #3DB526;
+    border: 0;
+    border-radius: 4px;
+    color: white;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: 700;
+    line-height: inherit;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: 0.3s ease;
+    height: 32px;
+}
+
 .classButton:hover {
     color: white;
     background: #0052a0;

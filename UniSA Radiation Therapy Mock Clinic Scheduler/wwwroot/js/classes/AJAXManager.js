@@ -291,6 +291,55 @@
     };
 
     /**
+     * Send an email to a single patient detailing what complication to act out.
+     * @param {any} scheduleCode
+     * @param {any} patientName
+     */
+    emailPatient = async (dateValue, usernameValue, nameValue, complicationValue, appointmentRefValue) => {
+        return $.ajax({
+            type: 'POST',
+            url: `/${this.controller}/EmailAPatient`,
+            data: {
+                date: dateValue,
+                username: usernameValue,
+                name: nameValue,
+                complication, complicationValue,
+                appointmentRef: appointmentRefValue
+            },
+            success: function (result) {
+                return result
+            },
+            failure: function (error) {
+                console.log(error);
+                return error;
+            }
+        });
+    }
+
+    /**
+     * Send an email to all patients within a schedule detailing what complication to act out.
+     * @param {any} patientName
+     * @param {any} scheduleCode
+     */
+    emailAllPatients = async (patientListValue, scheduleCodeValue) => {
+        return $.ajax({
+            type: 'POST',
+            url: `/${this.controller}/EmailAllPatients`,
+            data: {
+                patientList: patientListValue,
+                scheduleCode: scheduleCodeValue
+            },
+            success: function (result) {
+                return result
+            },
+            failure: function (error) {
+                console.log(error);
+                return error;
+            }
+        });
+    }
+
+    /**
      * Upload a PDF to firebase.
      */
     uploadPDF = async (formData) => {

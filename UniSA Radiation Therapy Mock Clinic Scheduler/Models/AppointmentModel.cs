@@ -22,6 +22,9 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models
             Complication = complication;
             AppointmentID = ID;
             ScheduleCode = scheduleCode;
+            Emailed = false;
+            Status = "Incomplete";
+            AppointmentRef = null;
         }
 
         [FirestoreProperty]
@@ -57,14 +60,17 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models
         [FirestoreProperty]
         public string? ScheduleCode { get; set; }
 
+        [FirestoreProperty]
+        public bool Emailed { get; set; }
+
+        [FirestoreProperty]
+        public string? Status { get; set; }
+
         public string? PatientName { get; set; }
 
         public string? RadiationTherapist1Name { get; set; }
         public string? RadiationTherapist2Name { get; set; }
 
-        //public string toParameters()
-        //{
-        //    return $"date={Date}&room";
-        //}
+        public string? AppointmentRef { get; set; }
     }
 }
