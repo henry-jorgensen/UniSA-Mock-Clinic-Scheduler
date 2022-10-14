@@ -89,6 +89,12 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             return RedirectToAction("Login");
         }
 
+        //Load a page containing the sites privacy policy
+        public IActionResult PrivacyPolicy()
+        {
+            return View();
+        }
+
         [HttpPost]
         public async Task<IActionResult> Login(AccountModel accountModel)
         {

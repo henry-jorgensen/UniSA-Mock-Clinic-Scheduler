@@ -53,18 +53,6 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             }
         }
 
-        public IActionResult ClinicDay()
-        {
-            if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == true)
-            {
-                return View();
-            }
-            else
-            {
-                return RedirectToAction("Login", "Account");
-            }
-        }
-
         public async Task<IActionResult> Clinics()
         {
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == true)
@@ -291,12 +279,40 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         [HttpGet]
         public async Task<IActionResult> LoadAllClasses()
         {
-            //TESTING
-            //var success = await SendGridMessenger.SendEmail();
-
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == false) return Forbid();
 
             List<ClassModel>? success = await firebase.CollectAllClassAsync(HttpContext);
+
+            if (success != null) return Ok(success);
+
+            return BadRequest();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> LoadAllClinics(string className)
+        {
+            Console.WriteLine(className);
+
+            if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == false) return Forbid();
+
+            var success = await firebase.CollectAllClinicAsync(HttpContext, className);
+
+            if (success != null) return Ok(success);
+
+            return BadRequest();
+        }
+
+        /// <summary>
+        /// Load a group of schedules for the Clinic Day - only available for course coordinators
+        /// </summary>
+        /// <param name="scheduleId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<IActionResult> LoadScheduleAppointments(string scheduleId)
+        {
+            if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == false) return Forbid();
+
+            var success = await firebase.CollectScheduleAppointmentsAsync(HttpContext, scheduleId);
 
             if (success != null) return Ok(success);
 

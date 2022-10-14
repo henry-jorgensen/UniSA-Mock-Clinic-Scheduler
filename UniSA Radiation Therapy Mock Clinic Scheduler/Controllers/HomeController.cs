@@ -66,6 +66,18 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             return RedirectToAction("Login", "Account");
         }
 
+        public IActionResult ClinicDay()
+        {
+            if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == true)
+            {
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("Login", "Account");
+            }
+        }
+
         //Historical clinics page
         //Must be logged into a valid account to see
         public IActionResult History()
@@ -133,11 +145,6 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             if (success) return Ok();
 
             return BadRequest();
-        }
-
-        public IActionResult PrivacyPolicy()
-        {
-            return View();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
