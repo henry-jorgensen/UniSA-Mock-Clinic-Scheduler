@@ -61,6 +61,8 @@ $(document).ready(async function () {
     $("#newClassButton").on('click', () => formWizard.nextPrev(1));
     $("#prevBtn").on('click', () => formWizard.nextPrev(-1));
     $("#nextBtn").on('click', () => formWizard.nextPrev(1));
+
+    $("#finishButton").on('click', () => window.location.replace("/Coordinator/Classes"));
     
     //==========================================================
     //AJAX QUERY SECTION

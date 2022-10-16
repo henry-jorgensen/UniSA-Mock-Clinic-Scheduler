@@ -341,7 +341,6 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
         {
             string? token = VerifyVerificationToken(context);
 
-            //TODO UP TO HERE
             //Insert this into cloud firestore database
             if (token == null) return null;
 
@@ -512,6 +511,9 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             {
                 if (schedule.Value == null) continue;
 
+                Console.WriteLine("SCHEDULE");
+                Console.WriteLine(schedule.Value);
+
                 //Loop through each appointment in a schedule
                 foreach (var appointment in schedule.Value)
                 {
@@ -527,6 +529,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                             { "Room", schedule.Key },
                             { "Site", appointment.Value<string>("Site") },
                             { "Complication", appointment.Value<string>("Complication") },
+                            { "Emailed", false }, //always return to false when editing the schedule
                             { "ScheduleCode", scheduleModel.ScheduleCode }
                         };
 #pragma warning restore CS8604 // Possible null reference argument.
@@ -1327,7 +1330,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             return appointments;
         }
 
-        public async Task<List<AppointmentModel>?> CollectStudentsAppointmentsAsync(HttpContext context)
+        public async Task<Dictionary<string, List<AppointmentModel>>?> CollectStudentsAppointmentsAsync(HttpContext context)
         {
             string? token = VerifyVerificationToken(context);
 
@@ -1367,8 +1370,14 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                     }
 
                 }
-                return appointments;
 
+                Dictionary<string, List<AppointmentModel>> value = new Dictionary<string, List<AppointmentModel>>();
+                Array user = studentInformation[token];
+                if (user == null) return null;
+                var currentName = user.GetValue(0) + " " + user.GetValue(1);
+
+                value.Add(currentName, appointments);
+                return value;
             }
             return null;
         }

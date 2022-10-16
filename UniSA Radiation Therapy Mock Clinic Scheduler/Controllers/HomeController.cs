@@ -54,13 +54,16 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result)
             {
                 List<AppointmentModel>? appointments = await firebase.CollectAllAppointmentsAsync(HttpContext);
+                ViewBag.currentUser = "Course"; //hardcoded as not needed for course coordinator
                 ViewBag.Appointments = appointments;
                 return View();
             }
             else if (firebase.VerifyLoggedInSession(HttpContext).Result)
             {
-                List<AppointmentModel>? appointments = await firebase.CollectStudentsAppointmentsAsync(HttpContext);
-                ViewBag.Appointments = appointments;
+                Dictionary<string, List<AppointmentModel>>? appointments = await firebase.CollectStudentsAppointmentsAsync(HttpContext);
+                var first = appointments.First();
+                ViewBag.currentUser = first.Key;
+                ViewBag.Appointments = first.Value;
                 return View();
             }
 
