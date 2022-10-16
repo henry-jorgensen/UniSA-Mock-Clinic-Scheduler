@@ -406,6 +406,10 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
             if (token == null) return null;
 
+            //Get the student information
+            Dictionary<string, Array>? studentInformation = await GetStudentsAsync();
+            if (studentInformation == null) return null;
+
             List<AppointmentModel> appointments = new List<AppointmentModel>();
 
             //Update all related students with the new schedule code
@@ -416,10 +420,25 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             //For each student update the schedule code list
             foreach (DocumentSnapshot documentSnapshot in allAppointmentQuerySnapshot.Documents)
             {
-                appointments.Add(documentSnapshot.ConvertTo<AppointmentModel>());
-            }
+                AppointmentModel tempAppointment = documentSnapshot.ConvertTo<AppointmentModel>();
+                tempAppointment.AppointmentID = documentSnapshot.Id;
 
-            Console.WriteLine(appointments.ToString());
+                if (tempAppointment.Patient == null || tempAppointment.RadiationTherapist1 == null || tempAppointment.RadiationTherapist2 == null) return null;
+
+                Array userPatient = studentInformation[tempAppointment.Patient];
+                if (userPatient == null) return null;
+                tempAppointment.Patient = userPatient.GetValue(0) + " " + userPatient.GetValue(1);
+
+                Array userRT1 = studentInformation[tempAppointment.RadiationTherapist1];
+                if (userRT1 == null) return null;
+                tempAppointment.RadiationTherapist1 = userRT1.GetValue(0) + " " + userRT1.GetValue(1);
+
+                Array userRT2 = studentInformation[tempAppointment.RadiationTherapist2];
+                if (userRT2 == null) return null;
+                tempAppointment.RadiationTherapist2 = userRT2.GetValue(0) + " " + userRT2.GetValue(1);
+
+                appointments.Add(tempAppointment);
+            }
 
             return appointments;
         }
@@ -1101,6 +1120,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
             return students;
         }
+
 
         /// <summary>
         /// Collect all classes associated with a particular course coordinator and append the different schedules and their 

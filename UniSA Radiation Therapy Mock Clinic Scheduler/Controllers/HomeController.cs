@@ -50,6 +50,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         //Must be logged into a valid account to see
         public async Task<IActionResult> Clinics()
         {            
+            //Need to organise in time/data order
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result)
             {
                 List<AppointmentModel>? appointments = await firebase.CollectAllAppointmentsAsync(HttpContext);
