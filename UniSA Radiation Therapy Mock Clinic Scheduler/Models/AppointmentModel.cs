@@ -1,6 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using Google.Cloud.Firestore;
+﻿using Google.Cloud.Firestore;
 
 namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models
 {
@@ -23,8 +21,9 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models
             AppointmentID = ID;
             ScheduleCode = scheduleCode;
             Emailed = false;
-            Status = "Incomplete";
+            Status = "Available";
             AppointmentRef = null;
+            InfectiousDetails = "";
         }
 
         [FirestoreProperty]
@@ -65,6 +64,9 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models
 
         [FirestoreProperty]
         public string? Status { get; set; }
+
+        [FirestoreProperty]
+        public string? InfectiousDetails { get; set; }
 
         public string? PatientName { get; set; }
 

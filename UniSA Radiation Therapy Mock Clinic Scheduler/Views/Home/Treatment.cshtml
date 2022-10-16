@@ -2,6 +2,8 @@
     ViewData["Title"] = "Treatment";
     ViewData["Controller"] = "Home";
     AppointmentModel appointment = ViewBag.Appointment;
+
+    var tempInfect = appointment.Infectious.Split(':');
 }
 
 <script src="~/lib/jquery/dist/jquery.js"></script>
@@ -24,6 +26,7 @@
 						<th>Date</th>
 						<th>Location</th>
 						<th>Patient</th>
+                        <th>Infectious</th>
 						<th>Radiation Therapists</th>
 						<th>Site</th>
 						<th>Treatment Document</th>
@@ -44,6 +47,10 @@
 
 						<td>
 							<h6 class="mb-0">@appointment.Patient</h6>
+						</td>
+
+                        <td>
+							<h6 id="infectionStatus" class="mb-0 infectionColumn" data-value="@tempInfect[1]">@tempInfect[0]</h6>
 						</td>
 
 						<td>
@@ -77,4 +84,60 @@
 			</div>
 		</div>
 	</main>
+
+	<!-- The Modal -->
+    <div id="infectionModal" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <div>
+                <h2 style="float:left;">WARNING</h2>
+                <span id="closeButton" class="close">&times;</span>
+            </div>
+            <br />
+            <div class="form-group">
+                <div class="form-row">
+                    <div class="col-md-6 mb-3">
+                        <label for="modalInfectionTitle">Infection</label>
+                        <input disabled type="text" class="form-control input" id="modalInfectionTitle" placeholder="COVID-19.." required>
+                    </div>
+                </div>      
+                <div class="form-row mb-3">
+                    <label for="modalinfectionDetails">Infection Details</label>
+                    <textarea disabled class="form-control" id="modalinfectionDetails" rows="3" placeholder="Infection Details.."></textarea>
+                </div> 
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+    if($("#infectionStatus").innerHTML != "False") {
+        openModal();
+    }
+
+	//setup on click listeners for the infection modal
+    $(".infectionColumn").on('click', function(e){
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+		if (e.target.innerHTML == "False") {
+            return
+        }
+
+        openModal();
+    });	
+
+    function openModal() {
+		//Load the current values
+        $("#modalInfectionTitle").val($("#infectionStatus")[0].innerHTML)
+        $("#modalinfectionDetails").val($("#infectionStatus").data('value'));
+
+        let modal = $("#infectionModal");
+        let close = $("#closeButton");
+        close.on('click', function () {
+            modal.css("display", "none");
+        });
+
+        modal.css("display", "block");
+    }
+</script>

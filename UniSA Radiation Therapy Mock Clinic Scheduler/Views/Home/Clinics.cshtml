@@ -1,9 +1,11 @@
 ﻿@{
     ViewData["Title"] = "Clinics";
     ViewData["Controller"] = "Home";
+	string currentUser = ViewBag.currentUser;
     List<AppointmentModel> appointments = ViewBag.Appointments;
 }
 
+<script src="~/lib/jquery/dist/jquery.js"></script>
 <script src="~/js/moment.min.js"></script>
 <link rel="stylesheet" type="text/css" href="/css/clinics.css">
 
@@ -29,6 +31,8 @@
 				<tbody>
 					@foreach (var appointment in appointments)
 					{
+						var tempInfect = appointment.Infectious.Split(':');
+
 						<tr>
 							<td>
 								<h6 class="mb-0">@appointment.Time</h6>
@@ -44,7 +48,7 @@
 							</td>
 
 							<td>
-								<h6 class="mb-0">@appointment.Infectious</h6>
+								<h6 class="mb-0 infectionColumn" data-value="@tempInfect[1]">@tempInfect[0]</h6>
 							</td>
 
 							<td>
@@ -57,25 +61,38 @@
 							</td>	
 
 							<td>
-								<h6 class="mb-0">@appointment.Complication</h6>
+								@if (@appointment.Patient.Equals(currentUser))
+								{
+									<h6 class="mb-0">@appointment.Complication</h6>
+								}
+								else {
+									<h6 class="mb-0">Hidden</h6>
+								}
+								
 							</td>	
 
 							<td>
-								@Html.ActionLink("Treatment", "Treatment", "Home",
-								new {
-									date = @appointment.Date,
-									time = @appointment.Time,
-									room = @appointment.Room,
-									patient = @appointment.Patient,
-									infectious = @appointment.Infectious,
-									rt1 = @appointment.RadiationTherapist1,
-									rt2 = @appointment.RadiationTherapist2,
-									site = @appointment.Site,
-									complication = @appointment.Complication,
-									ID = @appointment.AppointmentID
-								},
-								new { @class="btn button" }
-								)
+								@if (@appointment.Patient.Equals(currentUser))
+								{
+									<h6 class="mb-0">Hidden</h6>
+								}
+								else {
+									@Html.ActionLink("Treatment", "Treatment", "Home",
+									new {
+										date = @appointment.Date,
+										time = @appointment.Time,
+										room = @appointment.Room,
+										patient = @appointment.Patient,
+										infectious = @appointment.Infectious,
+										rt1 = @appointment.RadiationTherapist1,
+										rt2 = @appointment.RadiationTherapist2,
+										site = @appointment.Site,
+										complication = @appointment.Complication,
+										ID = @appointment.AppointmentID
+									},
+									new { @class="btn button" }
+									)
+								}
 							</td>
 						</tr>
 					}
@@ -83,4 +100,53 @@
 			</table>
 		</div>
 	</main>
+
+	<!-- The Modal -->
+    <div id="infectionModal" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <div>
+                <h2 style="float:left;">WARNING</h2>
+                <span id="closeButton" class="close">&times;</span>
+            </div>
+            <br />
+            <div class="form-group">
+                <div class="form-row">
+                    <div class="col-md-6 mb-3">
+                        <label for="modalInfectionTitle">Infection</label>
+                        <input disabled type="text" class="form-control input" id="modalInfectionTitle" placeholder="COVID-19.." required>
+                    </div>
+                </div>      
+                <div class="form-row mb-3">
+                    <label for="modalinfectionDetails">Infection Details</label>
+                    <textarea disabled class="form-control" id="modalinfectionDetails" rows="3" placeholder="Infection Details.."></textarea>
+                </div> 
+            </div>
+        </div>
+    </div>
 </div>
+
+
+<script>
+	//setup on click listeners for the infection modal
+    $(".infectionColumn").on('click', function(e){
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+		if (e.target.innerHTML == "False") {
+            return
+        }
+
+        //Load the current values
+        $("#modalInfectionTitle").val(e.target.innerHTML)
+        $("#modalinfectionDetails").val(e.target.getAttribute("data-value"));
+
+        let modal = $("#infectionModal");
+        let close = $("#closeButton");
+        close.on('click', function () {
+            modal.css("display", "none");
+        });
+
+        modal.css("display", "block");
+    });	
+</script>

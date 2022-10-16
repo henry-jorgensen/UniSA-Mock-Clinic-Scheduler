@@ -123,9 +123,11 @@
             let row = this.createScheduleRow(
                 student.Time,
                 student.Patient,
+                student.Infectious,
                 student.Site,
                 student.RT1,
-                student.RT2
+                student.RT2,
+                student.Complication
             );
 
             table.append(row);
@@ -136,7 +138,7 @@
      * Used to create a new row in the scheduling table. Using string literal and html create and 
      * return a new table row element with the supplied information as the filler details.
      */
-    createScheduleRow = (time, patient, site, RT1, RT2) => {
+    createScheduleRow = (time, patient, infectious, site, RT1, RT2, complication) => {
         let tr = $('<tr>', {
             class: "scheduleEntry"
         })
@@ -146,11 +148,34 @@
         let tdSite = $('<td>', { text: site, contenteditable: "true" });
         let tdRT1 = $('<td>', { text: RT1, contenteditable: "true" });
         let tdRT2 = $('<td>', { text: RT2, contenteditable: "true" });
-        let tdComplication = $('<td>', { text: "TBA", contenteditable: "true" });
+        let tdComplication = $('<td>', { text: complication, contenteditable: "true" });
 
-        let tdInfectious = $('<td>', { class: "text-center" });
-        let checkbox = $('<input>', { type: "checkbox" });
-        tdInfectious.append(checkbox);
+        let split = infectious.split(":");
+        let tdInfectious = $('<td>', { text: split[0], class: "text-center" });
+        tdInfectious.val(split[1])
+        tdInfectious.on('click', function (e) {
+            //Load the current values
+            $("#modalInfectionTitle").val(e.target.innerHTML)
+            $("#modalinfectionDetails").text(e.target.value);
+
+            let modal = $("#infectionModal");
+            let close = $("#closeButton");
+            close.on('click', function () {
+                modal.css("display", "none");
+            });
+
+            modal.css("display", "block");
+
+            $("#saveInfectionDetails").on('click', function () {
+                e.target.innerHTML = $("#modalInfectionTitle").val();
+                e.target.value = $("#modalnfectionDetails").val();
+                modal.css("display", "none");
+
+                //Reset the modal
+                $("#modalInfectionTitle").val("")
+                $("#modalinfectionDetails").val("");
+            });
+        });
 
         tr.append(tdTime, tdPatient, tdInfectious, tdSite, tdRT1, tdRT2, tdComplication);
 

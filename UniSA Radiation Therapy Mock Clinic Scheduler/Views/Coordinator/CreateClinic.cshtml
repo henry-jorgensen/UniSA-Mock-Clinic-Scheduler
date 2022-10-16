@@ -126,22 +126,7 @@
                                     <tr class="text-center">
                                         <th class="text-center" colspan="12">Clinic Schedule <span id="clinicDate">DATE</span></th>
                                     </tr>
-                                    @*<tr class="text-center">
-                                        <th class="text-center" colspan="12" id="initialLocation">Location 1</th>
-                                    </tr>
-                                    <tr class="text-center">
-                                        <th scope="col">Time</th>
-                                        <th scope="col">Patient</th>
-                                        <th scope="col">Infectious</th>
-                                        <th scope="col">Site</th>
-                                        <th scope="col">RT1</th>
-                                        <th scope="col">RT2</th>
-                                        <th scope="col">Complication</th>
-                                    </tr>*@
                                 </thead>
-                                @*<tbody class="text-center" id="scheduleList0">
-
-                                </tbody>*@
                             </table>
 
                             <div id="scheduleHolder">
@@ -163,6 +148,30 @@
                     <span class="step"></span>
                     <span class="step"></span>
                     <span class="step"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- The Modal -->
+        <div id="infectionModal" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span id="closeButton" class="close">&times;</span>
+                <div class="form-group">
+                    <div class="form-row">
+                        <div class="col-md-6 mb-3">
+                            <label for="modalInfectionTitle">Infection</label>
+                            <input type="text" class="form-control input" id="modalInfectionTitle" placeholder="COVID-19.." required>
+                        </div>
+                    </div>      
+                    <div class="form-row mb-3">
+                        <label for="modalinfectionDetails">Infection Details</label>
+                        <textarea class="form-control" id="modalinfectionDetails" rows="3" placeholder="Infection Details.."></textarea>
+                    </div> 
+
+                    <div class="form-row mt-3">
+                        <button class="btn button" id="saveInfectionDetails">Save</button>
+                    </div>
                 </div>
             </div>
         </div>
