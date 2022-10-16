@@ -25,6 +25,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models
             Emailed = false;
             Status = "Incomplete";
             AppointmentRef = null;
+            InfectiousDetails = "";
         }
 
         [FirestoreProperty]
@@ -65,6 +66,9 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models
 
         [FirestoreProperty]
         public string? Status { get; set; }
+
+        [FirestoreProperty]
+        public string? InfectiousDetails { get; set; }
 
         public string? PatientName { get; set; }
 

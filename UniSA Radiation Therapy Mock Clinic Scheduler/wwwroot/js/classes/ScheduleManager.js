@@ -143,7 +143,7 @@
 
                 rowData[this.headers[0]] = row[0].innerHTML;
                 rowData[this.headers[1]] = row[1].innerHTML;
-                rowData[this.headers[2]] = row[2].children[0].checked;
+                rowData[this.headers[2]] = row[2].innerHTML;
                 rowData[this.headers[3]] = row[3].innerHTML;
                 rowData[this.headers[4]] = row[4].innerHTML;
                 rowData[this.headers[5]] = row[5].innerHTML;

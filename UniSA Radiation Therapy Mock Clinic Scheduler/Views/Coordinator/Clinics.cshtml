@@ -99,12 +99,13 @@
                                                         @*Loop through each appointment in the supplied dictionary*@
                                                         @foreach (var appointment in schedule.Value)
                                                         {
-                                                            var temp = appointment.Patient.Split(':');
+                                                            var tempPat = appointment.Patient.Split(':');
+                                                            var tempInfect = appointment.Infectious.Split(':');
                                                             
                                                             <tr id="@appointment.Date" class="studentEntry">
                                                                 <th scope="col">@appointment.Date  @appointment.Time</th>
-                                                                <th id="@temp[1]">@temp[0]</th>
-                                                                <th>@appointment.Infectious</th>
+                                                                <th id="@tempPat[1]">@tempPat[0]</th>
+                                                                <th>@tempInfect[0]</th>
                                                                 <th>@appointment.RadiationTherapist1</th>
                                                                 <th>@appointment.RadiationTherapist2</th>
                                                                 <th>@appointment.Room</th>

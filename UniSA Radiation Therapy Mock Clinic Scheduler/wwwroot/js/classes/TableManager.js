@@ -149,8 +149,17 @@
         let tdComplication = $('<td>', { text: "TBA", contenteditable: "true" });
 
         let tdInfectious = $('<td>', { class: "text-center" });
-        let checkbox = $('<input>', { type: "checkbox" });
-        tdInfectious.append(checkbox);
+        tdInfectious.on('click', function (e) {
+            console.log(e.target);
+
+            let modal = $("#infectionModal");
+            let close = $("#closeButton");
+            close.on('click', function () {
+                modal.css("display", "none");
+            });
+
+            modal.css("display", "block");
+        });
 
         tr.append(tdTime, tdPatient, tdInfectious, tdSite, tdRT1, tdRT2, tdComplication);
 
