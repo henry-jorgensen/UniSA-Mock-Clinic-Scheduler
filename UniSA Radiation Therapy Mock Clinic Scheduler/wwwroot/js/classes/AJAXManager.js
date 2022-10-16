@@ -266,6 +266,29 @@
     }
 
     /**
+     * Update the details of appointments that have been used during a Clinic Day.
+     * This may update the time or status of an appointment.
+     * @param {any} details
+     */
+    updateAppointments = async (details) => {
+        return $.ajax({
+            type: 'POST',
+            url: `/${this.controller}/UpdateAppointments`,
+            data: {
+                appointmentDetails: details
+            },
+            success: function (result) {
+                //Populate the list with the results
+                return result
+            },
+            failure: function (error) {
+                console.log(error);
+                return error;
+            }
+        });
+    }
+
+    /**
      * Load all the appointments associated with a particular schedule
      * @param {any} scheduleCode
      */

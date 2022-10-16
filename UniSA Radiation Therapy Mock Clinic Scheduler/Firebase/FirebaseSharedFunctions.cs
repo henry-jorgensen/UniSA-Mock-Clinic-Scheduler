@@ -444,6 +444,37 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
         }
 
         /// <summary>
+        /// Update an assoicated appointments that have been run during a mock clinic.
+        /// </summary>
+        /// <param name="details">A list of stringified JSON details for an appointment</param>
+        /// <returns>A bool representing if the transaction was a success or not</returns>
+        public async Task<bool?> UpdateAppointmentsAsync(HttpContext context, List<string> details)
+        {
+            string? token = VerifyVerificationToken(context);
+
+            if (token == null) return null;
+
+            details.ForEach(async x => {
+                Console.WriteLine(x);
+
+                JObject obj = JObject.Parse(x);
+
+                DocumentReference docRef = db.Collection("Appointments").Document(obj.Value<string>("id"));
+
+                Dictionary<string, object> updates = new Dictionary<string, object>();
+#pragma warning disable CS8604 // Possible null reference argument.
+                updates.Add("AppointmentID", obj.Value<string>("id"));
+                updates.Add("Time", obj.Value<string>("time"));
+                updates.Add("Status", obj.Value<string>("status"));
+#pragma warning restore CS8604 // Possible null reference argument.
+
+                await docRef.UpdateAsync(updates);
+            });
+            
+            return true;
+        }
+
+        /// <summary>
         /// Create appointment entries from a given schedule model, the schedule holds the time table as a json but this
         /// allows invidiual appointments to be loaded by a student or course coordinator.
         /// </summary>

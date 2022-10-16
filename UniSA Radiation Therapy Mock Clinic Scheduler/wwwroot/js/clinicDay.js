@@ -34,9 +34,22 @@ function setupSavedClinic(clinic) {
         }
     });
 
-    $("#saveClinic").on('click', function () {
-        if (confirm("WARNING: This will save the clinic and essentially complete the Clinic day") == true) {
-            console.log("Clinic completed");
+    $("#updateClinic").on('click', function () {
+        if (confirm("WARNING: This will update the clinic to reflect the changes in made.") == true) {
+            let details = []
+            let entries = $(".clinicAppointment");
+
+            for (let i = 0; i < entries.length; i++) {
+                let newData = {
+                    "id": entries[i].id,
+                    "time": entries[i].children[0].children[0].innerHTML,
+                    "status": entries[i].children[6].children[0].innerHTML
+                }
+
+                details.push(JSON.stringify(newData));
+            }
+            
+            ajaxManager.updateAppointments(details);
         }
     });
 
@@ -157,7 +170,7 @@ async function loadSelectedClinic(scheduleCode) {
  * @param {any} appointment
  */
 function createClinicDayRow(appointment) {
-    let tr = $('<tr>');
+    let tr = $('<tr>', { id: appointment.appointmentID, class: "clinicAppointment" });
 
     //set up the date area
     let tdDate = $('<td>');
@@ -167,7 +180,7 @@ function createClinicDayRow(appointment) {
 
     //setup the location
     let tdLocation = $('<td>');
-    let h6Loc = $('<h6>', { text: appointment.site });
+    let h6Loc = $('<h6>', { text: appointment.room });
     tdLocation.append(h6Loc);
 
     //setup the patient

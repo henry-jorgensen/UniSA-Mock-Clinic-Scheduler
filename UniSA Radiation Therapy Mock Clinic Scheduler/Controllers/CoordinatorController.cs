@@ -133,6 +133,24 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> UpdateAppointments(List<string> appointmentDetails)
+        {
+            if (firebase.VerifyLoggedInSession(HttpContext).Result == false)
+            {
+                return Forbid();
+            }
+
+            bool? success = await firebase.UpdateAppointmentsAsync(HttpContext, appointmentDetails);
+
+            if (success != null)
+            {
+                return Ok(success);
+            }
+
+            return BadRequest();
+        }
+
+        [HttpPost]
         public IActionResult EditAppointmentPost(string apptId, string schedulecode, string time, string date, string patient, string rt1, string rt2, string infect, string room, string site, string complication)
         {
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result)
