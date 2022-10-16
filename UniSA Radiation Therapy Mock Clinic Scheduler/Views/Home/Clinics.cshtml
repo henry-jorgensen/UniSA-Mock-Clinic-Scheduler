@@ -5,6 +5,7 @@
     List<AppointmentModel> appointments = ViewBag.Appointments;
 }
 
+<script src="~/lib/jquery/dist/jquery.js"></script>
 <script src="~/js/moment.min.js"></script>
 <link rel="stylesheet" type="text/css" href="/css/clinics.css">
 
@@ -47,7 +48,7 @@
 							</td>
 
 							<td>
-								<h6 class="mb-0 infectionColumn" value="@tempInfect[1]">@tempInfect[0]</h6>
+								<h6 class="mb-0 infectionColumn" data-value="@tempInfect[1]">@tempInfect[0]</h6>
 							</td>
 
 							<td>
@@ -138,7 +139,7 @@
 
         //Load the current values
         $("#modalInfectionTitle").val(e.target.innerHTML)
-        $("#modalinfectionDetails").val(e.target.value);
+        $("#modalinfectionDetails").val(e.target.getAttribute("data-value"));
 
         let modal = $("#infectionModal");
         let close = $("#closeButton");

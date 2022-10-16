@@ -2,6 +2,8 @@
     ViewData["Title"] = "Treatment";
     ViewData["Controller"] = "Coordinator";
     AppointmentModel appointment = ViewBag.Appointment;
+
+    var tempInfect = appointment.Infectious.Split(':');
 }
 
 <script src="~/lib/jquery/dist/jquery.js"></script>
@@ -45,7 +47,7 @@
 						</td>
 
                         <td>
-							<h6 class="mb-0 infectionColumn">@appointment.Infectious</h6>
+							<h6 id="infectionStatus" class="mb-0 infectionColumn" data-value="@tempInfect[1]">@tempInfect[0]</h6>
 						</td>
 
 						<td>
@@ -107,6 +109,10 @@
 </div>
 
 <script>
+	if($("#infectionStatus").innerHTML != "False") {
+        openModal();
+    }
+
 	//setup on click listeners for the infection modal
     $(".infectionColumn").on('click', function(e){
         event.stopPropagation();
@@ -116,9 +122,13 @@
             return
         }
 
-        //Load the current values
-        $("#modalInfectionTitle").val(e.target.innerHTML)
-        $("#modalinfectionDetails").val(e.target.value);
+        openModal();
+    });	
+
+    function openModal() {
+		//Load the current values
+        $("#modalInfectionTitle").val($("#infectionStatus")[0].innerHTML)
+        $("#modalinfectionDetails").val($("#infectionStatus").data('value'));
 
         let modal = $("#infectionModal");
         let close = $("#closeButton");
@@ -127,5 +137,5 @@
         });
 
         modal.css("display", "block");
-    });	
+    }	
 </script>

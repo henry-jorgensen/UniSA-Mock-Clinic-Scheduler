@@ -105,7 +105,7 @@
                                                             <tr id="@appointment.Date" class="studentEntry">
                                                                 <th scope="col">@appointment.Date  @appointment.Time</th>
                                                                 <th id="@tempPat[1]">@tempPat[0]</th>
-                                                                <th class="infectionColumn">@tempInfect[0]</th>
+                                                                <th class="infectionColumn" data-value="@tempInfect[1]">@tempInfect[0]</th>
                                                                 <th>@appointment.RadiationTherapist1</th>
                                                                 <th>@appointment.RadiationTherapist2</th>
                                                                 <th>@appointment.Room</th>
@@ -183,7 +183,7 @@
 
         //Load the current values
         $("#modalInfectionTitle").val(e.target.innerHTML)
-        $("#modalinfectionDetails").val(e.target.value);
+        $("#modalinfectionDetails").val(e.target.getAttribute("data-value"));
 
         let modal = $("#infectionModal");
         let close = $("#closeButton");
