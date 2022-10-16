@@ -50,6 +50,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         //Must be logged into a valid account to see
         public async Task<IActionResult> Clinics()
         {            
+            //Need to organise in time/data order
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result)
             {
                 List<AppointmentModel>? appointments = await firebase.CollectAllAppointmentsAsync(HttpContext);
@@ -64,6 +65,18 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             }
 
             return RedirectToAction("Login", "Account");
+        }
+
+        public IActionResult ClinicDay()
+        {
+            if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == true)
+            {
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("Login", "Account");
+            }
         }
 
         //Historical clinics page
@@ -133,11 +146,6 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             if (success) return Ok();
 
             return BadRequest();
-        }
-
-        public IActionResult PrivacyPolicy()
-        {
-            return View();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

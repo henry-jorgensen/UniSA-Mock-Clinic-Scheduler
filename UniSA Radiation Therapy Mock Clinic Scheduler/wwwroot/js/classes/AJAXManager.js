@@ -90,6 +90,27 @@
     }
 
     /**
+     * Load all the clinics associated with a course coordinator
+     */
+    loadAllClinics = async (classNameValue) => {
+        return await $.ajax({
+            type: 'POST',
+            url: `/${this.controller}/LoadAllClinics`,
+            data: {
+                className: classNameValue
+            },
+            success: function (result) {
+                console.log(result);
+                return result;
+            },
+            failure: function (error) {
+                console.log(error);
+                return error;
+            }
+        });
+    }
+
+    /**
      * Perform a GET call to the parent controller, the objective is to retrieve details about
      * a previously saved class. A successful call will increment the form wizard to the
      * appropriate form.
@@ -239,6 +260,51 @@
             },
             failure: function (result) {
                 console.log(result);
+                return 0;
+            }
+        });
+    }
+
+    /**
+     * Update the details of appointments that have been used during a Clinic Day.
+     * This may update the time or status of an appointment.
+     * @param {any} details
+     */
+    updateAppointments = async (details) => {
+        return $.ajax({
+            type: 'POST',
+            url: `/${this.controller}/UpdateAppointments`,
+            data: {
+                appointmentDetails: details
+            },
+            success: function (result) {
+                //Populate the list with the results
+                return result
+            },
+            failure: function (error) {
+                console.log(error);
+                return error;
+            }
+        });
+    }
+
+    /**
+     * Load all the appointments associated with a particular schedule
+     * @param {any} scheduleCode
+     */
+    loadScheduleAppointments = async (scheduleCode) => {
+        return $.ajax({
+            type: 'GET',
+            url: `/${this.controller}/LoadScheduleAppointments`,
+            data: {
+                scheduleId: scheduleCode
+            },
+            success: function (result) {
+                //Populate the list with the results
+                return result
+            },
+            failure: function (error) {
+                console.log(error);
                 return 0;
             }
         });

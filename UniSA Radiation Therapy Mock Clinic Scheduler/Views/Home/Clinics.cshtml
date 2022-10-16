@@ -4,6 +4,7 @@
     List<AppointmentModel> appointments = ViewBag.Appointments;
 }
 
+<script src="~/js/moment.min.js"></script>
 <link rel="stylesheet" type="text/css" href="/css/clinics.css">
 
 <div class="container">
@@ -70,7 +71,7 @@
 									rt1 = @appointment.RadiationTherapist1,
 									rt2 = @appointment.RadiationTherapist2,
 									site = @appointment.Site,
-									act = @appointment.Complication,
+									complication = @appointment.Complication,
 									ID = @appointment.AppointmentID
 								},
 								new { @class="btn button" }

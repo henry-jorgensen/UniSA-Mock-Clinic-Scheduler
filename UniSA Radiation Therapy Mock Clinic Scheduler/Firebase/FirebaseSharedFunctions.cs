@@ -289,6 +289,47 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
         }
 
         /// <summary>
+        /// Load all the clinics associated with a particular class
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="className"></param>
+        /// <returns></returns>
+        public async Task<List<List<string>>?> CollectAllClinicAsync(HttpContext context, string className)
+        {
+            string? token = VerifyVerificationToken(context);
+
+            //Insert this into cloud firestore database
+            if (token == null) return null;
+
+            DocumentReference classRef = db.Collection("Users").Document(token).Collection("Classes").Document(className);
+            DocumentSnapshot snapshot = await classRef.GetSnapshotAsync();
+
+            List<List<string>> clinics = new List<List<string>>();
+
+            List<string> codes = snapshot.GetValue<List<string>>("ScheduleCode");
+
+            foreach(string code in codes)
+            {
+                Console.WriteLine(code);
+
+                //Collect the class details
+                DocumentReference docRef = db.Collection("Schedules").Document(code);
+                DocumentSnapshot scheduleSnapshot = await docRef.GetSnapshotAsync();
+                ScheduleModel temp = scheduleSnapshot.ConvertTo<ScheduleModel>();
+
+                if (temp.Name == null || temp.ScheduleCode == null) continue;
+
+                List<string> holder = new List<string>();
+                holder.Add(temp.Name);
+                holder.Add(temp.ScheduleCode);
+                
+                clinics.Add(holder);
+            }
+
+            return clinics;
+        }
+
+        /// <summary>
         /// Update an existing Schedule entry
         /// </summary>
         /// <param name="context"></param>
@@ -351,6 +392,86 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             Console.WriteLine(snapshot.ToString());
 
             return snapshot.ConvertTo<ScheduleModel>();
+        }
+        
+        /// <summary>
+        /// Collect all appointments that are associated with the supplied schedule code.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="scheduleCode"></param>
+        /// <returns></returns>
+        public async Task<List<AppointmentModel>?> CollectScheduleAppointmentsAsync(HttpContext context, string scheduleCode)
+        {
+            string? token = VerifyVerificationToken(context);
+
+            if (token == null) return null;
+
+            //Get the student information
+            Dictionary<string, Array>? studentInformation = await GetStudentsAsync();
+            if (studentInformation == null) return null;
+
+            List<AppointmentModel> appointments = new List<AppointmentModel>();
+
+            //Update all related students with the new schedule code
+            //Retrieve the list of students that have the class code
+            Query colRef = db.CollectionGroup("Appointments").WhereEqualTo("ScheduleCode", scheduleCode);
+            QuerySnapshot allAppointmentQuerySnapshot = await colRef.GetSnapshotAsync();
+
+            //For each student update the schedule code list
+            foreach (DocumentSnapshot documentSnapshot in allAppointmentQuerySnapshot.Documents)
+            {
+                AppointmentModel tempAppointment = documentSnapshot.ConvertTo<AppointmentModel>();
+                tempAppointment.AppointmentID = documentSnapshot.Id;
+
+                if (tempAppointment.Patient == null || tempAppointment.RadiationTherapist1 == null || tempAppointment.RadiationTherapist2 == null) return null;
+
+                Array userPatient = studentInformation[tempAppointment.Patient];
+                if (userPatient == null) return null;
+                tempAppointment.Patient = userPatient.GetValue(0) + " " + userPatient.GetValue(1);
+
+                Array userRT1 = studentInformation[tempAppointment.RadiationTherapist1];
+                if (userRT1 == null) return null;
+                tempAppointment.RadiationTherapist1 = userRT1.GetValue(0) + " " + userRT1.GetValue(1);
+
+                Array userRT2 = studentInformation[tempAppointment.RadiationTherapist2];
+                if (userRT2 == null) return null;
+                tempAppointment.RadiationTherapist2 = userRT2.GetValue(0) + " " + userRT2.GetValue(1);
+
+                appointments.Add(tempAppointment);
+            }
+
+            return appointments;
+        }
+
+        /// <summary>
+        /// Update an assoicated appointments that have been run during a mock clinic.
+        /// </summary>
+        /// <param name="details">A list of stringified JSON details for an appointment</param>
+        /// <returns>A bool representing if the transaction was a success or not</returns>
+        public async Task<bool?> UpdateAppointmentsAsync(HttpContext context, List<string> details)
+        {
+            string? token = VerifyVerificationToken(context);
+
+            if (token == null) return null;
+
+            details.ForEach(async x => {
+                Console.WriteLine(x);
+
+                JObject obj = JObject.Parse(x);
+
+                DocumentReference docRef = db.Collection("Appointments").Document(obj.Value<string>("id"));
+
+                Dictionary<string, object> updates = new Dictionary<string, object>();
+#pragma warning disable CS8604 // Possible null reference argument.
+                updates.Add("AppointmentID", obj.Value<string>("id"));
+                updates.Add("Time", obj.Value<string>("time"));
+                updates.Add("Status", obj.Value<string>("status"));
+#pragma warning restore CS8604 // Possible null reference argument.
+
+                await docRef.UpdateAsync(updates);
+            });
+            
+            return true;
         }
 
         /// <summary>
@@ -1031,6 +1152,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             return students;
         }
 
+
         /// <summary>
         /// Collect all classes associated with a particular course coordinator and append the different schedules and their 
         /// appointment models.
@@ -1117,7 +1239,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             return classCollection;
         }
 
-        //Update the emailed field on an appointment
+        ///Update the emailed field on an appointment
         public async Task<AppointmentModel?> UpdateEmailAppointmentAsync(string appointmentRef, bool emailed)
         {
             try
