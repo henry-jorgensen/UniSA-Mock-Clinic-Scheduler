@@ -41,7 +41,41 @@ function setupPreview(url) {
 	$("#hide-pdf").removeClass("hidden");
 }
 
+/**
+ * Return the user to the clinic day page when a treatment is completed.
+ * Update the local storage to reflect the change.
+ * */
+function returnToClinicDay() {
+	const queryString = window.location.search;
+	const urlParams = new URLSearchParams(queryString);
+	const appointmentID = urlParams.get('appointmentID');
+
+	let currentClinic = JSON.parse(localStorage.getItem("ClinicDay"));
+	//Update the local storage entry
+	currentClinic.forEach(entry => {
+		if (entry.appointmentID == appointmentID) {
+			entry.status = "Complete";
+			localStorage.setItem("ClinicDay", JSON.stringify(currentClinic));
+		}
+	});
+
+	location.href = "/Home/ClinicDay";
+}
+
 $(document).ready(async () => {
+	//Detect if the treatment is part of the clinic day
+	const queryString = window.location.search;
+	const urlParams = new URLSearchParams(queryString);
+	const clinicDay = urlParams.get('clinicDay');
+
+	if (clinicDay) {
+		$("#completeTreatment").removeClass("hidden");
+
+		$("#completeTreatment").on('click', function () {
+			returnToClinicDay();
+		});
+    }
+
 	//collect the ID that will be used to reference any documents
 	const appointmentID = $("#appointmentID").text();
 
