@@ -126,4 +126,16 @@ $(document).ready(async () => {
 			hidePdfButton.innerHTML = "Hide PDF"
 		}
 	})
+
+	const imageMatcher = document.getElementById("matching-container")
+	const hideMatcherButton = document.getElementById("hide-matching")
+	hideMatcherButton.addEventListener('click', () => {
+		imageMatcher.classList.toggle("hidden");
+
+		if (imageMatcher.classList.contains("hidden")) {
+			hideMatcherButton.innerHTML = "Show Matcher"
+		} else {
+			hideMatcherButton.innerHTML = "Hide Matcher"
+		}
+	})
 });
