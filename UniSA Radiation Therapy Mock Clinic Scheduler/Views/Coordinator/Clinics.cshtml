@@ -99,12 +99,13 @@
                                                         @*Loop through each appointment in the supplied dictionary*@
                                                         @foreach (var appointment in schedule.Value)
                                                         {
-                                                            var temp = appointment.Patient.Split(':');
+                                                            var tempPat = appointment.Patient.Split(':');
+                                                            var tempInfect = appointment.Infectious.Split(':');
                                                             
                                                             <tr id="@appointment.Date" class="studentEntry">
                                                                 <th scope="col">@appointment.Date  @appointment.Time</th>
-                                                                <th id="@temp[1]">@temp[0]</th>
-                                                                <th>@appointment.Infectious</th>
+                                                                <th id="@tempPat[1]">@tempPat[0]</th>
+                                                                <th class="infectionColumn" data-value="@tempInfect[1]">@tempInfect[0]</th>
                                                                 <th>@appointment.RadiationTherapist1</th>
                                                                 <th>@appointment.RadiationTherapist2</th>
                                                                 <th>@appointment.Room</th>
@@ -142,10 +143,56 @@
             </div>
         </div>
     </div>
+
+    <!-- The Modal -->
+    <div id="infectionModal" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <div>
+                <h2 style="float:left;">WARNING</h2>
+                <span id="closeButton" class="close">&times;</span>
+            </div>
+            <br />
+            <div class="form-group">
+                <div class="form-row">
+                    <div class="col-md-6 mb-3">
+                        <label for="modalInfectionTitle">Infection</label>
+                        <input disabled type="text" class="form-control input" id="modalInfectionTitle" placeholder="COVID-19.." required>
+                    </div>
+                </div>      
+                <div class="form-row mb-3">
+                    <label for="modalinfectionDetails">Infection Details</label>
+                    <textarea disabled class="form-control" id="modalinfectionDetails" rows="3" placeholder="Infection Details.."></textarea>
+                </div> 
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
     const ajaxManager = new AJAXManager("Coordinator");
+
+    //setup on click listeners for the infection modal
+    $(".infectionColumn").on('click', function(e){
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        if (e.target.innerHTML == "False") {
+            return
+        }
+
+        //Load the current values
+        $("#modalInfectionTitle").val(e.target.innerHTML)
+        $("#modalinfectionDetails").val(e.target.getAttribute("data-value"));
+
+        let modal = $("#infectionModal");
+        let close = $("#closeButton");
+        close.on('click', function () {
+            modal.css("display", "none");
+        });
+
+        modal.css("display", "block");
+    });
 
     async function deleteClass(e) {
         let values = e.value.split(":");

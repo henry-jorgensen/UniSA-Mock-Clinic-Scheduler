@@ -112,12 +112,12 @@
         SAMPLE SCHEDULE STRUCTURE
         {
             locationA: [
-                {Time: xx:yy, Patient: string, Infectious: bool, RT1: string, RT2: string},
-                {Time: xx:yy, Patient: string, Infectious: bool, RT1: string, RT2: string},
+                {Time: xx:yy, Patient: string, Infectious: string, RT1: string, RT2: string, Complication: string},
+                {Time: xx:yy, Patient: string, Infectious: string, RT1: string, RT2: string, Complication: string},
             ],
             locationB: [
-                {Time: xx:yy, Patient: string, Infectious: bool, RT1: string, RT2: string},
-                {Time: xx:yy, Patient: string, Infectious: bool, RT1: string, RT2: string},
+                {Time: xx:yy, Patient: string, Infectious: string, RT1: string, RT2: string, Complication: string},
+                {Time: xx:yy, Patient: string, Infectious: string, RT1: string, RT2: string, Complication: string},
             ],
         }
     */
@@ -143,7 +143,13 @@
 
                 rowData[this.headers[0]] = row[0].innerHTML;
                 rowData[this.headers[1]] = row[1].innerHTML;
-                rowData[this.headers[2]] = row[2].children[0].checked;
+
+                if (row[2].innerHTML === "") {
+                    rowData[this.headers[2]] = "False:False";
+                } else {
+                    rowData[this.headers[2]] = row[2].innerHTML + ":" + row[2].value; //infection:details
+                }
+                
                 rowData[this.headers[3]] = row[3].innerHTML;
                 rowData[this.headers[4]] = row[4].innerHTML;
                 rowData[this.headers[5]] = row[5].innerHTML;

@@ -64,7 +64,7 @@ $(document).ready(function () {
         }
 
         $("#loader").css("display", "none");
-        window.location.replace("/Coordinator/Classes");
+        window.location.replace("/Coordinator/Clinics");
     });
 });
 
