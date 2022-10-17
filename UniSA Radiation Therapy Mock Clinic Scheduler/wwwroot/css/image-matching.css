@@ -2,9 +2,12 @@
     position: relative;
     width: 100%;
     height: 600px;
-    border: solid 1px red;
+    border: solid 1px black;
     overflow: hidden;
-    background-image: url("https://els-jbs-prod-cdn.jbs.elsevierhealth.com/cms/attachment/3a670e84-8cfd-40bb-80ca-3db863b50cc8/gr1.jpg")
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    /*background-image: url("")*/
 }
 
 .draggable{

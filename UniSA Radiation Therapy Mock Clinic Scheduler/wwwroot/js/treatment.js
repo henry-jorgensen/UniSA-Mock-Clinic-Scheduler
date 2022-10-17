@@ -133,9 +133,29 @@ $(document).ready(async () => {
 		imageMatcher.classList.toggle("hidden");
 
 		if (imageMatcher.classList.contains("hidden")) {
-			hideMatcherButton.innerHTML = "Show Matcher"
+			hideMatcherButton.innerHTML = "Show Image Matching"
 		} else {
-			hideMatcherButton.innerHTML = "Hide Matcher"
+			hideMatcherButton.innerHTML = "Hide Image Matching"
 		}
 	})
+
+	const bg_image_input = document.querySelector("#background-input");
+	bg_image_input.addEventListener("change", function () {
+		const reader = new FileReader();
+		reader.addEventListener("load", () => {
+			const uploaded_image = reader.result;
+			document.querySelector("#image-matcher").style.backgroundImage = `url(${uploaded_image})`;
+		});
+		reader.readAsDataURL(this.files[0]);
+	});
+
+	const draggable_image_input = document.querySelector("#draggable-input");
+	draggable_image_input.addEventListener("change", function () {
+		const reader = new FileReader();
+		reader.addEventListener("load", () => {
+			const uploaded_image = reader.result;
+			document.querySelector("#draggable-image").src = uploaded_image;
+		});
+		reader.readAsDataURL(this.files[0]);
+	});
 });
