@@ -115,6 +115,7 @@ $(document).ready(async () => {
 
 	$("#fileUpload").change(handleFileSelect);
 
+	//Buttons for hiding the pdf viewer and the image matcher
 	const pdfViewer = document.getElementById("treatmentDocument")
 	const hidePdfButton = document.getElementById("hide-pdf")
 	hidePdfButton.addEventListener('click', () => {
@@ -139,6 +140,7 @@ $(document).ready(async () => {
 		}
 	})
 
+	//Inputs and their handling to set local images in the image matcher
 	const bg_image_input = document.querySelector("#background-input");
 	bg_image_input.addEventListener("change", function () {
 		const reader = new FileReader();
