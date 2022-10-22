@@ -53,13 +53,14 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             //Need to organise in time/data order
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result)
             {
-                List<AppointmentModel>? appointments = await firebase.CollectAllAppointmentsAsync(HttpContext);
+                Dictionary<string, List<AppointmentModel>>? appointments = await firebase.CollectAllAppointmentsAsync(HttpContext);
                 ViewBag.currentUser = "Course"; //hardcoded as not needed for course coordinator
                 ViewBag.Appointments = appointments;
                 return View();
             }
             else if (firebase.VerifyLoggedInSession(HttpContext).Result)
             {
+                //TODO FIX THIS TO DATE ORDER
                 Dictionary<string, List<AppointmentModel>>? appointments = await firebase.CollectStudentsAppointmentsAsync(HttpContext);
                 var first = appointments.First();
                 ViewBag.currentUser = first.Key;
@@ -84,10 +85,23 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 
         //Historical clinics page
         //Must be logged into a valid account to see
-        public IActionResult History()
+        public async Task<IActionResult> History()
         {
-            if (firebase.VerifyLoggedInSession(HttpContext).Result)
+            //Need to organise in time/data order
+            if (firebase.VerifyLoggedInCoordinator(HttpContext).Result)
             {
+                Dictionary<string, List<AppointmentModel>>? appointments = await firebase.CollectAllAppointmentsAsync(HttpContext);
+                ViewBag.currentUser = "Course"; //hardcoded as not needed for course coordinator
+                ViewBag.Appointments = appointments;
+                return View();
+            }
+            else if (firebase.VerifyLoggedInSession(HttpContext).Result)
+            {
+                //TODO FIX THIS TO DATE ORDER
+                Dictionary<string, List<AppointmentModel>>? appointments = await firebase.CollectStudentsAppointmentsAsync(HttpContext);
+                var first = appointments.First();
+                ViewBag.currentUser = first.Key;
+                ViewBag.Appointments = first.Value;
                 return View();
             }
 

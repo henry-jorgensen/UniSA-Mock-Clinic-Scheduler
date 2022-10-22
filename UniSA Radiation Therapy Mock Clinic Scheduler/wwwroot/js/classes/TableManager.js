@@ -120,6 +120,10 @@
         }
 
         scheduleObject.forEach(student => {
+            if (student.infectious == null) {
+                student.infectious = "False:False";
+            }
+
             let row = this.createScheduleRow(
                 student.Time,
                 student.Patient,
@@ -150,6 +154,10 @@
         let tdRT2 = $('<td>', { text: RT2, contenteditable: "true" });
         let tdComplication = $('<td>', { text: complication, contenteditable: "true" });
 
+        console.log(infectious);
+        if (infectious == null) {
+            infectious = "False:False";
+        }
         let split = infectious.split(":");
         let tdInfectious = $('<td>', { text: split[0], class: "text-center" });
         tdInfectious.val(split[1])

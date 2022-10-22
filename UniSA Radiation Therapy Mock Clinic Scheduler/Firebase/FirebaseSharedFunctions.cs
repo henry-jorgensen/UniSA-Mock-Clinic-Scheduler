@@ -1217,7 +1217,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                         Query appointmentRef = db.CollectionGroup("Appointments").WhereEqualTo("ScheduleCode", currentSchedule.ScheduleCode);
                         QuerySnapshot allAppointmentQuerySnapshot = await appointmentRef.GetSnapshotAsync();
 
-                        //Remove each appointment
+                        //Collect the corret name for each appointment
                         foreach (DocumentSnapshot appointmentSnapshot in allAppointmentQuerySnapshot.Documents)
                         {
                             AppointmentModel appointmentModel = appointmentSnapshot.ConvertTo<AppointmentModel>();
@@ -1235,6 +1235,10 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                             appointmentModel.AppointmentRef = appointmentSnapshot.Id;
                             classCollection[currentClass.Name][currentSchedule].Add(appointmentModel);
                         }
+
+                        //Organise the appointments by time order
+                        List<AppointmentModel> sortedList = classCollection[currentClass.Name][currentSchedule].OrderBy(s => DateTime.Parse(s.Time)).ToList();
+                        classCollection[currentClass.Name][currentSchedule] = sortedList;
                     }
                 }
             }
@@ -1269,11 +1273,14 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public async Task<List<AppointmentModel>?> CollectAllAppointmentsAsync(HttpContext context)
+        public async Task<Dictionary<string, List<AppointmentModel>>?> CollectAllAppointmentsAsync(HttpContext context)
         {
             string? token = VerifyVerificationToken(context);
 
             if (token == null) return null;
+
+            //Hold the appointments in DATE categories
+            Dictionary<string, List<AppointmentModel>> scheduleDates = new Dictionary<string, List<AppointmentModel>>();
 
             //Get the course coordinators classes - ONLY LOADS RELAVENT DETAILS THIS WAY
             Query allClassesQuery = db.Collection("Users").Document(token).Collection("Classes");
@@ -1327,7 +1334,22 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                 appointments.Add(currentAppointment);
             }
 
-            return appointments;
+            //Organise the appointments by time order
+            List<AppointmentModel> sortedList = appointments.OrderBy(s => DateTime.Parse(s.Time)).ToList();
+            appointments = sortedList;
+
+            //Split all the appointments into their date category
+            foreach(AppointmentModel appointment in appointments)
+            {
+                //Create a new entry if it does not exist
+                if(!scheduleDates.ContainsKey(appointment.Date))
+                {
+                    scheduleDates.Add(appointment.Date, new List<AppointmentModel>());
+                }
+                scheduleDates[appointment.Date].Add(appointment);
+            }
+
+            return scheduleDates;
         }
 
         public async Task<Dictionary<string, List<AppointmentModel>>?> CollectStudentsAppointmentsAsync(HttpContext context)
@@ -1375,6 +1397,10 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                 Array user = studentInformation[token];
                 if (user == null) return null;
                 var currentName = user.GetValue(0) + " " + user.GetValue(1);
+
+                //Organise the appointments by time order
+                List<AppointmentModel> sortedList = appointments.OrderBy(s => DateTime.Parse(s.Time)).ToList();
+                appointments = sortedList;
 
                 value.Add(currentName, appointments);
                 return value;
