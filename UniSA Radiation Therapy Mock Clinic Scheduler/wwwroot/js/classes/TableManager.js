@@ -170,7 +170,7 @@
             class: "scheduleEntry"
         })
 
-        let tdTime = $('<td>', { text: time, contenteditable: "true" });
+        let tdTime = $('<td>', { text: time });
         let tdPatient = $('<td>', { text: patient, contenteditable: "true" });
 
         let tdSite = $('<td>');
@@ -217,7 +217,7 @@
 
             $("#saveInfectionDetails").on('click', function () {
                 e.target.innerHTML = $("#modalInfectionTitle").val();
-                e.target.value = $("#modalnfectionDetails").val();
+                e.target.value = $("#modalinfectionDetails").val();
                 modal.css("display", "none");
 
                 //Reset the modal

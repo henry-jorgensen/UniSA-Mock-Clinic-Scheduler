@@ -141,6 +141,12 @@
                 let row = tables[i][0].children[y].children;
                 let rowData = {};
 
+                //Detect if this is a break section
+                console.log(row[1].innerHTML);
+                if (row[1].innerHTML === "BREAK") {
+                    continue;
+                }
+
                 rowData[this.headers[0]] = row[0].innerHTML;
                 rowData[this.headers[1]] = row[1].innerHTML;
 

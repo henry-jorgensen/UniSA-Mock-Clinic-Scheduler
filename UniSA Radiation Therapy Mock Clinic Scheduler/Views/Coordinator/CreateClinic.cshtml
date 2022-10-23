@@ -21,7 +21,7 @@
     <div id="loader"></div>
     <main role="main" class="pb-3">
         <div class="row d-flex justify-content-center">
-            <div class="col-sm-7" style="min-width: 400px;">
+            <div class="col-sm-7" style="min-width: 600px;">
                 @*Organised in 'tabs' so that the user can move through the process one at a time*@
                 <div class="card formContainer">
                     <h5 class="card-header">
@@ -120,6 +120,42 @@
                     @*PREVIEW A SCHEDULE*@
                     <div class="tab card-body">
                         <h5 class="card-title">Preview Clinic</h5>
+
+                        <div class="form-row">
+						    <div class="col-md mb-3">
+                                <button class="btn button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBreakForm" aria-expanded="true" aria-controls="collapseOne">Add Break</button>
+                            </div>
+                        </div>
+
+                        <div class="accordion" id="accordionBreak">
+				          <div class="accordion-item">
+					        <div id="collapseBreakForm" class="accordion-collapse collapse" data-bs-parent="#accordionBreak">
+					          <div class="accordion-body">
+						        <div class="form-row">
+							        <div class="col-md mb-3">
+								        <label for="startTimeInput">Start Time</label>
+								        <input type="time" class="form-control input" id="startTimeInput" placeholder="12:00" required>
+							        </div>
+							        <div class="col-md mb-3">
+								        <label for="endTimeInput">End Time</label>
+								        <input type="time" class="form-control input" id="endTimeInput" placeholder="12:30" required>
+							        </div>
+						        </div>
+						        <div class="form-row">
+							        <div class="col-md mb-3">
+								        <label for="durationInput">Appointment Duration After</label>
+								        <input type="text" class="form-control input" id="durationInput" placeholder="15">
+							        </div>
+							        <div class="col-md mb-3">
+								        <label for="addBreak">Add to Clinic</label>
+								        <button id="addBreak" class="btn button" type="button">Add</button>
+							        </div>
+						        </div>
+					          </div>
+					        </div>
+				          </div>
+				        </div>
+
                         <form id="saveAClinicForm">
                             <table class="table table-sm table-hover">
                                 <thead>
