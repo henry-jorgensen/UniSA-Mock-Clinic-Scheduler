@@ -194,18 +194,50 @@
 
         let tdRT1 = $('<td>', { text: RT1, contenteditable: "true" });
         let tdRT2 = $('<td>', { text: RT2, contenteditable: "true" });
-        let tdComplication = $('<td>', { text: complication, contenteditable: "true" });
+
+        console.log(complication);
+
+        if (complication == null) {
+            complication = "No:False";
+        } else {
+            complication = `Yes:${complication}`;
+        }
+
+        let splitC = complication.split(":");
+        let tdComplication = $('<td>', { text: splitC[0] });
+        tdComplication.attr('data-value', splitC[1])
+        tdComplication.on('click', function (e) {
+            //Load the current values
+            $("#modalComplicationDetails").val(e.target.getAttribute("data-value"));
+
+            let modal = $("#complicationModal");
+            let close = $("#closeComplicationButton");
+            close.on('click', function () {
+                modal.css("display", "none");
+            });
+
+            modal.css("display", "block");
+
+            $("#saveComplicationDetails").on('click', function () {
+                e.target.innerHTML = 'Yes';
+                e.target.setAttribute('data-value', $("#modalComplicationDetails").val());
+                modal.css("display", "none");
+
+                //Reset the modal
+                $("#modalComplicationDetails").val("");
+            });
+        });
 
         if (infectious == null) {
             infectious = "False:False";
         }
         let split = infectious.split(":");
         let tdInfectious = $('<td>', { text: split[0], class: "text-center" });
-        tdInfectious.val(split[1])
+        tdInfectious.attr('data-value', split[1])
         tdInfectious.on('click', function (e) {
             //Load the current values
             $("#modalInfectionTitle").val(e.target.innerHTML)
-            $("#modalinfectionDetails").text(e.target.value);
+            $("#modalinfectionDetails").val(e.target.getAttribute("data-value"));
 
             let modal = $("#infectionModal");
             let close = $("#closeButton");
@@ -217,7 +249,7 @@
 
             $("#saveInfectionDetails").on('click', function () {
                 e.target.innerHTML = $("#modalInfectionTitle").val();
-                e.target.value = $("#modalinfectionDetails").val();
+                e.target.setAttribute('data-value', $("#modalinfectionDetails").val());
                 modal.css("display", "none");
 
                 //Reset the modal

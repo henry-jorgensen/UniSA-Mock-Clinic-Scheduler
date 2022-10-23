@@ -36,8 +36,6 @@ $(document).ready(function () {
                     //Assign the locations
                     scheduleManager.locations = $("#locationInput").val().split(",");
 
-                    //TODO CHANGE THE TIMES IF NECCESSARY SOMEWHERE HERE!
-
                     //Collect the tables that have been generated
                     let schedule = scheduleManager.generateScheduleJSON();
 

@@ -189,7 +189,7 @@ function createClinicDayRow(appointment) {
     tdPatient.append(h6Patient);
 
     let split = appointment.infectious.split(":");
-    console.log(split);
+
     //setup infectious
     let tdInfectious = $('<td>');
     let h6Infectious = $('<h6>', { text: split[0] });

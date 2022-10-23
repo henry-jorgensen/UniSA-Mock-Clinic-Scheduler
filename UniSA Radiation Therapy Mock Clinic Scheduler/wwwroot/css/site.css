@@ -450,11 +450,24 @@ hr {
 
 /* Modal Content/Box */
 .modal-content {
-    background-color: #fefefe;
     margin: 15% auto; /* 15% from the top and centered */
     padding: 20px;
     border: 5px solid red;
     width: 80%; /* Could be more or less, depending on screen size */
+}
+
+.infectious {
+    background-color: #fefefe;
+}
+
+.infectionColumn {
+    cursor: pointer;
+    background-color: #FFC4C4 !important;
+}
+
+.complicationColumn {
+    cursor: pointer;
+    background-color: #FFFFC4 !important;
 }
 
 /* The Close Button */
