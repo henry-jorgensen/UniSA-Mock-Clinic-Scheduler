@@ -40,6 +40,8 @@ function setupPreview(url) {
 	$("#documentButtons").removeClass("hidden");
 	$("#treatmentDocument").removeClass("hidden");
 	$("#noDocument").addClass("hidden");
+
+	$("#hide-pdf").removeClass("hidden");
 }
 
 /**
@@ -96,6 +98,8 @@ $(document).ready(async () => {
 		$("#documentButtons").addClass("hidden");
 
 		$("#noDocument").removeClass("hidden");
+
+		hidePdfButton.classList.add("hidden");
 	});
 
 	//TODO ADD LOADING SYMBOL WHILE WAITING
@@ -113,4 +117,67 @@ $(document).ready(async () => {
 	}
 
 	$("#fileUpload").change(handleFileSelect);
+
+	//Buttons for hiding the pdf viewer and the image matcher
+	const pdfViewer = document.getElementById("treatmentDocument")
+	const hidePdfButton = document.getElementById("hide-pdf")
+	hidePdfButton.addEventListener('click', () => {
+		pdfViewer.classList.toggle("hidden");
+
+		if (pdfViewer.classList.contains("hidden")) {
+			hidePdfButton.innerHTML = "Show PDF"
+		} else {
+			hidePdfButton.innerHTML = "Hide PDF"
+		}
+	})
+
+	const imageMatcher = document.getElementById("matching-container")
+	const hideMatcherButton = document.getElementById("hide-matching")
+	hideMatcherButton.addEventListener('click', () => {
+		imageMatcher.classList.toggle("hidden");
+
+		if (imageMatcher.classList.contains("hidden")) {
+			hideMatcherButton.innerHTML = "Show Image Matching"
+		} else {
+			hideMatcherButton.innerHTML = "Hide Image Matching"
+		}
+	})
+
+	const machineControls = document.querySelector(".machine-controls-container")
+	const hideMachineControlsButton = document.getElementById("hide-machine")
+	hideMachineControlsButton.addEventListener('click', () => {
+		machineControls.classList.toggle("hidden");
+
+		if (machineControls.classList.contains("hidden")) {
+			hideMachineControlsButton.innerHTML = "Show Machine Controls"
+		} else {
+			hideMachineControlsButton.innerHTML = "Hide Machine Controls"
+		}
+	})
+
+	//Inputs and their handling to set local images in the image matcher
+	//const bg_image_input = document.querySelector("#background-input");
+	//bg_image_input.addEventListener("change", function () {
+	//	const reader = new FileReader();
+	//	reader.addEventListener("load", () => {
+	//		const uploaded_image = reader.result;
+	//		document.querySelector("#image-matcher").style.backgroundImage = `url(${uploaded_image})`;
+	//	});
+	//	reader.readAsDataURL(this.files[0]);
+	//});
+
+	//const draggable_image_input = document.querySelector("#draggable-input");
+	//draggable_image_input.addEventListener("change", function () {
+	//	const reader = new FileReader();
+	//	reader.addEventListener("load", () => {
+	//		const uploaded_image = reader.result;
+	//		document.querySelector("#draggable-image").src = uploaded_image;
+	//	});
+	//	reader.readAsDataURL(this.files[0]);
+	//});
+
+	const machineEmergButton = document.getElementById('button-area')
+	machineEmergButton.addEventListener('click', function () {
+		alert("Machine Stopped")
+    })
 });

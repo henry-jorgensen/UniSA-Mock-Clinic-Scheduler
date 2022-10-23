@@ -9,8 +9,10 @@
 <script src="~/lib/jquery/dist/jquery.js"></script>
 <script src="~/js/classes/AJAXManager.js"></script>
 <script src="~/js/treatment.js"></script>
+<script src="~/js/image-matching.js"></script>
 
 <link rel="stylesheet" type="text/css" href="/css/clinics.css">
+<link rel="stylesheet" type="text/css" href="/css/image-matching.css">
 
 <div class="container">
 	<main role="main" class="pb-3">
@@ -78,10 +80,25 @@
 					</tr>
 				</tbody>
 			</table>
-
+			<button class="btn btn-primary" id="hide-pdf">Hide PDF</button><br />
 			<div class="hidden" id="treatmentDocument">
 				<iframe class="pdfPreview" id="treatmentPDF"></iframe>
 			</div>
+			<button class="btn btn-primary" id="hide-matching">Hide Image Matching</button><br />
+			<div class="matching-container" id="matching-container">
+				<div class="image-matching" id="image-matcher">
+					<img src="/assets/pelvis-xray.jpg" id="draggable-image" class="draggable" />
+				</div>
+			</div>
+			<button class="btn btn-primary" id="hide-machine">Hide Machine Controls</button>
+			<div class="machine-controls-container">
+				<img src="~/assets/machine.jpg" alt="controls" usemap="#machine-map" />
+
+				<map name="machine-map">
+					<area shape="circle" coords="72, 55, 30" style="cursor: pointer;" id="button-area"/>
+				</map>
+			</div>
+			
 		</div>
 	</main>
 
