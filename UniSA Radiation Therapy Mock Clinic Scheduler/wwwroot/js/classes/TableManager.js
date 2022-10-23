@@ -86,7 +86,7 @@
     createRow = (fname, lname, id, uname, canDelete) => {
         let tr = $('<tr>', {
             class: "studentEntry"
-        })
+        });
 
         let tdFName = $('<td>', { text: fname });
         let tdLName = $('<td>', { text: lname });
@@ -108,6 +108,28 @@
         } else {
             tr.append(tdFName, tdLName, tdId, tdUName);
         }
+
+        return tr;
+    }
+
+    /**
+     * Create a row for a new site on the settings page
+     */
+    createSiteRow = (name) => {
+        let tr = $('<tr>', {
+            class: "siteEntry"
+        });
+
+        let tdName = $('<td>', { text: name });
+
+        let tdDelete = $('<td>');
+        let button = $('<button>', { text: "X" })
+        button.click((e) => {
+            e.currentTarget.parentNode.parentNode.remove();
+        });
+
+        tdDelete.append(button);
+        tr.append(tdName, tdDelete);
 
         return tr;
     }

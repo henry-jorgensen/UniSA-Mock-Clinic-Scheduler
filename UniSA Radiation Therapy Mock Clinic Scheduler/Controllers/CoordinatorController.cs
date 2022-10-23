@@ -443,11 +443,11 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateSites(string newList)
+        public async Task<IActionResult> UpdateSites(string sites)
         {
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == false) return Forbid();
 
-            bool? success = await firebase.UpdateSiteList(HttpContext, newList);
+            bool? success = await firebase.UpdateSiteList(HttpContext, sites);
 
             if (success != null) return Ok(success);
 

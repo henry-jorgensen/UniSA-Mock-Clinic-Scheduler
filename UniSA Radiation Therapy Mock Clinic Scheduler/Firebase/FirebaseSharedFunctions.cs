@@ -1649,12 +1649,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             DocumentReference siteRef = db.Collection("Sites").Document("standard");
             DocumentSnapshot siteSnapshot = await siteRef.GetSnapshotAsync();
 
-            List<string> sites = new List<string>();
-
-            foreach(var site in siteSnapshot.GetValue<List<string>>("types"))
-            {
-                sites.Add(site.ToString());
-            }
+            List<string> sites = siteSnapshot.GetValue<string>("types").Split(',').ToList();
 
             return sites;
         }
@@ -1670,10 +1665,11 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
             if (token == null) return false;
 
-            List<string> sites = newList.Split(',').ToList();
+            Dictionary<string, string> dict = new Dictionary<string, string>();
+            dict.Add("types", newList);
 
             DocumentReference siteRef = db.Collection("Sites").Document("standard");
-            await siteRef.SetAsync(sites);
+            await siteRef.SetAsync(dict);
 
             return true;
         }
