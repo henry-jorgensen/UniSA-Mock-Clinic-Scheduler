@@ -6,6 +6,7 @@
         this.lNInput = lastNameInput;
         this.sIInput = studentIdInput;
         this.sUInput = studentUserNameInput;
+        this.sites = null;
     }
 
     /**
@@ -85,7 +86,7 @@
     createRow = (fname, lname, id, uname, canDelete) => {
         let tr = $('<tr>', {
             class: "studentEntry"
-        })
+        });
 
         let tdFName = $('<td>', { text: fname });
         let tdLName = $('<td>', { text: lname });
@@ -112,6 +113,28 @@
     }
 
     /**
+     * Create a row for a new site on the settings page
+     */
+    createSiteRow = (name) => {
+        let tr = $('<tr>', {
+            class: "siteEntry"
+        });
+
+        let tdName = $('<td>', { text: name });
+
+        let tdDelete = $('<td>');
+        let button = $('<button>', { text: "X" })
+        button.click((e) => {
+            e.currentTarget.parentNode.parentNode.remove();
+        });
+
+        tdDelete.append(button);
+        tr.append(tdName, tdDelete);
+
+        return tr;
+    }
+
+    /**
      * Add a newly generated schedule to the supplied table.
      */
     scheduleAdd = (scheduleObject, table) => {
@@ -120,6 +143,10 @@
         }
 
         scheduleObject.forEach(student => {
+            if (student.infectious == null) {
+                student.infectious = "False:False";
+            }
+
             let row = this.createScheduleRow(
                 student.Time,
                 student.Patient,
@@ -143,20 +170,72 @@
             class: "scheduleEntry"
         })
 
-        let tdTime = $('<td>', { text: time, contenteditable: "true" });
+        let tdTime = $('<td>', { text: time });
         let tdPatient = $('<td>', { text: patient, contenteditable: "true" });
-        let tdSite = $('<td>', { text: site, contenteditable: "true" });
+
+        let tdSite = $('<td>');
+        let selectSite = $('<select>');
+
+        this.sites.forEach(entry => {
+            let option;
+
+            if (entry === site) {
+                option = $('<option>', { text: entry, selected: true });
+            }
+            else {
+                option = $('<option>', { text: entry });
+            }
+            
+            selectSite.append(option);
+        });
+        
+        tdSite.append(selectSite)
+
+
         let tdRT1 = $('<td>', { text: RT1, contenteditable: "true" });
         let tdRT2 = $('<td>', { text: RT2, contenteditable: "true" });
-        let tdComplication = $('<td>', { text: complication, contenteditable: "true" });
 
+        if (complication == null) {
+            complication = "No:False";
+        } else {
+            complication = `Yes:${complication}`;
+        }
+
+        let splitC = complication.split(":");
+        let tdComplication = $('<td>', { text: splitC[0], class: "complicationColumn" });
+        tdComplication.attr('data-value', splitC[1])
+        tdComplication.on('click', function (e) {
+            //Load the current values
+            $("#modalComplicationDetails").val(e.target.getAttribute("data-value"));
+
+            let modal = $("#complicationModal");
+            let close = $("#closeComplicationButton");
+            close.on('click', function () {
+                modal.css("display", "none");
+            });
+
+            modal.css("display", "block");
+
+            $("#saveComplicationDetails").on('click', function () {
+                e.target.innerHTML = 'Yes';
+                e.target.setAttribute('data-value', $("#modalComplicationDetails").val());
+                modal.css("display", "none");
+
+                //Reset the modal
+                $("#modalComplicationDetails").val("");
+            });
+        });
+
+        if (infectious == null) {
+            infectious = "False:False";
+        }
         let split = infectious.split(":");
-        let tdInfectious = $('<td>', { text: split[0], class: "text-center" });
-        tdInfectious.val(split[1])
+        let tdInfectious = $('<td>', { text: split[0], class: "text-center infectionColumn" });
+        tdInfectious.attr('data-value', split[1])
         tdInfectious.on('click', function (e) {
             //Load the current values
             $("#modalInfectionTitle").val(e.target.innerHTML)
-            $("#modalinfectionDetails").text(e.target.value);
+            $("#modalinfectionDetails").val(e.target.getAttribute("data-value"));
 
             let modal = $("#infectionModal");
             let close = $("#closeButton");
@@ -168,7 +247,7 @@
 
             $("#saveInfectionDetails").on('click', function () {
                 e.target.innerHTML = $("#modalInfectionTitle").val();
-                e.target.value = $("#modalnfectionDetails").val();
+                e.target.setAttribute('data-value', $("#modalinfectionDetails").val());
                 modal.css("display", "none");
 
                 //Reset the modal
@@ -312,7 +391,7 @@
         var body = $("<tbody>").attr({
             id: location
         });
-        body.addClass("text-center");
+        body.addClass("text-center table-striped");
 
         trMain.append(thTime, thPatient, thInfectious, thSite, thRT1, thRT2, thComplication);
         thead.append(trLoc, trMain);

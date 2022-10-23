@@ -37,10 +37,9 @@ $(document).ready(function () {
                 case "createAClinicForm":
                     let data = scheduleManager.generateSchedule();
 
-                    //Schedules
-                    console.log(data[0]);
-                    //Locations
-                    console.log(data[1]);
+                    //Assign site values to the table manager
+                    let sites = await ajaxManager.collectSites();
+                    tableManager.sites = sites;
                     
 
                     tableManager.generateSchedulePreview(
@@ -103,6 +102,12 @@ $(document).ready(function () {
             formWizard.nextPrev(stepNum);
         }
     }
+
+    //Handle adding a break to the schedule
+    $("#addBreak").on('click', function () {
+        //Search for the current place to put a new table row for the break
+        findListEntryPoint();
+    });
 });
 
 //Preload classes as the drop down options when the page loads
@@ -136,4 +141,99 @@ async function populateTable(className) {
 
     //The current class
     tableManager.classAdd(response);
+}
+
+/**
+ * Search for an entry point to place the break, this will search via an appointments
+ * start time, inserting itself at the correct place and adjusting all times following.
+ * */
+function findListEntryPoint() {
+    let start = $("#startTimeInput").val();
+    let end = $("#endTimeInput").val();
+    let newDuration = $("#durationInput").val();
+
+    //TODO add for each location in here
+    scheduleManager.locations.forEach(location => {
+        let table = location.trim();
+        let children = $(`#${table}`).children();
+
+        //determine the current appointment duration incase a new one is not supplied
+        if (newDuration == "") {
+            let moment1 = moment(children[1].children[0].innerHTML, 'h:mm');
+            let moment2 = moment(children[0].children[0].innerHTML, 'h:mm');
+            newDuration = moment.duration(moment1.diff(moment2)).asMinutes();
+        }
+
+        let startIndex = 0;
+
+        //Find where to place the break on the clinic table
+        for (let i = 0; i < children.length; i++) {
+            if (start.localeCompare(children[i].children[0].innerHTML) <= 0) {
+                //Insert here
+                $(`#${table} > tr`).eq(i - 1).after(createBreakRow(start, end));
+                startIndex = i;
+                break;
+            }
+        }
+
+        //Update the text and local storage with the new times
+        let step = 0;
+        for (let i = startIndex; i < children.length; i++) {
+            var time = moment(end, 'HH:mm');
+            time.add(step * newDuration, 'm');
+            children[i].children[0].innerHTML = time.format("HH:mm");
+            step++;
+        }
+    });
+}
+
+/**
+ * Create a basic row describing a break during the schedule with a delete button to
+ * revert the schedule back to usual.
+ * @param { any } start
+ * @param { any } end
+ */
+function createBreakRow(start, end) {
+    let tr = $('<tr>');
+
+    let tdStart = $('<td>', { id: `${start}` });
+    let h6Start = $('<small>', { text: `${start} - ${end}` });
+    tdStart.append(h6Start);
+
+    let tdBreak = $('<td>', { text: "BREAK" });
+
+    let tdEmpty1 = $('<td>');
+    let tdEmpty2 = $('<td>');
+    let tdEmpty3 = $('<td>');
+    let tdEmpty4 = $('<td>');
+
+    //setup the delete button
+    let tdDelete = $('<td>');
+    let btnDelete = $('<button>', { text: "Remove", class: "btn button" });
+    btnDelete.on('click', function (e) {
+        if (confirm("Are you sure you want to delete this break?") == true) {
+            let table = e.target.parentNode.parentNode.parentElement.id;
+
+            e.target.parentNode.parentNode.remove();
+            let children = $(`#${table}`).children();;
+
+            //determine the current appointment duration pre-break
+            let moment1 = moment(children[1].children[0].innerHTML, 'h:mm');
+            let moment2 = moment(children[0].children[0].innerHTML, 'h:mm');
+            let newDuration = moment.duration(moment1.diff(moment2)).asMinutes();
+
+            //Update the text and local storage with the new times
+            for (let i = 0; i < children.length; i++) {
+                var time = moment(children[0].children[0].innerHTML, 'HH:mm');
+                time.add(i * newDuration, 'm');
+                children[i].children[0].innerHTML = time.format("HH:mm");
+            }
+        }
+    });
+
+    tdDelete.append(btnDelete);
+
+    tr.append(tdStart, tdBreak, tdEmpty1, tdEmpty2, tdEmpty3, tdEmpty4, tdDelete);
+
+    return tr;
 }

@@ -428,6 +428,34 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
         }
 
         //============================================
+        //CLINIC SITES AREA
+        //============================================
+        [HttpGet]
+        public async Task<IActionResult> CollectSites()
+        {
+            if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == false) return Forbid();
+
+            List<string>? sites = await firebase.CollectSiteList(HttpContext);
+
+            if (sites != null) return Ok(sites);
+
+            return BadRequest();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateSites(string sites)
+        {
+            if (firebase.VerifyLoggedInCoordinator(HttpContext).Result == false) return Forbid();
+
+            bool? success = await firebase.UpdateSiteList(HttpContext, sites);
+
+            if (success != null) return Ok(success);
+
+            return BadRequest();
+        }
+
+
+        //============================================
         //ERROR AREA
         //============================================
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

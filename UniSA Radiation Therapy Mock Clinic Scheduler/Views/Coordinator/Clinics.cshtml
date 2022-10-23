@@ -101,6 +101,13 @@
                                                         {
                                                             var tempPat = appointment.Patient.Split(':');
                                                             var tempInfect = appointment.Infectious.Split(':');
+
+                                                            var complication = "No";
+												            var compDetails = "None";
+												            @if(appointment.Complication != null) {
+													            complication = "Yes";
+													            compDetails = appointment.Complication;
+												            }
                                                             
                                                             <tr id="@appointment.Date" class="studentEntry">
                                                                 <th scope="col">@appointment.Date  @appointment.Time</th>
@@ -110,7 +117,7 @@
                                                                 <th>@appointment.RadiationTherapist2</th>
                                                                 <th>@appointment.Room</th>
                                                                 <th>@appointment.Site</th>
-                                                                <th>@appointment.Complication</th>
+                                                                <th data-value="@compDetails" class="mb-0 complicationColumn">@complication</th>
                                                                 <th>
                                                                     @if(@appointment.Emailed) {
                                                                         <button onclick=alreadyEmailedPatient(this) value="@appointment.AppointmentRef" class="emailCompleteButton emailSingle">
@@ -147,7 +154,7 @@
     <!-- The Modal -->
     <div id="infectionModal" class="modal">
         <!-- Modal content -->
-        <div class="modal-content">
+        <div class="modal-content infectious">
             <div>
                 <h2 style="float:left;">WARNING</h2>
                 <span id="closeButton" class="close">&times;</span>
@@ -163,6 +170,20 @@
                 <div class="form-row mb-3">
                     <label for="modalinfectionDetails">Infection Details</label>
                     <textarea disabled class="form-control" id="modalinfectionDetails" rows="3" placeholder="Infection Details.."></textarea>
+                </div> 
+            </div>
+        </div>
+    </div>
+
+    <!-- The Complication Modal -->
+    <div id="complicationModal" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <span id="closeComplicationButton" class="close">&times;</span>
+            <div class="form-group">    
+                <div class="form-row mb-3">
+                    <label for="modalComplicationDetails">Complication Details</label>
+                    <textarea disabled class="form-control" id="modalComplicationDetails" rows="3" placeholder="Complication Details.."></textarea>
                 </div> 
             </div>
         </div>
@@ -193,6 +214,26 @@
 
         modal.css("display", "block");
     });
+
+    $(".complicationColumn").on('click', function(e){
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+		if (e.target.innerHTML == "No") {
+            return
+        }
+
+        //Load the current values
+        $("#modalComplicationDetails").val(e.target.getAttribute("data-value"));
+
+        let modal = $("#complicationModal");
+        let close = $("#closeComplicationButton");
+        close.on('click', function () {
+            modal.css("display", "none");
+        });
+
+        modal.css("display", "block");
+    });	
 
     async function deleteClass(e) {
         let values = e.value.split(":");

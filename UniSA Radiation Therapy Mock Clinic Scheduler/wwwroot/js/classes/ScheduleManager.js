@@ -141,19 +141,33 @@
                 let row = tables[i][0].children[y].children;
                 let rowData = {};
 
+                //Detect if this is a break section
+                console.log(row[1].innerHTML);
+                if (row[1].innerHTML === "BREAK") {
+                    continue;
+                }
+
                 rowData[this.headers[0]] = row[0].innerHTML;
                 rowData[this.headers[1]] = row[1].innerHTML;
 
                 if (row[2].innerHTML === "") {
                     rowData[this.headers[2]] = "False:False";
                 } else {
-                    rowData[this.headers[2]] = row[2].innerHTML + ":" + row[2].value; //infection:details
+                    rowData[this.headers[2]] = row[2].innerHTML + ":" + row[2].getAttribute("data-value"); //infection:details
                 }
-                
-                rowData[this.headers[3]] = row[3].innerHTML;
+
+                rowData[this.headers[3]] = row[3].children[0].value;
                 rowData[this.headers[4]] = row[4].innerHTML;
                 rowData[this.headers[5]] = row[5].innerHTML;
-                rowData[this.headers[6]] = row[6].innerHTML;
+
+                let complication = row[6].getAttribute("data-value");
+
+                if (complication === "False") {
+                    rowData[this.headers[6]] = null;
+                } else {
+                    rowData[this.headers[6]] = complication;
+                }
+                
 
                 rows.push(rowData)
             }

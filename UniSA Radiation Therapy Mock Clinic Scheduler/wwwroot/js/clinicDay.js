@@ -1,5 +1,6 @@
 ﻿const ajaxManager = new AJAXManager("Coordinator");
 let currentClinic = null;
+let locations = [];
 
 $(document).ready(function () {
     //Check the local storage to see if there is a clinic in progress
@@ -10,6 +11,14 @@ $(document).ready(function () {
     } else {
         setupNewClinic();
     }
+
+    $("#allRooms").on('click', (e) => {
+        let children = $("#mockClinic").children();
+
+        for (let i = 0; i < children.length; i++) {
+            children[i].classList.remove("hidden");
+        }
+    });
 });
 
 /**
@@ -155,7 +164,6 @@ async function loadSelectedClinic(scheduleCode) {
 
     //Load the schedule into the table
     result.forEach(entry => {
-        console.log(entry)
         $("#mockClinic").append(createClinicDayRow(entry));
     });
 
@@ -182,15 +190,39 @@ function createClinicDayRow(appointment) {
     let tdLocation = $('<td>');
     let h6Loc = $('<h6>', { text: appointment.room });
     tdLocation.append(h6Loc);
+    
+    if (!locations.includes(appointment.room)) {
+        locations.push(appointment.room);
+
+        let label = $('<label>', { class: 'mx-3', text: appointment.room, for: appointment.room });
+        let input = $('<input>', { value: appointment.room, type: "radio", name: "filter" });
+
+        input.on('click', (e) => {
+            let children = $("#mockClinic").children();
+
+            for (let i = 0; i < children.length; i++) {
+                if (children[i].children[1].children[0].innerHTML !== e.target.value) {
+                    children[i].classList.add("hidden");
+                } else {
+                    children[i].classList.remove("hidden");
+                };
+            }
+        });
+
+        $("#filterArea").append(label, input);
+    }
 
     //setup the patient
     let tdPatient = $('<td>');
     let h6Patient = $('<h6>', { text: appointment.patient });
     tdPatient.append(h6Patient);
 
+    let split = appointment.infectious.split(":");
+
     //setup infectious
     let tdInfectious = $('<td>');
-    let h6Infectious = $('<h6>', { text: appointment.infectious });
+    let h6Infectious = $('<h6>', { text: split[0] });
+    h6Infectious.val(split[1]);
     tdInfectious.append(h6Infectious);
 
     //setup radiation therapists
@@ -222,7 +254,7 @@ function createClinicDayRow(appointment) {
 
                 console.log(currentClinic)
 
-                $(`#${appointment.appointmentID}_status`).text("In Progress");
+                $(`#${appointment.appointmentID}_status`).text("In progress");
 
                 localStorage.setItem("ClinicDay", JSON.stringify(currentClinic));
                 return
@@ -270,6 +302,12 @@ function findListEntryPoint() {
         let moment1 = moment(currentClinic[1].time, 'h:mm');
         let moment2 = moment(currentClinic[0].time, 'h:mm');
         newDuration = moment.duration(moment1.diff(moment2)).asMinutes();
+
+        if (newDuration == 0) {
+            let moment1 = moment(currentClinic[2].time, 'h:mm');
+            let moment2 = moment(currentClinic[0].time, 'h:mm');
+            newDuration = moment.duration(moment1.diff(moment2)).asMinutes();
+        }
     }
 
     let startIndex = 0;
@@ -277,7 +315,6 @@ function findListEntryPoint() {
     //Find where to place the break on the clinic table
     for (let i = 0; i < children.length; i++) {
         if (start.localeCompare(children[i].children[0].children[0].innerHTML) <= 0) {
-            console.log(i);
 
             //Insert here
             $('#mockClinic > tr').eq(i - 1).after(createBreakRow(start, end));
@@ -286,14 +323,28 @@ function findListEntryPoint() {
         }
     }
 
+
+    //TODO NEEDS TO ACCOUN 
     //Update the text and local storage with the new times
+    let numLocations = locations.length;
+    let counter = 0;
     let step = 0;
     for (let i = startIndex; i < children.length; i++) {
+        console.log("LOOP");
+        console.log(children[i].children[0].children[0]);
+        console.log(currentClinic[i]);
+
         var time = moment(end, 'HH:mm');
         time.add(step * newDuration, 'm');
         children[i].children[0].children[0].innerHTML = time.format("HH:mm");
         currentClinic[i].time = time.format("HH:mm"); //update the current clinic
-        step++;
+
+        counter++
+
+        if (counter == numLocations) {
+            step++;
+            counter = 0;
+        }
     }
 
     //Update the current clinic with the break item
@@ -349,12 +400,32 @@ function createBreakRow(start, end) {
             let moment2 = moment(currentClinic[0].time, 'h:mm');
             let newDuration = moment.duration(moment1.diff(moment2)).asMinutes();
 
+            if (newDuration == 0) {
+                let moment1 = moment(currentClinic[2].time, 'h:mm');
+                let moment2 = moment(currentClinic[0].time, 'h:mm');
+                newDuration = moment.duration(moment1.diff(moment2)).asMinutes();
+            }
+
+            let numLocations = locations.length;
+            let counter = 0;
+            let step = 0;
+
             //Update the text and local storage with the new times
             for (let i = 0; i < children.length; i++) {
                 var time = moment(currentClinic[0].time, 'HH:mm');
-                time.add(i * newDuration, 'm');
+                time.add(step * newDuration, 'm');
                 children[i].children[0].children[0].innerHTML = time.format("HH:mm");
+
+
+                //TODO UPDATE THIS AFTERWARDS
                 currentClinic[i].time = time.format("HH:mm"); //update the current clinic
+
+                counter++
+
+                if (counter == numLocations) {
+                    step++;
+                    counter = 0;
+                }
             }
 
             for (let x = 0; x < currentClinic.length; x++) {

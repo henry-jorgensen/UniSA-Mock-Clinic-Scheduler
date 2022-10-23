@@ -53,14 +53,14 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             //Need to organise in time/data order
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result)
             {
-                List<AppointmentModel>? appointments = await firebase.CollectAllAppointmentsAsync(HttpContext);
+                SortedList<string, List<AppointmentModel>>? appointments = await firebase.CollectAllAppointmentsAsync(HttpContext, false);
                 ViewBag.currentUser = "Course"; //hardcoded as not needed for course coordinator
                 ViewBag.Appointments = appointments;
                 return View();
             }
             else if (firebase.VerifyLoggedInSession(HttpContext).Result)
             {
-                Dictionary<string, List<AppointmentModel>>? appointments = await firebase.CollectStudentsAppointmentsAsync(HttpContext);
+                Dictionary<string, SortedList<string, List<AppointmentModel>>>? appointments = await firebase.CollectStudentsAppointmentsAsync(HttpContext, false);
                 var first = appointments.First();
                 ViewBag.currentUser = first.Key;
                 ViewBag.Appointments = first.Value;
@@ -84,10 +84,22 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 
         //Historical clinics page
         //Must be logged into a valid account to see
-        public IActionResult History()
+        public async Task<IActionResult> History()
         {
-            if (firebase.VerifyLoggedInSession(HttpContext).Result)
+            //Need to organise in time/data order
+            if (firebase.VerifyLoggedInCoordinator(HttpContext).Result)
             {
+                SortedList<string, List<AppointmentModel>>? appointments = await firebase.CollectAllAppointmentsAsync(HttpContext, true);
+                ViewBag.currentUser = "Course"; //hardcoded as not needed for course coordinator
+                ViewBag.Appointments = appointments;
+                return View();
+            }
+            else if (firebase.VerifyLoggedInSession(HttpContext).Result)
+            {
+                Dictionary<string, SortedList<string, List<AppointmentModel>>>? appointments = await firebase.CollectStudentsAppointmentsAsync(HttpContext, true);
+                var first = appointments.First();
+                ViewBag.currentUser = first.Key;
+                ViewBag.Appointments = first.Value;
                 return View();
             }
 
@@ -136,7 +148,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 
             if (link != null) return Ok(link);
 
-            return BadRequest();
+            return Ok();
         }
 
         [HttpPost]

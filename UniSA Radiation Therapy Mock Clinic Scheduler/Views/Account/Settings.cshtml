@@ -1,0 +1,67 @@
+﻿@{
+    ViewData["Title"] = "Privacy Policy";
+    ViewData["Controller"] = "Account";
+}
+
+<script src="~/lib/jquery/dist/jquery.js"></script>
+
+<script src="~/js/classes/TableManager.js"></script>
+<script src="~/js/classes/AJAXManager.js"></script>
+<script src="~/js/settings.js"></script>
+
+<div class="container">
+    <div>
+        <h1 class="display-4">Settings</h1>
+    </div>
+    <div class="row d-flex justify-content-center">
+        <div class="card w-50">
+            <div class="card-body">
+                <div class="card-title">
+                    <h4>Sites</h4>
+                </div>
+
+                <hr />
+
+                <form id="addSiteForm">
+                    <div class="card-content">
+                        <div class="form-row mb-2">
+                            <div class="col-md-9">
+                                <label for="siteInput">Site name</label>
+                                <input id="siteInput" type="text" class="form-control input" placeholder="Lung"
+                                    required>
+                            </div>
+                    
+                            <div class="col-md-3">
+                                <label for="addButton">&nbsp;</label>
+                                <button id="addButton" type="submit" class="button btn btn-dark">
+                                    Add
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <hr />
+
+                <div class="card-content">
+                    <table class="w-100 text-center">
+                        <thead>
+                            <tr>
+                                <th class="col-md-6">Name</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody id="siteList">
+
+                        </tbody>
+                    </table>
+                </div>
+
+                <hr />
+                <button id="saveButton" type="button" class="button btn btn-dark">
+                    Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

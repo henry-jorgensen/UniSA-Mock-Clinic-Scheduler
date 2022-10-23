@@ -103,10 +103,10 @@
             </div>
         </div>
 
-        <!-- The Modal -->
+        <!-- The Infectious Modal -->
         <div id="infectionModal" class="modal">
             <!-- Modal content -->
-            <div class="modal-content">
+            <div class="modal-content infectious">
                 <span id="closeButton" class="close">&times;</span>
                 <div class="form-group">
                     <div class="form-row">
@@ -122,6 +122,25 @@
 
                     <div class="form-row mt-3">
                         <button class="btn button" id="saveInfectionDetails">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+       <!-- The Complication Modal -->
+        <div id="complicationModal" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span id="closeComplicationButton" class="close">&times;</span>
+                <div class="form-group">    
+                    <div class="form-row mb-3">
+                        <label for="modalComplicationDetails">Complication Details</label>
+                        <textarea class="form-control" id="modalComplicationDetails" rows="3" placeholder="Complication Details.."></textarea>
+                    </div> 
+
+                    <div class="form-row mt-3">
+                        <button class="btn button" id="saveComplicationDetails">Save</button>
                     </div>
                 </div>
             </div>
