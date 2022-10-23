@@ -1272,15 +1272,16 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
         /// Get all appointments that are related to a particular course coordinator.
         /// </summary>
         /// <param name="context"></param>
+        /// <param name="historic">Determines whether to load the up coming schedules or the past ones</param>
         /// <returns></returns>
-        public async Task<Dictionary<string, List<AppointmentModel>>?> CollectAllAppointmentsAsync(HttpContext context)
+        public async Task<SortedList<string, List<AppointmentModel>>?> CollectAllAppointmentsAsync(HttpContext context, bool historic)
         {
             string? token = VerifyVerificationToken(context);
 
             if (token == null) return null;
 
             //Hold the appointments in DATE categories
-            Dictionary<string, List<AppointmentModel>> scheduleDates = new Dictionary<string, List<AppointmentModel>>();
+            SortedList<string, List<AppointmentModel>> scheduleDates = new SortedList<string, List<AppointmentModel>>(new DescComparer<string>());
 
             //Get the course coordinators classes - ONLY LOADS RELAVENT DETAILS THIS WAY
             Query allClassesQuery = db.Collection("Users").Document(token).Collection("Classes");
@@ -1341,8 +1342,25 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             //Split all the appointments into their date category
             foreach(AppointmentModel appointment in appointments)
             {
+                //check if the date is current or past
+                DateTime appointmentDate = DateTime.Parse(appointment.Date);
+                int res = DateTime.Compare(appointmentDate, DateTime.Today);
+
+                //-1 means it is in the past
+                //0 or 1 means it is today or upcoming
+                //if historic only collected the -1 values
+                //if not historic collect 0 and -1 values
+                if (res == -1 && !historic)
+                {
+                    continue;
+                } 
+                else if((res == 0 || res == 1) && historic)
+                {
+                    continue;
+                }
+
                 //Create a new entry if it does not exist
-                if(!scheduleDates.ContainsKey(appointment.Date))
+                if (!scheduleDates.ContainsKey(appointment.Date))
                 {
                     scheduleDates.Add(appointment.Date, new List<AppointmentModel>());
                 }
@@ -1352,60 +1370,91 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             return scheduleDates;
         }
 
-        public async Task<Dictionary<string, List<AppointmentModel>>?> CollectStudentsAppointmentsAsync(HttpContext context)
+        public async Task<Dictionary<string, SortedList<string, List<AppointmentModel>>>?> CollectStudentsAppointmentsAsync(HttpContext context, bool historic)
         {
             string? token = VerifyVerificationToken(context);
 
-            if (token != null)
+            if (token == null) return null;
+
+            //Hold the appointments in DATE categories
+            SortedList<string, List<AppointmentModel>> scheduleDates = new SortedList<string, List<AppointmentModel>>(new DescComparer<string>());
+
+            //Get the student information
+            Dictionary<string, Array>? studentInformation = await GetStudentsAsync();
+            if (studentInformation == null) return null;
+
+            Query allAppointmentsQuery = db.Collection("Appointments")
+                                            .OrderByDescending("Date");
+            QuerySnapshot allAppointmentsQuerySnapshot = await allAppointmentsQuery.GetSnapshotAsync();
+            List<AppointmentModel> appointments = new List<AppointmentModel>();
+
+            foreach (DocumentSnapshot documentSnapshot in allAppointmentsQuerySnapshot.Documents)
             {
-                //Get the student information
-                Dictionary<string, Array>? studentInformation = await GetStudentsAsync();
-                if (studentInformation == null) return null;
+                AppointmentModel currentAppointment = documentSnapshot.ConvertTo<AppointmentModel>();
+                currentAppointment.AppointmentID = documentSnapshot.Id;
 
-                Query allAppointmentsQuery = db.Collection("Appointments")
-                                               .OrderByDescending("Date");
-                QuerySnapshot allAppointmentsQuerySnapshot = await allAppointmentsQuery.GetSnapshotAsync();
-                List<AppointmentModel> appointments = new List<AppointmentModel>();
-
-                foreach (DocumentSnapshot documentSnapshot in allAppointmentsQuerySnapshot.Documents)
+                if (currentAppointment.Patient == token || currentAppointment.RadiationTherapist1 == token || currentAppointment.RadiationTherapist2 == token)
                 {
-                    AppointmentModel currentAppointment = documentSnapshot.ConvertTo<AppointmentModel>();
-                    currentAppointment.AppointmentID = documentSnapshot.Id;
+                    if (currentAppointment.Patient == null || currentAppointment.RadiationTherapist1 == null || currentAppointment.RadiationTherapist2 == null) return null;
 
-                    if (currentAppointment.Patient == token || currentAppointment.RadiationTherapist1 == token || currentAppointment.RadiationTherapist2 == token)
-                    {
-                        if (currentAppointment.Patient == null || currentAppointment.RadiationTherapist1 == null || currentAppointment.RadiationTherapist2 == null) return null;
+                    Array userPatient = studentInformation[currentAppointment.Patient];
+                    if (userPatient == null) return null;
+                    currentAppointment.Patient = userPatient.GetValue(0) + " " + userPatient.GetValue(1);
 
-                        Array userPatient = studentInformation[currentAppointment.Patient];
-                        if (userPatient == null) return null;
-                        currentAppointment.Patient = userPatient.GetValue(0) + " " + userPatient.GetValue(1);
+                    Array userRT1 = studentInformation[currentAppointment.RadiationTherapist1];
+                    if (userRT1 == null) return null;
+                    currentAppointment.RadiationTherapist1 = userRT1.GetValue(0) + " " + userRT1.GetValue(1);
 
-                        Array userRT1 = studentInformation[currentAppointment.RadiationTherapist1];
-                        if (userRT1 == null) return null;
-                        currentAppointment.RadiationTherapist1 = userRT1.GetValue(0) + " " + userRT1.GetValue(1);
+                    Array userRT2 = studentInformation[currentAppointment.RadiationTherapist2];
+                    if (userRT2 == null) return null;
+                    currentAppointment.RadiationTherapist2 = userRT2.GetValue(0) + " " + userRT2.GetValue(1);
 
-                        Array userRT2 = studentInformation[currentAppointment.RadiationTherapist2];
-                        if (userRT2 == null) return null;
-                        currentAppointment.RadiationTherapist2 = userRT2.GetValue(0) + " " + userRT2.GetValue(1);
-
-                        appointments.Add(currentAppointment);
-                    }
-
+                    appointments.Add(currentAppointment);
                 }
 
-                Dictionary<string, List<AppointmentModel>> value = new Dictionary<string, List<AppointmentModel>>();
-                Array user = studentInformation[token];
-                if (user == null) return null;
-                var currentName = user.GetValue(0) + " " + user.GetValue(1);
-
-                //Organise the appointments by time order
-                List<AppointmentModel> sortedList = appointments.OrderBy(s => DateTime.Parse(s.Time)).ToList();
-                appointments = sortedList;
-
-                value.Add(currentName, appointments);
-                return value;
             }
-            return null;
+
+            Dictionary<string, SortedList<string, List<AppointmentModel>>> value = new Dictionary<string, SortedList<string, List<AppointmentModel>>>();
+            Array user = studentInformation[token];
+            if (user == null) return null;
+            var currentName = user.GetValue(0) + " " + user.GetValue(1);
+
+            //Organise the appointments by time order
+            List<AppointmentModel> sortedList = appointments.OrderBy(s => DateTime.Parse(s.Time)).ToList();
+            appointments = sortedList;
+
+            //Split all the appointments into their date category
+            foreach (AppointmentModel appointment in appointments)
+            {
+                //check if the date is current or past
+                DateTime appointmentDate = DateTime.Parse(appointment.Date);
+                int res = DateTime.Compare(appointmentDate, DateTime.Today);
+
+                //-1 means it is in the past
+                //0 or 1 means it is today or upcoming
+                //if historic only collected the -1 values
+                //if not historic collect 0 and -1 values
+                if (res == -1 && !historic)
+                {
+                    continue;
+                }
+                else if ((res == 0 || res == 1) && historic)
+                {
+                    continue;
+                }
+
+                //Create a new entry if it does not exist
+                if (!scheduleDates.ContainsKey(appointment.Date))
+                {
+                    scheduleDates.Add(appointment.Date, new List<AppointmentModel>());
+                }
+                scheduleDates[appointment.Date].Add(appointment);
+            }
+
+            value.Add(currentName, scheduleDates);
+
+
+            return value;
         }
 
         public async Task<AppointmentModel?> GetSingleAppointmentAsync(string id)
@@ -1581,6 +1630,16 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             await Storage().Child(file.ID).DeleteAsync();
 
             return true;
+        }
+    }
+
+    class DescComparer<T> : IComparer<T>
+    {
+        public int Compare(T x, T y)
+        {
+            if (x == null) return -1;
+            if (y == null) return 1;
+            return Comparer<T>.Default.Compare(y, x);
         }
     }
 }

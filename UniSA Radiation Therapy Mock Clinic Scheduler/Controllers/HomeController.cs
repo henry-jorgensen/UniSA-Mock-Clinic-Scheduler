@@ -53,15 +53,14 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             //Need to organise in time/data order
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result)
             {
-                Dictionary<string, List<AppointmentModel>>? appointments = await firebase.CollectAllAppointmentsAsync(HttpContext);
+                SortedList<string, List<AppointmentModel>>? appointments = await firebase.CollectAllAppointmentsAsync(HttpContext, false);
                 ViewBag.currentUser = "Course"; //hardcoded as not needed for course coordinator
                 ViewBag.Appointments = appointments;
                 return View();
             }
             else if (firebase.VerifyLoggedInSession(HttpContext).Result)
             {
-                //TODO FIX THIS TO DATE ORDER
-                Dictionary<string, List<AppointmentModel>>? appointments = await firebase.CollectStudentsAppointmentsAsync(HttpContext);
+                Dictionary<string, SortedList<string, List<AppointmentModel>>>? appointments = await firebase.CollectStudentsAppointmentsAsync(HttpContext, false);
                 var first = appointments.First();
                 ViewBag.currentUser = first.Key;
                 ViewBag.Appointments = first.Value;
@@ -90,15 +89,14 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             //Need to organise in time/data order
             if (firebase.VerifyLoggedInCoordinator(HttpContext).Result)
             {
-                Dictionary<string, List<AppointmentModel>>? appointments = await firebase.CollectAllAppointmentsAsync(HttpContext);
+                SortedList<string, List<AppointmentModel>>? appointments = await firebase.CollectAllAppointmentsAsync(HttpContext, true);
                 ViewBag.currentUser = "Course"; //hardcoded as not needed for course coordinator
                 ViewBag.Appointments = appointments;
                 return View();
             }
             else if (firebase.VerifyLoggedInSession(HttpContext).Result)
             {
-                //TODO FIX THIS TO DATE ORDER
-                Dictionary<string, List<AppointmentModel>>? appointments = await firebase.CollectStudentsAppointmentsAsync(HttpContext);
+                Dictionary<string, SortedList<string, List<AppointmentModel>>>? appointments = await firebase.CollectStudentsAppointmentsAsync(HttpContext, true);
                 var first = appointments.First();
                 ViewBag.currentUser = first.Key;
                 ViewBag.Appointments = first.Value;

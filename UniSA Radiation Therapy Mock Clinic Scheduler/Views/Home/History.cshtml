@@ -1,29 +1,182 @@
 ﻿@{
     ViewData["Title"] = "Past Clinics";
     ViewData["Controller"] = "Home";
+	string currentUser = ViewBag.currentUser;
+    SortedList<string, List<AppointmentModel>> clinics = ViewBag.Appointments;
 }
 
-<div class="container">
-    <main role="main" class="pb-3">
-        <div class="row d-flex justify-content-center">
-            <div class="col-sm-8" style="min-width: 400px;">
-                <div class="text-center">
-                    <h2>@ViewData["Title"]</h2>
-                </div>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
-                @{
-                    for (int i = 1; i <= 40; i++)
-                    {
-                        <div class="card w-100">
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script src="~/js/moment.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/css/clinics.css">
+
+<div class="container">
+	<main role="main" class="pb-3">
+		<h1>Past Clinics</h1>
+
+		@*Organise by class then under each class have the clinics*@
+        @if(clinics != null)
+        {
+			@*Loop through each class in the supplied dictionary*@
+            @foreach(var date in clinics)
+            {
+				<div class="card w-100">
+					<div class="accordion">
+						
+						@*Accordian controller*@
+						<h2 class="card-header">
+							<button class="btn btn-link" type="button" data-toggle="collapse" data-target="#@date.Key" aria-expanded="true" aria-controls="@date.Key">
+								@date.Key
+							</button>
+						</h2>
+
+						@*Table to hold the appointment data*@
+						<div id="@date.Key" class="collapse" aria-labelledby="@date.Key">
                             <div class="card-body">
-                                <h5 class="card-title">Past Clinic #@i<a href="#" class="stretched-link"></a></h5>
-                                <p class="card-text">@i/08/2022 - UniSA City East Campus - Building GH2</p>
-                            </div>
-                        </div>
-                        <br />
-                    }
-                }
+
+                                <div class="col-sm-12" style="min-width: 200px;">
+									<table class="table">
+										<thead>
+											<tr>
+												<th>Date</th>
+												<th>Location</th>
+												<th>Patient</th>
+												<th>Infectious</th>
+												<th>Radiation Therapists</th>
+												<th>Site</th>
+												<th>Complication</th>
+												<th>Treatment</th>
+											</tr>
+										</thead>
+
+										<tbody>
+											@foreach (var appointment in date.Value)
+											{
+												var tempInfect = appointment.Infectious.Split(':');
+
+												<tr>
+													<td>
+														<h6 class="mb-0">@appointment.Time</h6>
+														<small>@appointment.Date</small>
+													</td>
+
+													<td>
+														<h6 class="mb-0">@appointment.Room</h6>
+													</td>
+
+													<td>
+														<h6 class="mb-0">@appointment.Patient</h6>
+													</td>
+
+													<td>
+														<h6 class="mb-0 infectionColumn" data-value="@tempInfect[1]">@tempInfect[0]</h6>
+													</td>
+
+													<td>
+														<p class="mb-0">@appointment.RadiationTherapist1</p>
+														<p class="mb-0">@appointment.RadiationTherapist2</p>
+													</td>
+
+													<td>
+														<h6 class="mb-0">@appointment.Site</h6>
+													</td>	
+
+													<td>
+														@if (@appointment.Patient.Equals(currentUser))
+														{
+															<h6 class="mb-0">@appointment.Complication</h6>
+														}
+														else {
+															<h6 class="mb-0">Hidden</h6>
+														}
+								
+													</td>	
+
+													<td>
+														@if (@appointment.Patient.Equals(currentUser))
+														{
+															<h6 class="mb-0">Hidden</h6>
+														}
+														else {
+															@Html.ActionLink("Treatment", "Treatment", "Home",
+															new {
+																date = @appointment.Date,
+																time = @appointment.Time,
+																room = @appointment.Room,
+																patient = @appointment.Patient,
+																infectious = @appointment.Infectious,
+																rt1 = @appointment.RadiationTherapist1,
+																rt2 = @appointment.RadiationTherapist2,
+																site = @appointment.Site,
+																complication = @appointment.Complication,
+																ID = @appointment.AppointmentID
+															},
+															new { @class="btn button" }
+															)
+														}
+													</td>
+												</tr>
+											}
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			}
+		}
+	</main>
+
+	<!-- The Modal -->
+    <div id="infectionModal" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <div>
+                <h2 style="float:left;">WARNING</h2>
+                <span id="closeButton" class="close">&times;</span>
+            </div>
+            <br />
+            <div class="form-group">
+                <div class="form-row">
+                    <div class="col-md-6 mb-3">
+                        <label for="modalInfectionTitle">Infection</label>
+                        <input disabled type="text" class="form-control input" id="modalInfectionTitle" placeholder="COVID-19.." required>
+                    </div>
+                </div>      
+                <div class="form-row mb-3">
+                    <label for="modalinfectionDetails">Infection Details</label>
+                    <textarea disabled class="form-control" id="modalinfectionDetails" rows="3" placeholder="Infection Details.."></textarea>
+                </div> 
             </div>
         </div>
-    </main>
+    </div>
 </div>
+
+
+<script>
+	//setup on click listeners for the infection modal
+    $(".infectionColumn").on('click', function(e){
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+		if (e.target.innerHTML == "False") {
+            return
+        }
+
+        //Load the current values
+        $("#modalInfectionTitle").val(e.target.innerHTML)
+        $("#modalinfectionDetails").val(e.target.getAttribute("data-value"));
+
+        let modal = $("#infectionModal");
+        let close = $("#closeButton");
+        close.on('click', function () {
+            modal.css("display", "none");
+        });
+
+        modal.css("display", "block");
+    });	
+</script>
