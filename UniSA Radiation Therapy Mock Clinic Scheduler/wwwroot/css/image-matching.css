@@ -7,11 +7,12 @@
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
-    /*background-image: url("")*/
+    background-image: url("/assets/pelvis-xray.jpg")
 }
 
 .draggable{
     position: relative;
     cursor: move;
     opacity: 0.5;
+    width: 100%;
 }

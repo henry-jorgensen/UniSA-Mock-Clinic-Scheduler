@@ -140,24 +140,41 @@ $(document).ready(async () => {
 		}
 	})
 
-	//Inputs and their handling to set local images in the image matcher
-	const bg_image_input = document.querySelector("#background-input");
-	bg_image_input.addEventListener("change", function () {
-		const reader = new FileReader();
-		reader.addEventListener("load", () => {
-			const uploaded_image = reader.result;
-			document.querySelector("#image-matcher").style.backgroundImage = `url(${uploaded_image})`;
-		});
-		reader.readAsDataURL(this.files[0]);
-	});
+	const machineControls = document.querySelector(".machine-controls-container")
+	const hideMachineControlsButton = document.getElementById("hide-machine")
+	hideMachineControlsButton.addEventListener('click', () => {
+		machineControls.classList.toggle("hidden");
 
-	const draggable_image_input = document.querySelector("#draggable-input");
-	draggable_image_input.addEventListener("change", function () {
-		const reader = new FileReader();
-		reader.addEventListener("load", () => {
-			const uploaded_image = reader.result;
-			document.querySelector("#draggable-image").src = uploaded_image;
-		});
-		reader.readAsDataURL(this.files[0]);
-	});
+		if (machineControls.classList.contains("hidden")) {
+			hideMachineControlsButton.innerHTML = "Show Machine Controls"
+		} else {
+			hideMachineControlsButton.innerHTML = "Hide Machine Controls"
+		}
+	})
+
+	//Inputs and their handling to set local images in the image matcher
+	//const bg_image_input = document.querySelector("#background-input");
+	//bg_image_input.addEventListener("change", function () {
+	//	const reader = new FileReader();
+	//	reader.addEventListener("load", () => {
+	//		const uploaded_image = reader.result;
+	//		document.querySelector("#image-matcher").style.backgroundImage = `url(${uploaded_image})`;
+	//	});
+	//	reader.readAsDataURL(this.files[0]);
+	//});
+
+	//const draggable_image_input = document.querySelector("#draggable-input");
+	//draggable_image_input.addEventListener("change", function () {
+	//	const reader = new FileReader();
+	//	reader.addEventListener("load", () => {
+	//		const uploaded_image = reader.result;
+	//		document.querySelector("#draggable-image").src = uploaded_image;
+	//	});
+	//	reader.readAsDataURL(this.files[0]);
+	//});
+
+	const machineEmergButton = document.getElementById('button-area')
+	machineEmergButton.addEventListener('click', function () {
+		alert("Machine Stopped")
+    })
 });
