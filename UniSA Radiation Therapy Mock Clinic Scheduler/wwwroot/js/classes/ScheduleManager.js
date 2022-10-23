@@ -149,8 +149,8 @@
                 } else {
                     rowData[this.headers[2]] = row[2].innerHTML + ":" + row[2].value; //infection:details
                 }
-                
-                rowData[this.headers[3]] = row[3].innerHTML;
+
+                rowData[this.headers[3]] = row[3].children[0].value;
                 rowData[this.headers[4]] = row[4].innerHTML;
                 rowData[this.headers[5]] = row[5].innerHTML;
                 rowData[this.headers[6]] = row[6].innerHTML;

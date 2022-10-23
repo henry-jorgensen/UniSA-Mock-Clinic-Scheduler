@@ -41,6 +41,10 @@ $(document).ready(function () {
                     console.log(data[0]);
                     //Locations
                     console.log(data[1]);
+
+                    //Assign site values to the table manager
+                    let sites = await ajaxManager.collectSites();
+                    tableManager.sites = sites;
                     
 
                     tableManager.generateSchedulePreview(

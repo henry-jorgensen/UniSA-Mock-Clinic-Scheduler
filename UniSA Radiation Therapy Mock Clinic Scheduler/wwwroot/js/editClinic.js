@@ -75,8 +75,13 @@ async function loadScheduleForEdit(params) {
     $("#scheduleDurationInput").val(params.duration);
     $("#locationInput").val(params.locations);
 
-    //TODO LOAD THE EXISTING SCHEDULE IN HERE
+    //LOAD THE EXISTING SCHEDULE IN HERE
     let clinicJSON = await ajaxManager.loadASchedule(params.code);
+
+
+    //Assign site values to the table manager
+    let sites = await ajaxManager.collectSites();
+    tableManager.sites = sites;
 
     console.log(clinicJSON);
 

@@ -461,4 +461,42 @@
             }
         });
     }
+
+
+    /**
+     * Collect the saved list of sites available for the clinic 
+     */
+    collectSites = async () => {
+        return await $.ajax({
+            type: 'GET',
+            url: `/${this.controller}/CollectSites`,
+            data: {},
+            success: function (result) {
+               return result;
+            },
+            failure: function (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    /**
+     * Update the list of sites saved within the database.
+     * @param {any} newlist A list of strings which represent the sites.
+     */
+    updateSites = async (newlist) => {
+        return await $.ajax({
+            type: 'POST',
+            url: `/${this.controller}/UpdateSites`,
+            data: {
+                sites: newlist
+            },
+            success: function (result) {
+                console.log(result);
+            },
+            failure: function (error) {
+                console.log(error);
+            }
+        });
+    }
 }

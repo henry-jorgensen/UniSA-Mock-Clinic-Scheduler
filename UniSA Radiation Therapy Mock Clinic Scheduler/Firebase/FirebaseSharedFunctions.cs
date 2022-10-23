@@ -1631,8 +1631,58 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
             return true;
         }
+
+
+        ///
+        /// SITE TYPE FUNCTIONS
+        ///
+
+        /// <summary>
+        /// Get the current list of sites from the database.
+        /// </summary>
+        public async Task<List<string>?> CollectSiteList(HttpContext context)
+        {
+            string? token = VerifyVerificationToken(context);
+
+            if (token == null) return null;
+
+            DocumentReference siteRef = db.Collection("Sites").Document("standard");
+            DocumentSnapshot siteSnapshot = await siteRef.GetSnapshotAsync();
+
+            List<string> sites = new List<string>();
+
+            foreach(var site in siteSnapshot.GetValue<List<string>>("types"))
+            {
+                sites.Add(site.ToString());
+            }
+
+            return sites;
+        }
+
+        /// <summary>
+        /// Update the list of sites based on a Course Coordinators input.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="newList"></param>
+        public async Task<bool?> UpdateSiteList(HttpContext context, string newList)
+        {
+            string? token = VerifyVerificationToken(context);
+
+            if (token == null) return false;
+
+            List<string> sites = newList.Split(',').ToList();
+
+            DocumentReference siteRef = db.Collection("Sites").Document("standard");
+            await siteRef.SetAsync(sites);
+
+            return true;
+        }
     }
 
+    /// <summary>
+    /// Generic comparator class
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     class DescComparer<T> : IComparer<T>
     {
         public int Compare(T x, T y)

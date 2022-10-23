@@ -6,6 +6,7 @@
         this.lNInput = lastNameInput;
         this.sIInput = studentIdInput;
         this.sUInput = studentUserNameInput;
+        this.sites = null;
     }
 
     /**
@@ -149,12 +150,30 @@
 
         let tdTime = $('<td>', { text: time, contenteditable: "true" });
         let tdPatient = $('<td>', { text: patient, contenteditable: "true" });
-        let tdSite = $('<td>', { text: site, contenteditable: "true" });
+
+        let tdSite = $('<td>');
+        let selectSite = $('<select>');
+
+        this.sites.forEach(entry => {
+            let option;
+
+            if (entry === site) {
+                option = $('<option>', { text: entry, selected: true });
+            }
+            else {
+                option = $('<option>', { text: entry });
+            }
+            
+            selectSite.append(option);
+        });
+        
+        tdSite.append(selectSite)
+
+
         let tdRT1 = $('<td>', { text: RT1, contenteditable: "true" });
         let tdRT2 = $('<td>', { text: RT2, contenteditable: "true" });
         let tdComplication = $('<td>', { text: complication, contenteditable: "true" });
 
-        console.log(infectious);
         if (infectious == null) {
             infectious = "False:False";
         }
