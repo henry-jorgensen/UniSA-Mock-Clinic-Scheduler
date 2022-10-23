@@ -195,8 +195,6 @@
         let tdRT1 = $('<td>', { text: RT1, contenteditable: "true" });
         let tdRT2 = $('<td>', { text: RT2, contenteditable: "true" });
 
-        console.log(complication);
-
         if (complication == null) {
             complication = "No:False";
         } else {
@@ -204,7 +202,7 @@
         }
 
         let splitC = complication.split(":");
-        let tdComplication = $('<td>', { text: splitC[0] });
+        let tdComplication = $('<td>', { text: splitC[0], class: "complicationColumn" });
         tdComplication.attr('data-value', splitC[1])
         tdComplication.on('click', function (e) {
             //Load the current values
@@ -232,7 +230,7 @@
             infectious = "False:False";
         }
         let split = infectious.split(":");
-        let tdInfectious = $('<td>', { text: split[0], class: "text-center" });
+        let tdInfectious = $('<td>', { text: split[0], class: "text-center infectionColumn" });
         tdInfectious.attr('data-value', split[1])
         tdInfectious.on('click', function (e) {
             //Load the current values
@@ -393,7 +391,7 @@
         var body = $("<tbody>").attr({
             id: location
         });
-        body.addClass("text-center");
+        body.addClass("text-center table-striped");
 
         trMain.append(thTime, thPatient, thInfectious, thSite, thRT1, thRT2, thComplication);
         thead.append(trLoc, trMain);

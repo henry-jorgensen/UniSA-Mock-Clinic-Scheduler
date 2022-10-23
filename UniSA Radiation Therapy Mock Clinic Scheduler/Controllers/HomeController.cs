@@ -148,7 +148,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 
             if (link != null) return Ok(link);
 
-            return BadRequest();
+            return Ok();
         }
 
         [HttpPost]

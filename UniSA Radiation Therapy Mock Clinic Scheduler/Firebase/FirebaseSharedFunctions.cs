@@ -1614,11 +1614,18 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
         /// </summary>
         /// <param name="treatmentID">The Firebase key of the appointment that the document is associated with</param>
         /// <returns>A string of the URL pointing towards this document</returns>
-        public async Task<string> RetrievePDF(FileModel file)
+        public async Task<string?> RetrievePDF(FileModel file)
         {
-            string link = await Storage().Child(file.ID).GetDownloadUrlAsync();
-
-            return link;
+            try
+            {
+                string link = await Storage().Child(file.ID).GetDownloadUrlAsync();
+                Console.WriteLine(link);
+                return link;
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
         }
 
         /// <summary>

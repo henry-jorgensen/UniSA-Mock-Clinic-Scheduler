@@ -37,11 +37,6 @@ $(document).ready(function () {
                 case "createAClinicForm":
                     let data = scheduleManager.generateSchedule();
 
-                    //Schedules
-                    console.log(data[0]);
-                    //Locations
-                    console.log(data[1]);
-
                     //Assign site values to the table manager
                     let sites = await ajaxManager.collectSites();
                     tableManager.sites = sites;
@@ -158,8 +153,9 @@ function findListEntryPoint() {
     let newDuration = $("#durationInput").val();
 
     //TODO add for each location in here
-    scheduleManager.locations.forEach(location => {    
-        let children = $(`#${location}`).children();
+    scheduleManager.locations.forEach(location => {
+        let table = location.trim();
+        let children = $(`#${table}`).children();
 
         //determine the current appointment duration incase a new one is not supplied
         if (newDuration == "") {
@@ -172,12 +168,9 @@ function findListEntryPoint() {
 
         //Find where to place the break on the clinic table
         for (let i = 0; i < children.length; i++) {
-            console.log(children[i].children[0].innerHTML)
             if (start.localeCompare(children[i].children[0].innerHTML) <= 0) {
-                console.log(i);
-
                 //Insert here
-                $('#BJ1-50 > tr').eq(i - 1).after(createBreakRow(start, end));
+                $(`#${table} > tr`).eq(i - 1).after(createBreakRow(start, end));
                 startIndex = i;
                 break;
             }

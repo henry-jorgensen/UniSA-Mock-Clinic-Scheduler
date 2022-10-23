@@ -435,7 +435,7 @@
                 ID: documentID
             },
             success: function (result) {
-                //console.log(result);
+                return result;
             },
             failure: function (error) {
                 console.log(error);

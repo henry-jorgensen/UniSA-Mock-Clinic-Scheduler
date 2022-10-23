@@ -11,7 +11,10 @@ let treatmentPDF = null;
 async function loadPDF(ID) {
 	try {
 		let success = await ajaxManager.retrievePDF(ID);
-		setupPreview(success);
+
+		if (success != null && success != "") {
+			setupPreview(success);
+        }
 	}
 	catch (err) {
 		console.log(err);
