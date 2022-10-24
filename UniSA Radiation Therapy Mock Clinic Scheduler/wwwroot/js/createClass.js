@@ -51,7 +51,7 @@ $(document).ready(async function () {
 
             let element = $("<option>");
             element.text(entry.name + " : " + entry.year);
-            element.val(entry.name);
+            element.val(entry.name + ":" + entry.classCode);
             $("#classSelection").append(element);
         });
 
@@ -85,7 +85,7 @@ $(document).ready(async function () {
                         $("#yearInput").val()
                     );
 
-                    if(response == null) {
+                    if (response == null) {
                         return;
                     }
 
@@ -93,9 +93,11 @@ $(document).ready(async function () {
                     break;
 
                 case "loadAClassForm":
-                    response = await ajaxManager.loadAClass(
-                        $("#classSelection").val()
-                    );
+                    let split = $("#classSelection").val().split(":");
+
+                    ajaxManager.selectedClassCode = split[1];
+
+                    response = await ajaxManager.loadAClass(split[0]);
                     
                     //Clear the table from any previous entries
                     tableManager.clearTable(tableManager.list);

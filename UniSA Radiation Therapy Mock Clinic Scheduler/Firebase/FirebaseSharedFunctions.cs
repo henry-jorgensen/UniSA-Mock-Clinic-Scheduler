@@ -1385,6 +1385,11 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
             Query allAppointmentsQuery = db.Collection("Appointments")
                                             .OrderByDescending("Date");
+
+            //Hold all related schedule codes
+            HashSet<string> scheduleCodes = new HashSet<string>();
+
+            //Collects all apointments for ease of sorting
             QuerySnapshot allAppointmentsQuerySnapshot = await allAppointmentsQuery.GetSnapshotAsync();
             List<AppointmentModel> appointments = new List<AppointmentModel>();
 
@@ -1396,6 +1401,11 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
                 if (currentAppointment.Patient == token || currentAppointment.RadiationTherapist1 == token || currentAppointment.RadiationTherapist2 == token)
                 {
                     if (currentAppointment.Patient == null || currentAppointment.RadiationTherapist1 == null || currentAppointment.RadiationTherapist2 == null) return null;
+
+                    if (currentAppointment.ScheduleCode != null)
+                    {
+                        scheduleCodes.Add(currentAppointment.ScheduleCode);
+                    }
 
                     Array userPatient = studentInformation[currentAppointment.Patient];
                     if (userPatient == null) return null;
@@ -1411,7 +1421,6 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
                     appointments.Add(currentAppointment);
                 }
-
             }
 
             Dictionary<string, SortedList<string, List<AppointmentModel>>> value = new Dictionary<string, SortedList<string, List<AppointmentModel>>>();
@@ -1453,6 +1462,67 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
 
             value.Add(currentName, scheduleDates);
 
+            //Run through again and get all the appointments with the same schedule codes
+            //Hold the appointments in DATE categories
+            SortedList<string, List<AppointmentModel>> allScheduleDates = new SortedList<string, List<AppointmentModel>>(new DescComparer<string>());
+            List<AppointmentModel> allAppointments = new List<AppointmentModel>();
+
+            foreach (DocumentSnapshot documentSnapshot in allAppointmentsQuerySnapshot.Documents)
+            {
+                AppointmentModel currentAppointment = documentSnapshot.ConvertTo<AppointmentModel>();
+                currentAppointment.AppointmentID = documentSnapshot.Id;
+
+                if (scheduleCodes.Contains(currentAppointment.ScheduleCode))
+                {
+                    Array userPatient = studentInformation[currentAppointment.Patient];
+                    if (userPatient == null) return null;
+                    currentAppointment.Patient = userPatient.GetValue(0) + " " + userPatient.GetValue(1);
+
+                    Array userRT1 = studentInformation[currentAppointment.RadiationTherapist1];
+                    if (userRT1 == null) return null;
+                    currentAppointment.RadiationTherapist1 = userRT1.GetValue(0) + " " + userRT1.GetValue(1);
+
+                    Array userRT2 = studentInformation[currentAppointment.RadiationTherapist2];
+                    if (userRT2 == null) return null;
+                    currentAppointment.RadiationTherapist2 = userRT2.GetValue(0) + " " + userRT2.GetValue(1);
+
+                    allAppointments.Add(currentAppointment);
+                }
+            }
+
+            //Organise the appointments by time order
+            List<AppointmentModel> sortedListAll = allAppointments.OrderBy(s => DateTime.Parse(s.Time)).ToList();
+            allAppointments = sortedListAll;
+
+            //Split all the appointments into their date category
+            foreach (AppointmentModel appointment in allAppointments)
+            {
+                //check if the date is current or past
+                DateTime appointmentDate = DateTime.Parse(appointment.Date);
+                int res = DateTime.Compare(appointmentDate, DateTime.Today);
+
+                //-1 means it is in the past
+                //0 or 1 means it is today or upcoming
+                //if historic only collected the -1 values
+                //if not historic collect 0 and -1 values
+                if (res == -1 && !historic)
+                {
+                    continue;
+                }
+                else if ((res == 0 || res == 1) && historic)
+                {
+                    continue;
+                }
+
+                //Create a new entry if it does not exist
+                if (!allScheduleDates.ContainsKey(appointment.Date))
+                {
+                    allScheduleDates.Add(appointment.Date, new List<AppointmentModel>());
+                }
+                allScheduleDates[appointment.Date].Add(appointment);
+            }
+
+            value.Add("ALL", allScheduleDates);
 
             return value;
         }

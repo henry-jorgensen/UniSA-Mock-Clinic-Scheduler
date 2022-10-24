@@ -471,7 +471,7 @@ hr {
 }
 
 /* The Close Button */
-.close {
+.close, .closeComplicationButton {
     color: #aaa;
     float: right;
     font-size: 28px;
@@ -479,7 +479,9 @@ hr {
 }
 
 .close:hover,
-.close:focus {
+.close:focus,
+.closeComplicationButton:hover,
+.closeComplicationButton:focus {
     color: black;
     text-decoration: none;
     cursor: pointer;
