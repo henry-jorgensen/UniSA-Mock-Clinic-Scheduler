@@ -111,33 +111,35 @@
 </div>
 
 <script>
-    if($("#infectionStatus").innerHTML != "False") {
-        openModal();
-    }
-
-	//setup on click listeners for the infection modal
-    $(".infectionColumn").on('click', function(e){
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-
-		if (e.target.innerHTML == "False") {
-            return
+    $(document).ready(function () {
+        if($("#infectionStatus").innerHTML != "False") {
+            openModal();
         }
 
-        openModal();
-    });	
+	    //setup on click listeners for the infection modal
+        $(".infectionColumn").on('click', function(e){
+            event.stopPropagation();
+            event.stopImmediatePropagation();
 
-    function openModal() {
-		//Load the current values
-        $("#modalInfectionTitle").val($("#infectionStatus")[0].innerHTML)
-        $("#modalinfectionDetails").val($("#infectionStatus").data('value'));
+		    if (e.target.innerHTML == "False") {
+                return
+            }
 
-        let modal = $("#infectionModal");
-        let close = $("#closeButton");
-        close.on('click', function () {
-            modal.css("display", "none");
-        });
+            openModal();
+        });	
 
-        modal.css("display", "block");
-    }
+        function openModal() {
+		    //Load the current values
+            $("#modalInfectionTitle").val($("#infectionStatus")[0].innerHTML)
+            $("#modalinfectionDetails").val($("#infectionStatus").data('value'));
+
+            let modal = $("#infectionModal");
+            let close = $("#closeButton");
+            close.on('click', function () {
+                modal.css("display", "none");
+            });
+
+            modal.css("display", "block");
+        }
+    });
 </script>

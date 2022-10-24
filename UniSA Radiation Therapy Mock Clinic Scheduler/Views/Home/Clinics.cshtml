@@ -3,6 +3,7 @@
     ViewData["Controller"] = "Home";
 	string currentUser = ViewBag.currentUser;
     SortedList<string, List<AppointmentModel>> clinics = ViewBag.Appointments;
+	SortedList<string, List<AppointmentModel>> allAppointments = ViewBag.AllAppointments;
 }
 
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
@@ -131,6 +132,55 @@
 									</table>
 								</div>
 							</div>
+
+							@*Full basic schedule for the students reference*@
+							@if (allAppointments != null)
+							{
+								<div class="card-body">
+									<table class="table">
+										<thead>
+											<tr>
+												<th>Date</th>
+												<th>Location</th>
+												<th>Patient</th>
+												<th>Radiation Therapists</th>
+												<th>Site</th>
+											</tr>
+										</thead>
+
+										<tbody>
+											@foreach (var generalAppointment in allAppointments[date.Key])
+												{
+
+													<tr>
+														<td>
+															<h6 class="mb-0">@generalAppointment.Time</h6>
+															<small>@generalAppointment.Date</small>
+														</td>
+
+														<td>
+															<h6 class="mb-0">@generalAppointment.Room</h6>
+														</td>
+
+														<td>
+															<h6 class="mb-0">@generalAppointment.Patient</h6>
+														</td>
+
+														<td>
+															<p class="mb-0">@generalAppointment.RadiationTherapist1</p>
+															<p class="mb-0">@generalAppointment.RadiationTherapist2</p>
+														</td>
+
+														<td>
+															<h6 class="mb-0">@generalAppointment.Site</h6>
+														</td>	
+													</tr>
+												}
+										
+										</tbody>
+									</table>
+								</div>
+							}
 						</div>
 					</div>
 				</div>

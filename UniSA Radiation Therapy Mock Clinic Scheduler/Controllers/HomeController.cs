@@ -56,6 +56,7 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
                 SortedList<string, List<AppointmentModel>>? appointments = await firebase.CollectAllAppointmentsAsync(HttpContext, false);
                 ViewBag.currentUser = "Course"; //hardcoded as not needed for course coordinator
                 ViewBag.Appointments = appointments;
+                ViewBag.AllAppointments = null;
                 return View();
             }
             else if (firebase.VerifyLoggedInSession(HttpContext).Result)
@@ -64,6 +65,10 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
                 var first = appointments.First();
                 ViewBag.currentUser = first.Key;
                 ViewBag.Appointments = first.Value;
+
+                //Need to get all the appointments that a student may be in...
+                SortedList<string, List<AppointmentModel>> second = appointments["ALL"];
+                ViewBag.AllAppointments = second;
                 return View();
             }
 
