@@ -1,7 +1,6 @@
 ﻿.image-matching {
     position: relative;
     width: 100%;
-    height: 600px;
     border: solid 1px black;
     overflow: hidden;
     background-repeat: no-repeat;
