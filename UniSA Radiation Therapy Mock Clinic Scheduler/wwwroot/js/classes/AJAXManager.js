@@ -369,7 +369,7 @@
                 date: dateValue,
                 username: usernameValue,
                 name: nameValue,
-                complication, complicationValue,
+                complication: complicationValue,
                 appointmentRef: appointmentRefValue
             },
             success: function (result) {
