@@ -86,16 +86,17 @@
 			</div>
 			<button class="btn btn-primary" id="hide-matching">Hide Image Matching</button><br />
 			<div class="matching-container" id="matching-container">
-				<div class="image-matching" id="image-matcher">
-					<img src="/assets/pelvis-xray.jpg" id="draggable-image" class="draggable" />
+				<div style="background-image: url('/assets/xray/@appointment.Site.ToLower()-front.jpg')" class="image-matching" id="image-matcher">
+					<img src="/assets/xray/@appointment.Site.ToLower()-front.jpg" id="draggable-image" class="draggable" />
 				</div>
 			</div>
 			<button class="btn btn-primary" id="hide-machine">Hide Machine Controls</button>
 			<div class="machine-controls-container">
-				<img src="~/assets/machine.jpg" alt="controls" usemap="#machine-map" />
+				<img src="~/assets/machine-controls.png" usemap="#machine-map" />
 
 				<map name="machine-map">
-					<area shape="circle" coords="72, 55, 30" style="cursor: pointer;" id="button-area"/>
+					<area shape="rect" coords="673, 345, 742, 387" style="cursor: pointer;" id="start-button-area"/>
+					<area shape="rect" coords="552, 347, 623, 390" style="cursor: pointer;" id="stop-button-area" />
 				</map>
 			</div>
 			

@@ -155,29 +155,18 @@ $(document).ready(async () => {
 		}
 	})
 
-	//Inputs and their handling to set local images in the image matcher
-	//const bg_image_input = document.querySelector("#background-input");
-	//bg_image_input.addEventListener("change", function () {
-	//	const reader = new FileReader();
-	//	reader.addEventListener("load", () => {
-	//		const uploaded_image = reader.result;
-	//		document.querySelector("#image-matcher").style.backgroundImage = `url(${uploaded_image})`;
-	//	});
-	//	reader.readAsDataURL(this.files[0]);
-	//});
+	let machineRunning = false;
+	var machineNoise = new Audio('/assets/sounds/transformer-1.mp3');
 
-	//const draggable_image_input = document.querySelector("#draggable-input");
-	//draggable_image_input.addEventListener("change", function () {
-	//	const reader = new FileReader();
-	//	reader.addEventListener("load", () => {
-	//		const uploaded_image = reader.result;
-	//		document.querySelector("#draggable-image").src = uploaded_image;
-	//	});
-	//	reader.readAsDataURL(this.files[0]);
-	//});
-
-	const machineEmergButton = document.getElementById('button-area')
+	const machineEmergButton = document.getElementById('start-button-area')
 	machineEmergButton.addEventListener('click', function () {
-		alert("Machine Stopped")
+		alert("Machine Started")
+		machineRunning = true;
+	})
+
+	machineRunning.addEventListener('change', function () {
+		if (machineRunning == true) {
+			machineNoise.play();
+        }
     })
 });
