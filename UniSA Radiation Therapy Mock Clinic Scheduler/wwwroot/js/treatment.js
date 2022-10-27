@@ -156,17 +156,25 @@ $(document).ready(async () => {
 	})
 
 	let machineRunning = false;
-	var machineNoise = new Audio('/assets/sounds/transformer-1.mp3');
+	var machineAudio = document.getElementById("machine-sound");
+	var machineAudioNew = new Audio("~/assets/sounds/transformer-1.mp3")
 
-	const machineEmergButton = document.getElementById('start-button-area')
-	machineEmergButton.addEventListener('click', function () {
-		alert("Machine Started")
-		machineRunning = true;
+	const machineStartButton = document.getElementById('start-button-area')
+	machineStartButton.addEventListener('click', function () {
+		if (machineRunning == false) {
+			alert("Machine Started")
+			machineRunning = true;
+			machineAudioNew.play()
+        }
 	})
 
-	machineRunning.addEventListener('change', function () {
+	const machineStopButton = document.getElementById('stop-button-area')
+	machineStopButton.addEventListener('click', function () {
 		if (machineRunning == true) {
-			machineNoise.play();
+			alert("Machine Stopped");
+			machineAudioNew.pause();
+			machineAudio.currentTime = 0;
+			machineRunning = false;
         }
     })
 });
