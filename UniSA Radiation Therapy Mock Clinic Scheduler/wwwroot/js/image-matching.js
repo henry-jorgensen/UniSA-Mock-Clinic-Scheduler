@@ -24,6 +24,7 @@
 
 	// move div element
 	document.querySelector(".draggable").onmousemove = dragDiv;
+	document.querySelector("#draggable-image-2").onmousemove = dragDiv;
 
 }
 
@@ -31,7 +32,7 @@ function dragDiv(e) {
 	if (!drag) { return };
 	if (!e) { var e = window.event };
 	var targ = e.target ? e.target : e.srcElement;
-	console.log(e)
+
 	// move div element
 	targ.style.left = coordX + e.clientX - offsetX + 'px';
 	targ.style.top = coordY + e.clientY - offsetY + 'px';
@@ -45,4 +46,7 @@ function stopDrag() {
 window.onload = function () {
 	document.querySelector(".draggable").onmousedown = startDrag;
 	document.querySelector(".draggable").onmouseup = stopDrag;
+
+	document.querySelector("#draggable-image-2").onmousedown = startDrag;
+	document.querySelector("#draggable-image-2").onmouseup = stopDrag;
 }

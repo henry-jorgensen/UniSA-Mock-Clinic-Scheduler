@@ -157,24 +157,25 @@ $(document).ready(async () => {
 
 	let machineRunning = false;
 	var machineAudio = document.getElementById("machine-sound");
-	var machineAudioNew = new Audio("~/assets/sounds/transformer-1.mp3")
 
 	const machineStartButton = document.getElementById('start-button-area')
 	machineStartButton.addEventListener('click', function () {
 		if (machineRunning == false) {
-			alert("Machine Started")
+			
 			machineRunning = true;
-			machineAudioNew.play()
+			machineAudio.play()
+			alert("Machine Started")
         }
 	})
 
 	const machineStopButton = document.getElementById('stop-button-area')
 	machineStopButton.addEventListener('click', function () {
 		if (machineRunning == true) {
-			alert("Machine Stopped");
-			machineAudioNew.pause();
+			
+			machineAudio.pause();
 			machineAudio.currentTime = 0;
 			machineRunning = false;
+			alert("Machine Stopped");
         }
     })
 });

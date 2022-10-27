@@ -80,20 +80,34 @@
 					</tr>
 				</tbody>
 			</table>
+			
 			<button class="btn btn-primary hidden" id="hide-pdf">Hide PDF</button><br />
 			<div class="hidden" id="treatmentDocument">
 				<iframe class="pdfPreview" id="treatmentPDF"></iframe>
 			</div>
+			<hr />
 			<button class="btn btn-primary" id="hide-matching">Hide Image Matching</button><br />
 			<div class="matching-container" id="matching-container">
+				<div style="margin-top: 10px">
+					<button class="btn btn-warning">Reset Image</button>
+				</div>
 				<div style="background-image: url('/assets/xray/@appointment.Site.ToLower()-front.jpg')" class="image-matching" id="image-matcher">
 					<img src="/assets/xray/@appointment.Site.ToLower()-front.jpg" id="draggable-image" class="draggable" />
 				</div>
+
+				<div style="background-image: url('/assets/xray/@appointment.Site.ToLower()-front.jpg')" class="image-matching" id="image-matcher-2">
+					<img src="/assets/xray/@appointment.Site.ToLower()-front.jpg" id="draggable-image-2" class="draggable" />
+				</div>
 			</div>
+			<hr />
 			<button class="btn btn-primary" id="hide-machine">Hide Machine Controls</button>
 			<div class="machine-controls-container">
+				<h1 style="text-align: center">Machine Off</h1>
 				<img src="~/assets/machine-controls.png" usemap="#machine-map" />
-
+				<audio id="machine-sound">
+					<source src="/assets/sounds/transformer-1.mp3" />
+				</audio>
+				
 				<map name="machine-map">
 					<area shape="rect" coords="673, 345, 742, 387" style="cursor: pointer;" id="start-button-area"/>
 					<area shape="rect" coords="552, 347, 623, 390" style="cursor: pointer;" id="stop-button-area" />
