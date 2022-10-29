@@ -212,6 +212,26 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             return null;
         }
 
+        public async Task<List<string>?> GenerateCoordinatorCode()
+        {
+            Debug.WriteLine(encryptor.GenerateRandomPassword());
+            return GetAllCoordinatorCodes().Result;
+        }
+
+        public async Task<List<string>?> GetAllCoordinatorCodes()
+        {
+            Query allClassesQuery = db.Collection("CoordinatorCodes");
+            QuerySnapshot allClassesQuerySnapshot = await allClassesQuery.GetSnapshotAsync();
+            List<string> codes = new List<string>();
+
+            foreach (DocumentSnapshot documentSnapshot in allClassesQuerySnapshot.Documents)
+            {
+                codes.Add(documentSnapshot.Id);
+            }
+
+            return codes;
+        }
+
         public async Task<Boolean> VerifyCoordinatorCode(string? code)
         {
             if(code == null) return false;

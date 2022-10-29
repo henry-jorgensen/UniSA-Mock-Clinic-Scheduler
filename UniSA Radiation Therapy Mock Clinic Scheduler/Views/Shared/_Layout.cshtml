@@ -175,6 +175,14 @@
                                 </div>
                             </div>
 
+                            <div class="list-group-item @((string?) ViewData["Title"] == "Generate" ? "active" : "")">
+                                <div class="list-group-item-inner-container">
+                                    <a class="list-group-item-action list-indent-1" asp-controller="Coordinator" asp-action="Generate">
+                                        <span class="nav-item-text">Coordinator Codes</span>
+                                    </a>
+                                </div>
+                            </div>
+
                             <div class="list-group-item @((string?) ViewData["Title"] == "Sites" ? "active" : "")">
                                 <div class="list-group-item-inner-container">
                                     <a class="list-group-item-action list-indent-1" asp-controller="Coordinator" asp-action="Sites">
@@ -188,15 +196,6 @@
                     //We are on the accounts section
                     if ((string?) ViewData["Controller"] == "Account")
                     {
-                        //Always be able to see the privacy policy
-                        <div class="list-group-item @((string?) ViewData["Title"] == "Privacy Policy" ? "active" : "")">
-                            <div class="list-group-item-inner-container">
-                                <a class="list-group-item-action list-indent-1" asp-controller="Account" asp-action="PrivacyPolicy">
-                                    <span class="nav-item-text">Privacy Policy</span>
-                                </a>
-                            </div>
-                        </div>
-
                         //The user is currently logged in
                         if (loggedIn)
                         {
@@ -205,6 +204,15 @@
                                 <div class="list-group-item-inner-container">
                                     <a class="list-group-item-action list-indent-1" asp-controller="Account" asp-action="Index">
                                         <span class="nav-item-text">General</span>
+                                    </a>
+                                </div>
+                            </div>
+
+                            //Always be able to see the privacy policy
+                            <div class="list-group-item @((string?) ViewData["Title"] == "Privacy Policy" ? "active" : "")">
+                                <div class="list-group-item-inner-container">
+                                    <a class="list-group-item-action list-indent-1" asp-controller="Account" asp-action="PrivacyPolicy">
+                                        <span class="nav-item-text">Privacy</span>
                                     </a>
                                 </div>
                             </div>
