@@ -95,11 +95,6 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             return View();
         }
 
-        public IActionResult Settings()
-        {
-            return View();
-        }
-
         [HttpPost]
         public async Task<IActionResult> Login(AccountModel accountModel)
         {

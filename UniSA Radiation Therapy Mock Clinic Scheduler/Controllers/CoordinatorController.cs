@@ -71,6 +71,21 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
             }
         }
 
+        //Add/Edit Sites page
+        //Must be logged into course coordinator account to see
+        public IActionResult Sites()
+        {
+            if (firebase.VerifyLoggedInCoordinator(HttpContext).Result)
+            {
+                ViewBag.CurrentUser = firebase.GenerateUserModel(HttpContext).Result;
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("Login", "Account");
+            }
+        }
+
         //Create clinics page
         //Must be logged into course coordinator account to see
         public IActionResult CreateClinic()
