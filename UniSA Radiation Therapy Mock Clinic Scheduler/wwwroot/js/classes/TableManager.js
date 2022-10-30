@@ -9,6 +9,9 @@
         this.sites = null;
     }
 
+    static #target = null;
+
+
     /**
      * Remove any entries that are currently within the table.
      */
@@ -123,7 +126,7 @@
         let tdName = $('<td>', { text: name });
 
         let tdDelete = $('<td>');
-        let button = $('<button>', { text: "X" })
+        let button = $('<button>', { class: "btn btn-danger", text: "X" })
         button.click((e) => {
             e.currentTarget.parentNode.parentNode.remove();
         });
@@ -205,25 +208,13 @@
         let tdComplication = $('<td>', { text: splitC[0], class: "complicationColumn" });
         tdComplication.attr('data-value', splitC[1])
         tdComplication.on('click', function (e) {
+            TableManager.#target = e.target;
+
             //Load the current values
             $("#modalComplicationDetails").val(e.target.getAttribute("data-value"));
 
-            let modal = $("#complicationModal");
-            let close = $("#closeComplicationButton");
-            close.on('click', function () {
-                modal.css("display", "none");
-            });
-
-            modal.css("display", "block");
-
-            $("#saveComplicationDetails").on('click', function () {
-                e.target.innerHTML = 'Yes';
-                e.target.setAttribute('data-value', $("#modalComplicationDetails").val());
-                modal.css("display", "none");
-
-                //Reset the modal
-                $("#modalComplicationDetails").val("");
-            });
+            //Open modal and pass in the target
+            $("#complicationModal").css("display", "block");
         });
 
         if (infectious == null) {
@@ -233,32 +224,28 @@
         let tdInfectious = $('<td>', { text: split[0], class: "text-center infectionColumn" });
         tdInfectious.attr('data-value', split[1])
         tdInfectious.on('click', function (e) {
+            TableManager.#target = e.target;
+
             //Load the current values
             $("#modalInfectionTitle").val(e.target.innerHTML)
             $("#modalinfectionDetails").val(e.target.getAttribute("data-value"));
 
-            let modal = $("#infectionModal");
-            let close = $("#closeButton");
-            close.on('click', function () {
-                modal.css("display", "none");
-            });
-
-            modal.css("display", "block");
-
-            $("#saveInfectionDetails").on('click', function () {
-                e.target.innerHTML = $("#modalInfectionTitle").val();
-                e.target.setAttribute('data-value', $("#modalinfectionDetails").val());
-                modal.css("display", "none");
-
-                //Reset the modal
-                $("#modalInfectionTitle").val("")
-                $("#modalinfectionDetails").val("");
-            });
+            $("#infectionModal").css("display", "block");
         });
 
         tr.append(tdTime, tdPatient, tdInfectious, tdSite, tdRT1, tdRT2, tdComplication);
 
         return tr;
+    }
+
+    saveComplicationData = () => {
+        TableManager.#target.innerHTML = 'Yes';
+        TableManager.#target.setAttribute('data-value', $("#modalComplicationDetails").val());
+    }
+
+    saveInfectionData = () => {
+        TableManager.#target.innerHTML = $("#modalInfectionTitle").val();
+        TableManager.#target.setAttribute('data-value', $("#modalinfectionDetails").val());
     }
 
     /**
