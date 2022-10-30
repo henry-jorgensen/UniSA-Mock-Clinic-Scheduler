@@ -157,25 +157,30 @@ $(document).ready(async () => {
 
 	let machineRunning = false;
 	var machineAudio = document.getElementById("machine-sound");
+	var machineText = document.getElementById("machine-text");
 
 	const machineStartButton = document.getElementById('start-button-area')
 	machineStartButton.addEventListener('click', function () {
 		if (machineRunning == false) {
 			
 			machineRunning = true;
-			machineAudio.play()
-			alert("Machine Started")
+			machineAudio.play();
+
+			machineText.innerHTML = "Machine On";
+			machineText.style.color = "Green";
         }
 	})
 
 	const machineStopButton = document.getElementById('stop-button-area')
 	machineStopButton.addEventListener('click', function () {
 		if (machineRunning == true) {
-			
+			machineRunning = false;
+
 			machineAudio.pause();
 			machineAudio.currentTime = 0;
-			machineRunning = false;
-			alert("Machine Stopped");
+			
+			machineText.innerHTML = "Machine Off";
+			machineText.style.color = "Red";
         }
-    })
+	})
 });
