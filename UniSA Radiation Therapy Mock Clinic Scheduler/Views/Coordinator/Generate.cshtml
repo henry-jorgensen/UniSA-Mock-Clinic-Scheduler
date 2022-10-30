@@ -1,0 +1,41 @@
+﻿@using UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase;
+@model UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Models.AccountModel
+@{
+    ViewData["Title"] = "Generate";
+    ViewData["Controller"] = "Coordinator";
+
+    UserModel CurrentUser = ViewBag.CurrentUser;
+    List<string> CoordinatorCodes = ViewBag.CoordinatorCodes;
+}
+
+@if (CurrentUser != null)
+{
+    <div class="container">
+        <main role="main" class="pb-3">
+            <div class="row d-flex justify-content-center">
+                <div class="col-sm-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Course Coordinator Codes</h5>
+                            <hr />
+
+                            @foreach (var ccode in CoordinatorCodes)
+                            {
+                                <div class="form-group">
+                                    <span class="form-control immitation-input text-center my-auto">
+                                        @ccode
+                                    </span>
+                                </div>
+                            }
+
+                            <hr />
+                            <div class="form-group">
+                                <button type="submit" class="btn button">Generate</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+}

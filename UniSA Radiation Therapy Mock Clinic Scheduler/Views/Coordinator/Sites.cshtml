@@ -1,0 +1,60 @@
+﻿@{
+    ViewData["Title"] = "Sites";
+    ViewData["Controller"] = "Coordinator";
+}
+
+<script src="~/lib/jquery/dist/jquery.js"></script>
+
+<script src="~/js/classes/TableManager.js"></script>
+<script src="~/js/classes/AJAXManager.js"></script>
+<script src="~/js/settings.js"></script>
+
+<div class="container">
+    <main role="main" class="pb-3">
+        <div class="row d-flex justify-content-center">
+            <div class="col-sm-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Edit Sites</h5>
+                        <hr />
+
+                        <form id="addSiteForm">
+                            <div class="form-group">
+                                <div class="form-row mb-2">
+                                    <div class="col-md-9">
+                                        <input id="siteInput" type="text" class="form-control input" placeholder="Site Name: e.g. Lung" required>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <button id="addButton" type="submit" class="button btn btn-dark">Add</button>
+                                    </div>
+                                </div>
+
+                                <hr />
+                                <div class="card-content">
+                                    <table class="w-100 text-center">
+                                        <thead>
+                                            <tr>
+                                                <th class="col-md-6">Name</th>
+                                                <th>Delete</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="siteList">
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <hr />
+                                <div class="form-group">
+                                    <button id="saveButton" type="button" class="button btn btn-dark">
+                                        Save
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>

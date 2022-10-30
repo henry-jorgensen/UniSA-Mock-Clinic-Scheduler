@@ -24,7 +24,7 @@
 
 	// move div element
 	document.querySelector(".draggable").onmousemove = dragDiv;
-	document.querySelector("#draggable-image-2").onmousemove = dragDiv;
+	//document.querySelector("#draggable-image-2").onmousemove = dragDiv;
 
 }
 
@@ -47,6 +47,6 @@ window.onload = function () {
 	document.querySelector(".draggable").onmousedown = startDrag;
 	document.querySelector(".draggable").onmouseup = stopDrag;
 
-	document.querySelector("#draggable-image-2").onmousedown = startDrag;
-	document.querySelector("#draggable-image-2").onmouseup = stopDrag;
+	//document.querySelector("#draggable-image-2").onmousedown = startDrag;
+	//document.querySelector("#draggable-image-2").onmouseup = stopDrag;
 }
