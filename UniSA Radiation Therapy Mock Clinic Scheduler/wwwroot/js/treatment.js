@@ -155,34 +155,27 @@ $(document).ready(async () => {
 		}
 	})
 
-	//Inputs and their handling to set local images in the image matcher
-	//const bg_image_input = document.querySelector("#background-input");
-	//bg_image_input.addEventListener("change", function () {
-	//	const reader = new FileReader();
-	//	reader.addEventListener("load", () => {
-	//		const uploaded_image = reader.result;
-	//		document.querySelector("#image-matcher").style.backgroundImage = `url(${uploaded_image})`;
-	//	});
-	//	reader.readAsDataURL(this.files[0]);
-	//});
-
-	//const draggable_image_input = document.querySelector("#draggable-input");
-	//draggable_image_input.addEventListener("change", function () {
-	//	const reader = new FileReader();
-	//	reader.addEventListener("load", () => {
-	//		const uploaded_image = reader.result;
-	//		document.querySelector("#draggable-image").src = uploaded_image;
-	//	});
-	//	reader.readAsDataURL(this.files[0]);
-	//});
+	let machineRunning = false;
+	var machineAudio = document.getElementById("machine-sound");
 
 	const machineStartButton = document.getElementById('start-button-area')
 	machineStartButton.addEventListener('click', function () {
-		alert("Machine Started")
-	});
+		if (machineRunning == false) {
+			
+			machineRunning = true;
+			machineAudio.play()
+			alert("Machine Started")
+        }
+	})
 
-	const machineEmergButton = document.getElementById('stop-button-area')
-	machineEmergButton.addEventListener('click', function () {
-		alert("Machine Stopped")
-	});
+	const machineStopButton = document.getElementById('stop-button-area')
+	machineStopButton.addEventListener('click', function () {
+		if (machineRunning == true) {
+			
+			machineAudio.pause();
+			machineAudio.currentTime = 0;
+			machineRunning = false;
+			alert("Machine Stopped");
+        }
+    })
 });

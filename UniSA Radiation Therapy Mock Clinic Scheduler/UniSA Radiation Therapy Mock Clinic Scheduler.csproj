@@ -40,6 +40,7 @@
   <ItemGroup>
     <Folder Include="Firebase\" />
     <Folder Include="Firebase\Auth\" />
+    <Folder Include="wwwroot\assets\sounds\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Properties\PublishProfiles\UniSARadiationTherapyMockClinicScheduler - Web Deploy.pubxml.user" />
