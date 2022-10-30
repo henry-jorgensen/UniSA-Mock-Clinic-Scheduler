@@ -173,8 +173,8 @@ $(document).ready(async () => {
 
 	const resetButton = document.getElementById("reset-button");
 	resetButton.addEventListener('click', () => {
-		document.querySelector(".draggable").style.left = "0px"
-		document.querySelector(".draggable").style.top = "0px"
+		document.querySelector(".draggable").style.left = "-16px"
+		document.querySelector(".draggable").style.top = "22px"
     })
 
 
