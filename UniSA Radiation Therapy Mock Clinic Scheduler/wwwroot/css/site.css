@@ -388,6 +388,9 @@ hr {
     display: none;
 }
 
+#hide-matching, #hide-machine {
+    width: 200px
+}
 
 /* All Classes display styles
 -------------------------------------------------- */
