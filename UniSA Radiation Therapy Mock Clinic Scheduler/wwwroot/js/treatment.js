@@ -131,6 +131,8 @@ $(document).ready(async () => {
 		}
 	})
 
+
+	//Image Matcher
 	const imageMatcher = document.getElementById("matching-container")
 	const hideMatcherButton = document.getElementById("hide-matching")
 	hideMatcherButton.addEventListener('click', () => {
@@ -155,6 +157,15 @@ $(document).ready(async () => {
 		}
 	})
 
+
+	const resetButton = document.getElementById("reset-button");
+	resetButton.addEventListener('click', () => {
+		document.querySelector(".draggable").style.left = "0px"
+		document.querySelector(".draggable").style.top = "0px"
+    })
+
+
+	//Machine Controls
 	let machineRunning = false;
 	var machineAudio = document.getElementById("machine-sound");
 	var machineText = document.getElementById("machine-text");
