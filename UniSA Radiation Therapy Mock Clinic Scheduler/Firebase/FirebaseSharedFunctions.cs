@@ -197,13 +197,13 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Firebase
             }
 
             //Students
-            DocumentReference studentRef = db.Collection("Users").Document(token);
+            DocumentReference studentRef = db.Collection("Students").Document(token);
             DocumentSnapshot studentSnapshot = await studentRef.GetSnapshotAsync();
 
             if (studentSnapshot.Exists)
             {
-                string? FirstName = courseSnapshot.GetValue<string>("FirstName");
-                string? LastName = courseSnapshot.GetValue<string>("LastName");
+                string? FirstName = studentSnapshot.GetValue<string>("FirstName");
+                string? LastName = studentSnapshot.GetValue<string>("LastName");
 
                 if (FirstName == null || LastName == null) return null;
                 return new UserModel(token, FirstName, LastName);

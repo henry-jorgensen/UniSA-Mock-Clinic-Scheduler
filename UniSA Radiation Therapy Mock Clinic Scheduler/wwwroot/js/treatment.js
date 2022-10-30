@@ -176,8 +176,13 @@ $(document).ready(async () => {
 	//	reader.readAsDataURL(this.files[0]);
 	//});
 
-	const machineEmergButton = document.getElementById('button-area')
+	const machineStartButton = document.getElementById('start-button-area')
+	machineStartButton.addEventListener('click', function () {
+		alert("Machine Started")
+	});
+
+	const machineEmergButton = document.getElementById('stop-button-area')
 	machineEmergButton.addEventListener('click', function () {
 		alert("Machine Stopped")
-    })
+	});
 });
