@@ -499,8 +499,15 @@ hr {
 .modal-content {
     margin: 15% auto; /* 15% from the top and centered */
     padding: 20px;
-    border: 5px solid red;
     width: 80%; /* Could be more or less, depending on screen size */
+}
+
+.modal-infectious {
+    border: 5px solid red;
+}
+
+.modal-complication {
+    border: 5px solid yellow;
 }
 
 .infectious {
