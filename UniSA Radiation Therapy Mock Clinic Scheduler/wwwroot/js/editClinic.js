@@ -64,6 +64,37 @@ $(document).ready(function () {
         $("#loader").css("display", "none");
         window.location.replace("/Coordinator/Clinics");
     });
+
+    //setup modal listeners
+    let compModal = $("#complicationModal");
+    let compClose = $("#closeComplicationButton");
+
+    compClose.on('click', function () {
+        compModal.css("display", "none");
+    });
+
+    $("#saveComplicationDetails").on('click', function () {
+        tableManager.saveComplicationData();
+        compModal.css("display", "none");
+        //Reset the modal
+        $("#modalComplicationDetails").val("");
+    });
+
+
+    let infecModal = $("#infectionModal");
+    let infecClose = $("#closeButton");
+    infecClose.on('click', function () {
+        infecModal.css("display", "none");
+    });
+
+    $("#saveInfectionDetails").on('click', function () {
+        tableManager.saveInfectionData();
+        infecModal.css("display", "none");
+
+        //Reset the modal
+        $("#modalInfectionTitle").val("")
+        $("#modalinfectionDetails").val("");
+    });
 });
 
 async function loadScheduleForEdit(params) {

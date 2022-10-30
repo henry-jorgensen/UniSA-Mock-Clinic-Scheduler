@@ -108,6 +108,37 @@ $(document).ready(function () {
         //Search for the current place to put a new table row for the break
         findListEntryPoint();
     });
+
+    //setup modal listeners
+    let compModal = $("#complicationModal");
+    let compClose = $("#closeComplicationButton");
+
+    compClose.on('click', function () {
+        compModal.css("display", "none");
+    });
+
+    $("#saveComplicationDetails").on('click', function () {
+        tableManager.saveComplicationData();
+        compModal.css("display", "none");
+        //Reset the modal
+        $("#modalComplicationDetails").val("");
+    });
+
+
+    let infecModal = $("#infectionModal");
+    let infecClose = $("#closeButton");
+    infecClose.on('click', function () {
+        infecModal.css("display", "none");
+    });
+
+    $("#saveInfectionDetails").on('click', function () {
+        tableManager.saveInfectionData();
+        infecModal.css("display", "none");
+
+        //Reset the modal
+        $("#modalInfectionTitle").val("")
+        $("#modalinfectionDetails").val("");
+    });
 });
 
 //Preload classes as the drop down options when the page loads
