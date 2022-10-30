@@ -86,8 +86,8 @@
 				<iframe class="pdfPreview" id="treatmentPDF"></iframe>
 			</div>
 			<hr />
-			<button class="btn btn-primary" id="hide-matching">Hide Image Matching</button><br />
-			<div class="matching-container" id="matching-container">
+			<button class="btn btn-primary" id="hide-matching">Show Image Matching</button><br />
+			<div class="matching-container hidden" id="matching-container">
 				<div style="margin-top: 10px">
 					<button class="btn btn-warning">Reset Image</button>
 				</div>
@@ -100,8 +100,8 @@
 				</div>*@
 			</div>
 			<hr />
-			<button class="btn btn-primary" id="hide-machine">Hide Machine Controls</button>
-			<div class="machine-controls-container">
+			<button class="btn btn-primary" id="hide-machine">Show Machine Controls</button>
+			<div class="machine-controls-container hidden">
 				<h1 id="machine-text" style="text-align: center; color: red;">Machine Off</h1>
 				<img src="~/assets/machine-controls.png" usemap="#machine-map" />
 				<audio id="machine-sound">
@@ -144,7 +144,7 @@
 
 <script>
     $(document).ready(function () {
-        if($("#infectionStatus").innerHTML != "False") {
+        if($("#infectionStatus")[0].innerHTML != "False") {
             openModal();
         }
 

@@ -20,16 +20,18 @@
 
                             <form>
                                 <div class="form-group">
-                                    <input type="text" placeholder="First Name" value="@CurrentUser.FirstName" class="form-control input" required />
+                                    <input type="text" disabled placeholder="First Name" value="@CurrentUser.FirstName" class="form-control input" required />
                                 </div>
 
                                 <div class="form-group">
-                                    <input type="text" placeholder="Last Name" value="@CurrentUser.LastName" class="form-control input" required />
+                                    <input type="text" disabled placeholder="Last Name" value="@CurrentUser.LastName" class="form-control input" required />
                                 </div>
 
-                                <div class="form-group">
-                                    <input type="text" placeholder="Course Coordinator Code" value="@CurrentUser.CCCode" class="form-control input" />
-                                </div>
+                                @if(@CurrentUser.CCCode != null) {
+                                    <div class="form-group">
+                                        <input type="text" disabled placeholder="Course Coordinator Code" value="@CurrentUser.CCCode" class="form-control input" />
+                                    </div>
+                                }
                             </form>
                         </div>
                     </div><br />

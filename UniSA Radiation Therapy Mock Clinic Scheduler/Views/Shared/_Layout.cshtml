@@ -120,7 +120,7 @@
                             <div class="list-group-item @((string?) ViewData["Title"] == "Clinics" ? "active" : "")">
                                 <div class="list-group-item-inner-container">
                                     <a class="list-group-item-action list-indent-1" asp-controller="Home" asp-action="Clinics">
-                                        <span class="nav-item-text">@(coordinator ? "Upcoming Clinics" : "Appointments")</span>
+                                        <span class="nav-item-text">@(coordinator ? "Upcoming Clinics" : "Upcoming Clinics")</span>
                                     </a>
                                 </div>
                             </div>
@@ -129,7 +129,7 @@
                             <div class="list-group-item @((string?) ViewData["Title"] == "Past Clinics" ? "active" : "")">
                                 <div class="list-group-item-inner-container">
                                     <a class="list-group-item-action list-indent-1" asp-controller="Home" asp-action="History">
-                                        <span class="nav-item-text">@(coordinator ? "Past Clinics" : "Past Appointments")</span>
+                                        <span class="nav-item-text">@(coordinator ? "Past Clinics" : "Previous Clinics")</span>
                                     </a>
                                 </div>
                             </div>
