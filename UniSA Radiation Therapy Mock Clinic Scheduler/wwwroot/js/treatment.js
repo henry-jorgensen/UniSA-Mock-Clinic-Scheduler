@@ -65,6 +65,16 @@ function returnToClinicDay() {
 	location.href = "/Home/ClinicDay";
 }
 
+/*
+ * Produce a random offset between -30 & 30 for a matching image to be displaced by.
+ */
+function randomOffset() {
+	var num = Math.floor(Math.random() * 50) + 1;
+	num *= Math.round(Math.random()) ? 1 : -1;
+
+	return num;
+}
+
 $(document).ready(async () => {
 	//Detect if the treatment is part of the clinic day
 	const queryString = window.location.search;
@@ -77,7 +87,10 @@ $(document).ready(async () => {
 		$("#completeTreatment").on('click', function () {
 			returnToClinicDay();
 		});
-    }
+	}
+
+	$("#draggable-image").animate({ 'top': randomOffset() + 'px', 'left': randomOffset() + 'px' }, 200, function () {
+	});
 
 	//collect the ID that will be used to reference any documents
 	const appointmentID = $("#appointmentID").text();
