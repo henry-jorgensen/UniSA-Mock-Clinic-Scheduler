@@ -99,7 +99,7 @@
         //Create delete button
         if (canDelete) {
             let tdDelete = $('<td>');
-            let button = $('<button>', { id: `text${this.listNum}`, text: "X" })
+            let button = $('<button>', { id: `text${this.listNum}`, class: "btn btn-warning", text: "X" })
             button.click((id) => {
                 id.currentTarget.parentNode.parentNode.remove();
             });

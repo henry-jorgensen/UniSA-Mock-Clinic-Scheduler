@@ -414,12 +414,14 @@ namespace UniSA_Radiation_Therapy_Mock_Clinic_Scheduler.Controllers
 
             string email = username + "@mymail.unisa.edu.au";
 
-            var success = true;
+            //var success = true;
             //UNCOMMENT TO ENABLE EMAILS
             //var success = await SendGridMessenger.SendEmail(date, name, complication, email);
 
             //Update appointment emailed status
-            await firebase.UpdateEmailAppointmentAsync(appointmentRef, true);
+            //await firebase.UpdateEmailAppointmentAsync(appointmentRef, true);
+
+            var success = SendGridSettings.APIKEY;
 
             if (success != null) return Ok(success);
 

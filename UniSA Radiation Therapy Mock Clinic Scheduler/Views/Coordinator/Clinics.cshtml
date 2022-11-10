@@ -261,6 +261,7 @@
         let appointmentRef = e.value
 
         let success = await ajaxManager.emailPatient(date, username, name, complication, appointmentRef);
+        console.log(success);
 
         //Change button to green
         e.classList.remove("emailButton");
